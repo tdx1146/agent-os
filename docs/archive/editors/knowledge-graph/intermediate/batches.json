@@ -1,0 +1,1377 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 98,
+  "totalBatches": 6,
+  "exportsByPath": {
+    ".understand-anything/.understandignore": [],
+    ".踱步/.last_user_msg": [],
+    "cache_monitor.py": [
+      "load_file",
+      "parse_rounds",
+      "compute_stats",
+      "get_cache_stats"
+    ],
+    "cache_stats_helper.py": [
+      "get_cache_stats",
+      "_parse_rounds_from_file",
+      "_empty_result"
+    ],
+    "edit-web.py": [
+      "_cfg",
+      "_resolve_int",
+      "inject_via_websocket",
+      "_cleanup_lock",
+      "_sandglass_log",
+      "set_active_session_key",
+      "get_active_session_key",
+      "list_all_sessions",
+      "get_session_info",
+      "strip_metadata",
+      "read_session",
+      "fetch_session_via_gateway",
+      "group_into_pairs",
+      "edit_message",
+      "_get_html_page",
+      "_momo_pack",
+      "_momo_status",
+      "_backup_stale_status",
+      "_digestion_status",
+      "_digestion_skill_status",
+      "_digestion_history",
+      "_backlog_status",
+      "_weaponry_toggle_status",
+      "_plugin_health_core",
+      "_last_processing",
+      "_last_injection",
+      "_plugin_health",
+      "_thinking_status",
+      "_system_health",
+      "_secretary_analyze_save",
+      "_load_reminders",
+      "_save_reminders",
+      "_add_reminder",
+      "_secretary_remind",
+      "_lungan_status",
+      "_momo_index_report",
+      "_search_backups",
+      "_momo_auto_save_loop",
+      "_load_night_questions",
+      "_pick_night_question",
+      "_xor_crypt",
+      "_xor_decrypt",
+      "_is_hex_encrypted",
+      "_encrypt_file",
+      "_decrypt_file_text",
+      "_get_encrypt_folder",
+      "_is_folder_encrypted",
+      "_send_pulse",
+      "_is_novel_path",
+      "_log_file_save",
+      "_spawn_subagent_process",
+      "_exec_subagent",
+      "_log_subagent",
+      "_get_subagent_history",
+      "Handler",
+      "_xml_escape",
+      "V6Server",
+      "_promote_pending_assertions"
+    ],
+    "embed-server.mjs": [],
+    "experimental/edit-web_v4.1_subprocess-run.py": [
+      "_cfg",
+      "_resolve_int",
+      "inject_via_websocket",
+      "_cleanup_lock",
+      "_sandglass_log",
+      "set_active_session_key",
+      "get_active_session_key",
+      "list_all_sessions",
+      "get_session_info",
+      "strip_metadata",
+      "read_session",
+      "fetch_session_via_gateway",
+      "group_into_pairs",
+      "edit_message",
+      "_get_html_page",
+      "_momo_pack",
+      "_momo_status",
+      "_backup_stale_status",
+      "_digestion_status",
+      "_digestion_skill_status",
+      "_digestion_history",
+      "_backlog_status",
+      "_weaponry_toggle_status",
+      "_plugin_health_core",
+      "_last_processing",
+      "_last_injection",
+      "_plugin_health",
+      "_thinking_status",
+      "_system_health",
+      "_secretary_analyze_save",
+      "_load_reminders",
+      "_save_reminders",
+      "_add_reminder",
+      "_secretary_remind",
+      "_lungan_status",
+      "_momo_index_report",
+      "_search_backups",
+      "_momo_auto_save_loop",
+      "_load_night_questions",
+      "_pick_night_question",
+      "_xor_crypt",
+      "_xor_decrypt",
+      "_is_hex_encrypted",
+      "_encrypt_file",
+      "_decrypt_file_text",
+      "_get_encrypt_folder",
+      "_is_folder_encrypted",
+      "_send_pulse",
+      "_is_novel_path",
+      "_log_file_save",
+      "_spawn_subagent_process",
+      "_exec_subagent",
+      "_log_subagent",
+      "_get_subagent_history",
+      "Handler",
+      "_xml_escape",
+      "V6Server",
+      "_promote_pending_assertions"
+    ],
+    "experimental/inject-helper.mjs": [],
+    "handlers/__init__.py": [],
+    "handlers/awake_handler.py": [
+      "g",
+      "handle_awake_questions",
+      "handle_awake_list",
+      "handle_awake_save",
+      "handle_awake_send",
+      "handle_tts"
+    ],
+    "handlers/crypto_handler.py": [
+      "g",
+      "handle_encrypt_status",
+      "handle_encrypt",
+      "handle_decrypt",
+      "handle_encrypt_save_file",
+      "handle_pass_password",
+      "handle_encrypt_folders",
+      "handle_try_decrypt_file"
+    ],
+    "handlers/file_handler.py": [
+      "g",
+      "handle_tb_files",
+      "handle_tb_read_file",
+      "handle_tb_save_file",
+      "handle_tb_create_file",
+      "handle_tb_delete_file",
+      "handle_tb_rename_file",
+      "handle_list_files",
+      "handle_browse_dirs"
+    ],
+    "handlers/helper_handler.py": [
+      "g",
+      "handle_memory_file_get",
+      "handle_memory_file_list",
+      "handle_memory_file_save",
+      "handle_secretary_log",
+      "handle_facts_stale_check",
+      "handle_reminders",
+      "handle_read_facts"
+    ],
+    "handlers/inject_handler.py": [
+      "g",
+      "handle_inject",
+      "handle_edit",
+      "handle_clear_lock",
+      "handle_pulse",
+      "handle_spawn_subagent",
+      "handle_auth_subagent",
+      "handle_exec_subagent",
+      "handle_abort",
+      "handle_restart_http"
+    ],
+    "handlers/momo_handler.py": [
+      "g",
+      "handle_momo",
+      "handle_pet_me"
+    ],
+    "handlers/router.py": [
+      "g",
+      "get",
+      "post"
+    ],
+    "handlers/session_handler.py": [
+      "g",
+      "handle_get_session_data",
+      "handle_delete_session",
+      "handle_trim_session",
+      "handle_session_rpc",
+      "handle_list_backups",
+      "handle_restore_backup",
+      "handle_update_last_user_msg",
+      "handle_cleanup_inject_lock"
+    ],
+    "handlers/system_handler.py": [
+      "g",
+      "handle_usage_status",
+      "handle_cache_stats",
+      "handle_quickcheck",
+      "handle_list_subagents",
+      "handle_thinking_toggle",
+      "handle_version_info",
+      "handle_weaponry_toggle"
+    ],
+    "inject-helper.mjs": [],
+    "momo-pack-cli.py": [
+      "pack"
+    ],
+    "reflection_unified.py": [
+      "_load_module",
+      "_get_tp",
+      "_get_tpa",
+      "_get_ttc",
+      "_get_tt",
+      "_calc_confidence",
+      "_embed_text",
+      "_cosine_sim",
+      "_search_all_memory",
+      "_file_diff",
+      "_write_error_log",
+      "_write_backlog",
+      "_format_patches_simple",
+      "_detect_failure_pattern",
+      "_extract_assertions",
+      "reflect",
+      "full_reflect"
+    ],
+    "revisions/20260612_v1_editor-backup.py": [
+      "find_openclaw_home",
+      "read_openclaw_config",
+      "config_get",
+      "discover_session_dir",
+      "_cfg",
+      "inject_via_websocket",
+      "_cleanup_lock",
+      "set_active_session_key",
+      "get_active_session_key",
+      "list_all_sessions",
+      "get_session_info",
+      "strip_metadata",
+      "read_session",
+      "fetch_session_via_gateway",
+      "group_into_pairs",
+      "edit_message",
+      "_get_html_page",
+      "_momo_pack",
+      "_momo_status",
+      "_backup_stale_status",
+      "_digestion_status",
+      "_digestion_skill_status",
+      "_digestion_history",
+      "_backlog_status",
+      "_weaponry_toggle_status",
+      "_plugin_health_core",
+      "_last_processing",
+      "_last_injection",
+      "_plugin_health",
+      "_thinking_status",
+      "_system_health",
+      "_secretary_analyze_save",
+      "_load_reminders",
+      "_save_reminders",
+      "_add_reminder",
+      "_secretary_remind",
+      "_lungan_status",
+      "_momo_index_report",
+      "_search_backups",
+      "_momo_auto_save_loop",
+      "_load_night_questions",
+      "_pick_night_question",
+      "_xor_crypt",
+      "_xor_decrypt",
+      "_is_hex_encrypted",
+      "_encrypt_file",
+      "_decrypt_file_text",
+      "_get_encrypt_folder",
+      "_is_folder_encrypted",
+      "_send_pulse",
+      "_is_novel_path",
+      "_log_file_save",
+      "_spawn_subagent_process",
+      "_exec_subagent",
+      "_log_subagent",
+      "_get_subagent_history",
+      "Handler",
+      "_xml_escape",
+      "V6Server",
+      "_promote_pending_assertions"
+    ],
+    "revisions/20260613_v2_zuixin.py": [
+      "find_openclaw_home",
+      "read_openclaw_config",
+      "config_get",
+      "discover_session_dir",
+      "_cfg",
+      "_resolve_int",
+      "inject_via_websocket",
+      "_cleanup_lock",
+      "set_active_session_key",
+      "get_active_session_key",
+      "list_all_sessions",
+      "get_session_info",
+      "strip_metadata",
+      "read_session",
+      "fetch_session_via_gateway",
+      "group_into_pairs",
+      "edit_message",
+      "_get_html_page",
+      "_momo_pack",
+      "_momo_status",
+      "_backup_stale_status",
+      "_digestion_status",
+      "_digestion_skill_status",
+      "_digestion_history",
+      "_backlog_status",
+      "_weaponry_toggle_status",
+      "_plugin_health_core",
+      "_last_processing",
+      "_last_injection",
+      "_plugin_health",
+      "_thinking_status",
+      "_system_health",
+      "_secretary_analyze_save",
+      "_load_reminders",
+      "_save_reminders",
+      "_add_reminder",
+      "_secretary_remind",
+      "_lungan_status",
+      "_momo_index_report",
+      "_search_backups",
+      "_momo_auto_save_loop",
+      "_load_night_questions",
+      "_pick_night_question",
+      "_xor_crypt",
+      "_xor_decrypt",
+      "_is_hex_encrypted",
+      "_encrypt_file",
+      "_decrypt_file_text",
+      "_get_encrypt_folder",
+      "_is_folder_encrypted",
+      "_send_pulse",
+      "_is_novel_path",
+      "_log_file_save",
+      "_spawn_subagent_process",
+      "_exec_subagent",
+      "_log_subagent",
+      "_get_subagent_history",
+      "Handler",
+      "_xml_escape",
+      "V6Server",
+      "_promote_pending_assertions"
+    ],
+    "revisions/v4.1_20260626_inject-fix/awake.js": [],
+    "revisions/v4.1_20260626_inject-fix/edit-web.py": [
+      "_cfg",
+      "_resolve_int",
+      "inject_via_websocket",
+      "_cleanup_lock",
+      "_sandglass_log",
+      "set_active_session_key",
+      "get_active_session_key",
+      "list_all_sessions",
+      "get_session_info",
+      "strip_metadata",
+      "read_session",
+      "fetch_session_via_gateway",
+      "group_into_pairs",
+      "edit_message",
+      "_get_html_page",
+      "_momo_pack",
+      "_momo_status",
+      "_backup_stale_status",
+      "_digestion_status",
+      "_digestion_skill_status",
+      "_digestion_history",
+      "_backlog_status",
+      "_weaponry_toggle_status",
+      "_plugin_health_core",
+      "_last_processing",
+      "_last_injection",
+      "_plugin_health",
+      "_thinking_status",
+      "_system_health",
+      "_secretary_analyze_save",
+      "_load_reminders",
+      "_save_reminders",
+      "_add_reminder",
+      "_secretary_remind",
+      "_lungan_status",
+      "_momo_index_report",
+      "_search_backups",
+      "_momo_auto_save_loop",
+      "_load_night_questions",
+      "_pick_night_question",
+      "_xor_crypt",
+      "_xor_decrypt",
+      "_is_hex_encrypted",
+      "_encrypt_file",
+      "_decrypt_file_text",
+      "_get_encrypt_folder",
+      "_is_folder_encrypted",
+      "_send_pulse",
+      "_is_novel_path",
+      "_log_file_save",
+      "_spawn_subagent_process",
+      "_exec_subagent",
+      "_log_subagent",
+      "_get_subagent_history",
+      "Handler",
+      "_xml_escape",
+      "V6Server",
+      "_promote_pending_assertions"
+    ],
+    "revisions/v4.1_20260626_inject-fix/editor.js": [],
+    "revisions/v4.1_20260626_inject-fix/inject-helper.mjs": [],
+    "revisions/v4.2_20260628_version-fix/core.js": [],
+    "revisions/v4.2_20260628_version-fix/edit-web.py": [
+      "_cfg",
+      "_resolve_int",
+      "inject_via_websocket",
+      "_cleanup_lock",
+      "_sandglass_log",
+      "set_active_session_key",
+      "get_active_session_key",
+      "list_all_sessions",
+      "get_session_info",
+      "strip_metadata",
+      "read_session",
+      "fetch_session_via_gateway",
+      "group_into_pairs",
+      "edit_message",
+      "_get_html_page",
+      "_momo_pack",
+      "_momo_status",
+      "_backup_stale_status",
+      "_digestion_status",
+      "_digestion_skill_status",
+      "_digestion_history",
+      "_backlog_status",
+      "_weaponry_toggle_status",
+      "_plugin_health_core",
+      "_last_processing",
+      "_last_injection",
+      "_plugin_health",
+      "_thinking_status",
+      "_system_health",
+      "_secretary_analyze_save",
+      "_load_reminders",
+      "_save_reminders",
+      "_add_reminder",
+      "_secretary_remind",
+      "_lungan_status",
+      "_momo_index_report",
+      "_search_backups",
+      "_momo_auto_save_loop",
+      "_load_night_questions",
+      "_pick_night_question",
+      "_xor_crypt",
+      "_xor_decrypt",
+      "_is_hex_encrypted",
+      "_encrypt_file",
+      "_decrypt_file_text",
+      "_get_encrypt_folder",
+      "_is_folder_encrypted",
+      "_send_pulse",
+      "_is_novel_path",
+      "_log_file_save",
+      "_spawn_subagent_process",
+      "_exec_subagent",
+      "_log_subagent",
+      "_get_subagent_history",
+      "Handler",
+      "_xml_escape",
+      "V6Server",
+      "_promote_pending_assertions"
+    ],
+    "revisions/v4.2_20260628_version-fix/router.py": [
+      "g",
+      "get",
+      "post"
+    ],
+    "revisions/v4.2_20260628_version-fix/system_handler.py": [
+      "g",
+      "handle_usage_status",
+      "handle_cache_stats",
+      "handle_quickcheck",
+      "handle_list_subagents",
+      "handle_thinking_toggle",
+      "handle_version_info",
+      "handle_weaponry_toggle"
+    ],
+    "revisions/v4.2_20260628_version-fix/version.py": [],
+    "sandglass_log_wrapper.py": [
+      "log"
+    ],
+    "searxng_mcp.py": [
+      "search_web",
+      "handle_request"
+    ],
+    "session_safety.py": [
+      "pre_yield_save",
+      "check_continuity",
+      "recover_context"
+    ],
+    "static/js/app.js": [],
+    "static/js/awake.js": [],
+    "static/js/cache-monitor.js": [],
+    "static/js/components.js": [],
+    "static/js/core.js": [],
+    "static/js/dashboard.js": [],
+    "static/js/editor.js": [],
+    "static/js/file-browser.js": [],
+    "static/js/momo.js": [],
+    "static/js/render.js": [],
+    "static/js/subagent.js": [],
+    "task_dispatcher.py": [
+      "dispatch",
+      "_suggest_roles"
+    ],
+    "think_patches.py": [
+      "generate_patches",
+      "_patch_jump",
+      "_patch_circle",
+      "_patch_unverified",
+      "_patch_contradiction",
+      "_patch_framework",
+      "_patch_generic"
+    ],
+    "think_patterns.py": [
+      "ReasoningNode",
+      "ReasoningChain",
+      "parse_to_chain",
+      "_classify_sentence",
+      "_link_chain",
+      "_char_set_similarity",
+      "check_thinking"
+    ],
+    "think_test.py": [
+      "_replace_antonyms",
+      "_negate_sentence",
+      "_extract_claims",
+      "_has_conditional",
+      "_replace_relation",
+      "_extract_entities",
+      "_test_premise_inversion",
+      "_test_context_migration",
+      "_test_conflict_detection",
+      "test_assertion",
+      "main"
+    ],
+    "think_type_check.py": [
+      "_compile",
+      "_split_assertions",
+      "_classify_assertion",
+      "_detect_mismatch",
+      "check_types",
+      "pretty_print"
+    ],
+    "utils/__init__.py": [],
+    "utils/config.py": [
+      "find_openclaw_home",
+      "read_openclaw_config",
+      "config_get",
+      "discover_session_dir",
+      "init_paths",
+      "init_light_smoke_paths",
+      "path",
+      "set_path"
+    ],
+    "utils/crypto.py": [
+      "xor_crypt",
+      "xor_decrypt",
+      "is_hex_encrypted",
+      "encrypt_file",
+      "decrypt_file_text",
+      "get_encrypt_folder",
+      "is_folder_encrypted"
+    ],
+    "utils/inject.py": [
+      "inject_via_websocket",
+      "cleanup_lock",
+      "get_lock"
+    ],
+    "utils/momo.py": [
+      "momo_pack",
+      "momo_status",
+      "momo_index_report",
+      "start_momo_auto_save"
+    ],
+    "utils/secretary.py": [
+      "reminders_file",
+      "load_reminders",
+      "save_reminders",
+      "add_reminder",
+      "secretary_remind",
+      "secretary_analyze_save"
+    ],
+    "utils/session.py": [
+      "discover_session_dir",
+      "get_session_info",
+      "read_session",
+      "group_into_pairs",
+      "edit_message"
+    ],
+    "utils/tb_handler.py": [
+      "list_folder_files",
+      "list_subdirs",
+      "browse_root_dirs",
+      "read_text_file",
+      "read_docx_text",
+      "save_file",
+      "log_save_event",
+      "is_novel_path",
+      "log_file_change",
+      "create_file_entry",
+      "delete_file_entry",
+      "rename_file_entry"
+    ],
+    "utils/version.py": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "AUDIT_REPORT.md",
+          "language": "markdown",
+          "sizeLines": 603,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "FRONTEND_AUDIT.md",
+          "language": "markdown",
+          "sizeLines": 315,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 168,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "VERSION_COMPARISON.md",
+          "language": "markdown",
+          "sizeLines": 307,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "editor-config.json",
+          "language": "json",
+          "sizeLines": 19,
+          "fileCategory": "config"
+        },
+        {
+          "path": "health-check.sh",
+          "language": "shell",
+          "sizeLines": 17,
+          "fileCategory": "script"
+        },
+        {
+          "path": "health-loop.sh",
+          "language": "shell",
+          "sizeLines": 21,
+          "fileCategory": "script"
+        },
+        {
+          "path": "start-clean.sh",
+          "language": "shell",
+          "sizeLines": 38,
+          "fileCategory": "script"
+        },
+        {
+          "path": "start-health-loop.sh",
+          "language": "shell",
+          "sizeLines": 4,
+          "fileCategory": "script"
+        },
+        {
+          "path": "watchdog.sh",
+          "language": "shell",
+          "sizeLines": 10,
+          "fileCategory": "script"
+        }
+      ],
+      "batchImportData": {
+        "AUDIT_REPORT.md": [],
+        "FRONTEND_AUDIT.md": [],
+        "README.md": [],
+        "VERSION_COMPARISON.md": [],
+        "editor-config.json": [],
+        "health-check.sh": [],
+        "health-loop.sh": [],
+        "start-clean.sh": [],
+        "start-health-loop.sh": [],
+        "watchdog.sh": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+          "language": "markdown",
+          "sizeLines": 620,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/API_KEYS_TEST.md",
+          "language": "markdown",
+          "sizeLines": 74,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md",
+          "language": "markdown",
+          "sizeLines": 460,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+          "language": "markdown",
+          "sizeLines": 341,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/EDITOR_CRASH_DIAG.md",
+          "language": "markdown",
+          "sizeLines": 200,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/EDITOR_DELIVERY_BUG.md",
+          "language": "markdown",
+          "sizeLines": 381,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/EDITOR_SLOW_LOAD.md",
+          "language": "markdown",
+          "sizeLines": 181,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/EMBEDDING_CACHE_ANALYSIS.md",
+          "language": "markdown",
+          "sizeLines": 455,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/FIX_TITLE_AND_VERSION_RULES.md",
+          "language": "markdown",
+          "sizeLines": 33,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/SA_MCP_DESIGN.md",
+          "language": "markdown",
+          "sizeLines": 248,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/SISTER_RECON.md",
+          "language": "markdown",
+          "sizeLines": 235,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/SKILL_V2_GAP.md",
+          "language": "markdown",
+          "sizeLines": 242,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+          "language": "markdown",
+          "sizeLines": 711,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/THREE_LAYER_FEASIBILITY.md",
+          "language": "markdown",
+          "sizeLines": 559,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/TOOL_ERROR_AUDIT.md",
+          "language": "markdown",
+          "sizeLines": 369,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/TTS_FIX.md",
+          "language": "markdown",
+          "sizeLines": 103,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/VERSION_AUDIT_20260627.md",
+          "language": "markdown",
+          "sizeLines": 170,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/VERSION_AUDIT_20260628.md",
+          "language": "markdown",
+          "sizeLines": 189,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/VERSION_MANAGEMENT.md",
+          "language": "markdown",
+          "sizeLines": 27,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "deploy-notes/dandan-request-20260628-decomposition.md",
+          "language": "markdown",
+          "sizeLines": 183,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "deploy-notes/AGENT_OS_GAP_ANALYSIS.md": [],
+        "deploy-notes/API_KEYS_TEST.md": [],
+        "deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md": [],
+        "deploy-notes/CODE_REVIEW_FROM_GRAPH.md": [],
+        "deploy-notes/EDITOR_CRASH_DIAG.md": [],
+        "deploy-notes/EDITOR_DELIVERY_BUG.md": [],
+        "deploy-notes/EDITOR_SLOW_LOAD.md": [],
+        "deploy-notes/EMBEDDING_CACHE_ANALYSIS.md": [],
+        "deploy-notes/FIX_TITLE_AND_VERSION_RULES.md": [],
+        "deploy-notes/SA_MCP_DESIGN.md": [],
+        "deploy-notes/SISTER_RECON.md": [],
+        "deploy-notes/SKILL_V2_GAP.md": [],
+        "deploy-notes/SYSTEM_ARCHITECTURE_MAP.md": [],
+        "deploy-notes/THREE_LAYER_FEASIBILITY.md": [],
+        "deploy-notes/TOOL_ERROR_AUDIT.md": [],
+        "deploy-notes/TTS_FIX.md": [],
+        "deploy-notes/VERSION_AUDIT_20260627.md": [],
+        "deploy-notes/VERSION_AUDIT_20260628.md": [],
+        "deploy-notes/VERSION_MANAGEMENT.md": [],
+        "deploy-notes/dandan-request-20260628-decomposition.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "revisions/fix-delivery-bug-20260626.md",
+          "language": "markdown",
+          "sizeLines": 176,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "revisions/fix-watchdog-20260626.md",
+          "language": "markdown",
+          "sizeLines": 121,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "revisions/revert-guide.md",
+          "language": "markdown",
+          "sizeLines": 41,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "revisions/fix-delivery-bug-20260626.md": [],
+        "revisions/fix-watchdog-20260626.md": [],
+        "revisions/revert-guide.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": ".understand-anything/.understandignore",
+          "language": "unknown",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".understand-anything/intermediate/scan-result-temp.json",
+          "language": "json",
+          "sizeLines": 1231,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".踱步/.last_user_msg",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "cache_monitor.py",
+          "language": "python",
+          "sizeLines": 215,
+          "fileCategory": "code"
+        },
+        {
+          "path": "cache_stats_helper.py",
+          "language": "python",
+          "sizeLines": 162,
+          "fileCategory": "code"
+        },
+        {
+          "path": "edit-web.py",
+          "language": "python",
+          "sizeLines": 1935,
+          "fileCategory": "code"
+        },
+        {
+          "path": "embed-server.mjs",
+          "language": "javascript",
+          "sizeLines": 108,
+          "fileCategory": "code"
+        },
+        {
+          "path": "experimental/edit-web_v4.1_subprocess-run.py",
+          "language": "python",
+          "sizeLines": 1935,
+          "fileCategory": "code"
+        },
+        {
+          "path": "experimental/inject-helper.mjs",
+          "language": "javascript",
+          "sizeLines": 359,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/__init__.py",
+          "language": "python",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/awake_handler.py",
+          "language": "python",
+          "sizeLines": 121,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/crypto_handler.py",
+          "language": "python",
+          "sizeLines": 343,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/file_handler.py",
+          "language": "python",
+          "sizeLines": 213,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/helper_handler.py",
+          "language": "python",
+          "sizeLines": 211,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/inject_handler.py",
+          "language": "python",
+          "sizeLines": 191,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/momo_handler.py",
+          "language": "python",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/router.py",
+          "language": "python",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/session_handler.py",
+          "language": "python",
+          "sizeLines": 317,
+          "fileCategory": "code"
+        },
+        {
+          "path": "handlers/system_handler.py",
+          "language": "python",
+          "sizeLines": 238,
+          "fileCategory": "code"
+        },
+        {
+          "path": "inject-helper.mjs",
+          "language": "javascript",
+          "sizeLines": 359,
+          "fileCategory": "code"
+        },
+        {
+          "path": "momo-pack-cli.py",
+          "language": "python",
+          "sizeLines": 236,
+          "fileCategory": "code"
+        },
+        {
+          "path": "reflection_unified.py",
+          "language": "python",
+          "sizeLines": 844,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/20260612_v1_editor-backup.py",
+          "language": "python",
+          "sizeLines": 3772,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/20260613_v2_zuixin.py",
+          "language": "python",
+          "sizeLines": 3877,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.1_20260626_inject-fix/awake.js",
+          "language": "javascript",
+          "sizeLines": 369,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".understand-anything/.understandignore": [],
+        ".understand-anything/intermediate/scan-result-temp.json": [],
+        ".踱步/.last_user_msg": [],
+        "cache_monitor.py": [],
+        "cache_stats_helper.py": [],
+        "edit-web.py": [],
+        "embed-server.mjs": [],
+        "experimental/edit-web_v4.1_subprocess-run.py": [],
+        "experimental/inject-helper.mjs": [],
+        "handlers/__init__.py": [],
+        "handlers/awake_handler.py": [],
+        "handlers/crypto_handler.py": [],
+        "handlers/file_handler.py": [],
+        "handlers/helper_handler.py": [],
+        "handlers/inject_handler.py": [],
+        "handlers/momo_handler.py": [],
+        "handlers/router.py": [],
+        "handlers/session_handler.py": [],
+        "handlers/system_handler.py": [],
+        "inject-helper.mjs": [],
+        "momo-pack-cli.py": [],
+        "reflection_unified.py": [],
+        "revisions/20260612_v1_editor-backup.py": [],
+        "revisions/20260613_v2_zuixin.py": [],
+        "revisions/v4.1_20260626_inject-fix/awake.js": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "revisions/v4.1_20260626_inject-fix/edit-web.py",
+          "language": "python",
+          "sizeLines": 1935,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.1_20260626_inject-fix/editor.js",
+          "language": "javascript",
+          "sizeLines": 232,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.1_20260626_inject-fix/inject-helper.mjs",
+          "language": "javascript",
+          "sizeLines": 359,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.1_20260626_inject-fix/start-clean.sh",
+          "language": "shell",
+          "sizeLines": 38,
+          "fileCategory": "script"
+        },
+        {
+          "path": "revisions/v4.2_20260628_version-fix/core.js",
+          "language": "javascript",
+          "sizeLines": 311,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.2_20260628_version-fix/edit-web.py",
+          "language": "python",
+          "sizeLines": 1935,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.2_20260628_version-fix/index.html",
+          "language": "html",
+          "sizeLines": 246,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "revisions/v4.2_20260628_version-fix/router.py",
+          "language": "python",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.2_20260628_version-fix/system_handler.py",
+          "language": "python",
+          "sizeLines": 238,
+          "fileCategory": "code"
+        },
+        {
+          "path": "revisions/v4.2_20260628_version-fix/version.py",
+          "language": "python",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "sandglass_log_wrapper.py",
+          "language": "python",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "searxng_mcp.py",
+          "language": "python",
+          "sizeLines": 90,
+          "fileCategory": "code"
+        },
+        {
+          "path": "session_safety.py",
+          "language": "python",
+          "sizeLines": 282,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/css/styles.css",
+          "language": "css",
+          "sizeLines": 336,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "static/index.html",
+          "language": "html",
+          "sizeLines": 246,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "static/js/app.js",
+          "language": "javascript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/awake.js",
+          "language": "javascript",
+          "sizeLines": 369,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/cache-monitor.js",
+          "language": "javascript",
+          "sizeLines": 139,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/components.js",
+          "language": "javascript",
+          "sizeLines": 274,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/core.js",
+          "language": "javascript",
+          "sizeLines": 311,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/dashboard.js",
+          "language": "javascript",
+          "sizeLines": 34,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/editor.js",
+          "language": "javascript",
+          "sizeLines": 232,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/file-browser.js",
+          "language": "javascript",
+          "sizeLines": 473,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/momo.js",
+          "language": "javascript",
+          "sizeLines": 338,
+          "fileCategory": "code"
+        },
+        {
+          "path": "static/js/render.js",
+          "language": "javascript",
+          "sizeLines": 656,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "revisions/v4.1_20260626_inject-fix/edit-web.py": [],
+        "revisions/v4.1_20260626_inject-fix/editor.js": [],
+        "revisions/v4.1_20260626_inject-fix/inject-helper.mjs": [],
+        "revisions/v4.1_20260626_inject-fix/start-clean.sh": [],
+        "revisions/v4.2_20260628_version-fix/core.js": [],
+        "revisions/v4.2_20260628_version-fix/edit-web.py": [],
+        "revisions/v4.2_20260628_version-fix/index.html": [],
+        "revisions/v4.2_20260628_version-fix/router.py": [],
+        "revisions/v4.2_20260628_version-fix/system_handler.py": [],
+        "revisions/v4.2_20260628_version-fix/version.py": [],
+        "sandglass_log_wrapper.py": [],
+        "searxng_mcp.py": [],
+        "session_safety.py": [],
+        "static/css/styles.css": [],
+        "static/index.html": [],
+        "static/js/app.js": [],
+        "static/js/awake.js": [],
+        "static/js/cache-monitor.js": [],
+        "static/js/components.js": [],
+        "static/js/core.js": [],
+        "static/js/dashboard.js": [],
+        "static/js/editor.js": [],
+        "static/js/file-browser.js": [],
+        "static/js/momo.js": [],
+        "static/js/render.js": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": "static/js/subagent.js",
+          "language": "javascript",
+          "sizeLines": 149,
+          "fileCategory": "code"
+        },
+        {
+          "path": "task_dispatcher.py",
+          "language": "python",
+          "sizeLines": 150,
+          "fileCategory": "code"
+        },
+        {
+          "path": "think_patches.py",
+          "language": "python",
+          "sizeLines": 136,
+          "fileCategory": "code"
+        },
+        {
+          "path": "think_patterns.py",
+          "language": "python",
+          "sizeLines": 664,
+          "fileCategory": "code"
+        },
+        {
+          "path": "think_test.py",
+          "language": "python",
+          "sizeLines": 462,
+          "fileCategory": "code"
+        },
+        {
+          "path": "think_type_check.py",
+          "language": "python",
+          "sizeLines": 266,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/__init__.py",
+          "language": "python",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/config.py",
+          "language": "python",
+          "sizeLines": 185,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/crypto.py",
+          "language": "python",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/inject.py",
+          "language": "python",
+          "sizeLines": 36,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/momo.py",
+          "language": "python",
+          "sizeLines": 222,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/secretary.py",
+          "language": "python",
+          "sizeLines": 87,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/session.py",
+          "language": "python",
+          "sizeLines": 138,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/tb_handler.py",
+          "language": "python",
+          "sizeLines": 216,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/version.py",
+          "language": "python",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "static/js/subagent.js": [],
+        "task_dispatcher.py": [],
+        "think_patches.py": [],
+        "think_patterns.py": [],
+        "think_test.py": [],
+        "think_type_check.py": [],
+        "utils/__init__.py": [],
+        "utils/config.py": [],
+        "utils/crypto.py": [],
+        "utils/inject.py": [],
+        "utils/momo.py": [],
+        "utils/secretary.py": [],
+        "utils/session.py": [],
+        "utils/tb_handler.py": [],
+        "utils/version.py": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

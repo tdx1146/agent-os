@@ -1,0 +1,209 @@
+{
+  "gateway": {
+    "mode": "local",
+    "port": 15625,
+    "bind": "loopback",
+    "trustedProxies": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "auth": {
+      "token": "6986efbfa3824a8f8782699fad068c38"
+    },
+    "tools": {
+      "allow": [
+        "sessions_send"
+      ]
+    },
+    "controlUi": {
+      "enabled": true,
+      "basePath": "/app/trim-openclaw/default",
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true,
+      "allowedOrigins": [
+        "*"
+      ]
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/vol1/@apphome/trim.openclaw/data/workspace",
+      "models": {
+        "deepseek/deepseek-v4-flash": {},
+        "deepseek/deepseek-v4-pro": {}
+      },
+      "imageModel": "deepseek/deepseek-v4-flash",
+      "heartbeat": {
+        "every": "0m"
+      },
+      "compaction": {
+        "memoryFlush": {
+          "enabled": true,
+          "softThresholdTokens": 4000,
+          "prompt": "压缩前记忆沉淀：请将本轮的关键信息结构化为以下三行写入 memory/YYYY-MM-DD.md（追加模式）：\n\n📁 本轮文件变更：\n🌫️ 本轮轮感：\n🔗 本轮关键概念：\n\n写入后立即用文件读取验证——确认追加的内容已落盘。若验证失败则重试一次。确认成功后回复 NO_REPLY。",
+          "systemPrompt": "你现在在执行压缩前的记忆沉淀任务。写入 memory/YYYY-MM-DD.md（追加模式），写入后立即读取同一文件验证追加成功。确认后以 NO_REPLY 开头回复。不要分析、不要展开。"
+        }
+      },
+      "memorySearch": {
+        "enabled": true,
+        "provider": "openai-compatible",
+        "model": "bge-small-zh",
+        "remote": {
+          "baseUrl": "http://127.0.0.1:11435/v1",
+          "apiKey": ""
+        }
+      }
+    }
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "session-memory": {
+          "enabled": true
+        },
+        "command-logger": {
+          "enabled": true
+        },
+        "pre-compact-memory": {
+          "enabled": true
+        },
+        "bootstrap-extra-files": {
+          "enabled": true,
+          "paths": [
+            "AGENTS.md",
+            "SOUL.md",
+            "TOOLS.md",
+            "IDENTITY.md",
+            "USER.md"
+          ]
+        }
+      }
+    }
+  },
+  "session": {
+    "reset": {
+      "mode": "idle",
+      "idleMinutes": 10080
+    },
+    "resetByType": {
+      "direct": {
+        "mode": "idle",
+        "idleMinutes": 10080
+      },
+      "group": {
+        "mode": "idle",
+        "idleMinutes": 10080
+      },
+      "thread": {
+        "mode": "idle",
+        "idleMinutes": 10080
+      }
+    }
+  },
+  "update": {
+    "checkOnStart": false
+  },
+  "cli": {
+    "banner": {
+      "taglineMode": "off"
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "deepseek": {
+        "api": "openai-completions",
+        "baseUrl": "https://api.deepseek.com",
+        "apiKey": "sk-f345bded2ccd4f468f059b53336a832c",
+        "models": [
+          {
+            "id": "deepseek-v4-flash",
+            "name": "DeepSeek V4 Flash",
+            "input": [
+              "text",
+              "image"
+            ]
+          },
+          {
+            "id": "deepseek-v4-pro",
+            "name": "DeepSeek V4 Pro",
+            "input": [
+              "text",
+              "image"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "plugins": {
+    "enabled": true,
+    "allow": [
+      "deepseek",
+      "llama-cpp",
+      "memory-core"
+    ],
+    "entries": {
+      "deepseek": {
+        "enabled": true
+      },
+      "memory-core": {
+        "enabled": true,
+        "config": {
+          "dreaming": {
+            "enabled": true
+          }
+        }
+      },
+      "llama-cpp": {
+        "enabled": true
+      }
+    }
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.6.6",
+    "lastTouchedAt": "2026-06-13T10:58:34.121Z"
+  },
+  "skills": {
+    "entries": {
+      "addy-api-and-interface-design": {
+        "enabled": true
+      },
+      "addy-browser-testing": {
+        "enabled": true
+      },
+      "addy-ci-cd-and-automation": {
+        "enabled": true
+      },
+      "addy-code-review-and-quality": {
+        "enabled": true
+      },
+      "addy-code-simplification": {
+        "enabled": true
+      },
+      "addy-context-engineering": {
+        "enabled": true
+      }
+    }
+  },
+  "mcp": {
+    "servers": {
+      "dandan": {
+        "command": "node",
+        "args": [
+          "/vol1/@apphome/trim.openclaw/data/workspace/scripts/dandan-mcp-server.mjs"
+        ]
+      }
+    }
+  },
+  "tools": {
+    "sandbox": {
+      "tools": {
+        "alsoAllow": [
+          "bundle-mcp"
+        ]
+      }
+    }
+  }
+}

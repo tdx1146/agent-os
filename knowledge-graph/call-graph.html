@@ -1,0 +1,87 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Agent OS 知识图谱</title>
+<style>
+body{margin:0;background:#0d1117;color:#c9d1d9;font-family:system-ui}
+h1{text-align:center;color:#58a6ff;padding:20px 0 0;font-size:20px}
+.sub{text-align:center;color:#8b949e;font-size:12px;margin:4px 0 20px}
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:0 20px 20px;max-width:1000px;margin:auto}
+.card{border:1px solid #30363d;border-radius:8px;padding:12px;width:200px;background:#161b22}
+.card h2{margin:0 0 8px;font-size:14px;color:#f0883e}
+.card .fl{font-size:11px;color:#8b949e;line-height:1.6}
+.dep{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px 20px;margin:0 20px 20px;max-width:800px;margin-left:auto;margin-right:auto}
+.dep h3{font-size:12px;color:#58a6ff;margin:0 0 8px}
+.dep li{font-size:11px;color:#8b949e;line-height:1.8;list-style:none}
+.dep li:before{content:"→ ";color:#58a6ff}
+</style></head><body>
+<h1>🧠 Agent OS 全系统知识图谱</h1>
+<div class="sub">2026-07-15 19:03 &middot; 7 组件</div>
+<div class="grid">
+<div class="card"><h2>📦 kernel</h2><div class="fl">
+📄 purpose_manager.py<br/>
+</div></div>
+<div class="card"><h2>📦 iso-sand</h2><div class="fl">
+📄 iso_logger.py<br/>
+📄 essence_distiller.py<br/>
+📄 facts_manager.py<br/>
+📄 ci_verify.py<br/>
+📄 verify_claim.py<br/>
+📄 bridge_essence_to_facts.py<br/>
+··· 共 12 文件
+</div></div>
+<div class="card"><h2>📦 sandglass</h2><div class="fl">
+📄 decision_particles.py<br/>
+📄 discipline.py<br/>
+📄 emotion_l3.py<br/>
+📄 emotion_vocab.py<br/>
+📄 heartbeat.py<br/>
+📄 l0_buffer.py<br/>
+··· 共 36 文件
+</div></div>
+<div class="card"><h2>📦 monument</h2><div class="fl">
+📄 monument_v1.py<br/>
+📄 monument_dandan_v1.py<br/>
+📄 monument_萌萌_v6.py<br/>
+📄 monument_负分_agent-main_20260709_2159.py<br/>
+</div></div>
+<div class="card"><h2>📦 editor</h2><div class="fl">
+📄 cache_stats_helper.py<br/>
+📄 inject-helper.mjs<br/>
+📄 momo-pack-cli.py<br/>
+📄 embed-server.mjs<br/>
+📄 sandglass_log_wrapper.py<br/>
+📄 reflection_unified.py<br/>
+··· 共 77 文件
+</div></div>
+<div class="card"><h2>📦 editor-hdl</h2><div class="fl">
+📄 crypto_handler.py<br/>
+📄 file_handler.py<br/>
+📄 helper_handler.py<br/>
+📄 inject_handler.py<br/>
+📄 momo_handler.py<br/>
+📄 router.py<br/>
+··· 共 15 文件
+</div></div>
+<div class="card"><h2>📦 editor-js</h2><div class="fl">
+📄 app.js<br/>
+📄 awake.js<br/>
+📄 cache-monitor.js<br/>
+📄 components.js<br/>
+📄 core.js<br/>
+📄 dashboard.js<br/>
+··· 共 15 文件
+</div></div>
+</div>
+<div class="dep"><h3>🔗 跨组件引用</h3>
+<ul>
+<li>editor → kernel：purpose_handler 读 PURPOSE.md + VERSION</li>
+<li>editor → kernel：snapshot_handler 读 snapshots/</li>
+<li>editor → iso-sand：event_bus_handler 读 operation_log</li>
+<li>editor → monument：monument_handler 读 INDEX.md</li>
+<li>iso-sand → kernel：verify_daemon 读 PURPOSE.md</li>
+<li>iso-sand → editor：task_scheduler 替代 auto-save</li>
+<li>editor → kernel：post-commit hook 触发快照</li>
+</ul></div>
+<div class="dep" style="color:#8b949e;font-size:12px;line-height:1.8">
+<b>评估：</b>kernel 是核心枢纽，sandglass 待接入。<br/>
+7 组件 · 9 跨组件引用 · 无循环依赖 ✅
+</div></body></html>

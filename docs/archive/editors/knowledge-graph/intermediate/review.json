@@ -1,0 +1,23 @@
+{
+  "issues": [],
+  "warnings": [
+    "1 file-level nodes not in any layer"
+  ],
+  "stats": {
+    "totalNodes": 801,
+    "totalEdges": 790,
+    "totalLayers": 9,
+    "tourSteps": 11,
+    "nodeTypes": {
+      "document": 27,
+      "config": 2,
+      "file": 69,
+      "function": 689,
+      "class": 14
+    },
+    "edgeTypes": {
+      "contains": 703,
+      "imports": 87
+    }
+  }
+}

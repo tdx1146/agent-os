@@ -1,0 +1,22 @@
+{
+  "_说明": "轻如烟编辑器路径配置。换机器时只改这个文件，不碰代码。",
+  "_说明2": "所有路径可选，留 null 则按 环境变量 → 自动检测 的顺序尝试。",
+
+  "LIGHT_SMOKE_DIR": null,
+  "ALL_AUTO_DIR": null,
+  "BROWSE_ROOT": null,
+  "EDITOR_PORT": null,
+  "HTTPS_PORT": null,
+  "HTTPS_CERT": null,
+  "HTTPS_KEY": null,
+  "GATEWAY_HOST": null,
+  "GATEWAY_PORT": null,
+  "GATEWAY_TOKEN": null,
+  "OPENCLAW_HOME": null,
+  "DATA_DIR": null,
+  "IDENTITY_PATH": null,
+  "WORKSPACE": null,
+  "INJECT_LOCK_DIR": null,
+  "BACKUP_DIR": null,
+  "MOMO_DIR": null
+}

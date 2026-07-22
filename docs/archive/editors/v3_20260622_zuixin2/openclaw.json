@@ -1,0 +1,380 @@
+{
+  "gateway": {
+    "mode": "local",
+    "port": 15625,
+    "bind": "loopback",
+    "trustedProxies": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "auth": {
+      "token": "6986efbfa3824a8f8782699fad068c38"
+    },
+    "tools": {
+      "allow": [
+        "sessions_send"
+      ]
+    },
+    "controlUi": {
+      "enabled": true,
+      "basePath": "/app/trim-openclaw/default",
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true,
+      "allowedOrigins": [
+        "*"
+      ]
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/vol1/@apphome/trim.openclaw/data/workspace",
+      "models": {
+        "deepseek/deepseek-v4-flash": {},
+        "deepseek/deepseek-v4-pro": {},
+        "智谱/glm-5.2": {}
+      },
+      "imageModel": "deepseek/deepseek-v4-flash",
+      "heartbeat": {
+        "every": "0m"
+      },
+      "compaction": {
+        "memoryFlush": {
+          "enabled": true,
+          "softThresholdTokens": 4000,
+          "prompt": "压缩前记忆沉淀：请将本轮的关键信息结构化为以下三行写入 memory/YYYY-MM-DD.md（追加模式）：\n\n📁 本轮文件变更：\n🌫️ 本轮轮感：\n🔗 本轮关键概念：\n\n写入后立即用文件读取验证——确认追加的内容已落盘。若验证失败则重试一次。确认成功后回复 NO_REPLY。",
+          "systemPrompt": "你现在在执行压缩前的记忆沉淀任务。写入 memory/YYYY-MM-DD.md（追加模式），写入后立即读取同一文件验证追加成功。确认后以 NO_REPLY 开头回复。不要分析、不要展开。"
+        }
+      },
+      "memorySearch": {
+        "enabled": false
+      }
+    }
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "session-memory": {
+          "enabled": true
+        },
+        "command-logger": {
+          "enabled": true
+        },
+        "pre-compact-memory": {
+          "enabled": true
+        },
+        "bootstrap-extra-files": {
+          "enabled": true,
+          "paths": [
+            "AGENTS.md",
+            "SOUL.md",
+            "TOOLS.md",
+            "IDENTITY.md",
+            "USER.md"
+          ]
+        }
+      }
+    }
+  },
+  "session": {
+    "reset": {
+      "mode": "idle",
+      "idleMinutes": 10080
+    },
+    "resetByType": {
+      "direct": {
+        "mode": "idle",
+        "idleMinutes": 10080
+      },
+      "group": {
+        "mode": "idle",
+        "idleMinutes": 10080
+      },
+      "thread": {
+        "mode": "idle",
+        "idleMinutes": 10080
+      }
+    }
+  },
+  "update": {
+    "checkOnStart": false
+  },
+  "cli": {
+    "banner": {
+      "taglineMode": "off"
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "deepseek": {
+        "api": "openai-completions",
+        "baseUrl": "https://api.deepseek.com",
+        "apiKey": "sk-f345bded2ccd4f468f059b53336a832c",
+        "models": [
+          {
+            "id": "deepseek-v4-flash",
+            "name": "DeepSeek V4 Flash",
+            "input": [
+              "text",
+              "image"
+            ],
+            "contextWindow": 1000000,
+            "maxTokens": 384000,
+            "reasoning": true,
+            "cost": {
+              "input": 0.14,
+              "output": 0.28,
+              "cacheRead": 0.003,
+              "cacheWrite": 0
+            },
+            "compat": {
+              "supportsPromptCacheKey": true,
+              "supportsUsageInStreaming": true,
+              "supportsReasoningEffort": true,
+              "maxTokensField": "max_tokens"
+            }
+          },
+          {
+            "id": "deepseek-v4-pro",
+            "name": "DeepSeek V4 Pro",
+            "input": [
+              "text",
+              "image"
+            ],
+            "contextWindow": 1000000,
+            "maxTokens": 384000,
+            "reasoning": true,
+            "cost": {
+              "input": 0.41,
+              "output": 0.82,
+              "cacheRead": 0.003,
+              "cacheWrite": 0
+            },
+            "compat": {
+              "supportsPromptCacheKey": true,
+              "supportsUsageInStreaming": true,
+              "supportsReasoningEffort": true,
+              "maxTokensField": "max_tokens"
+            }
+          }
+        ]
+      },
+      "智谱": {
+        "api": "openai-completions",
+        "baseUrl": "https://open.bigmodel.cn/api/paas/v4/",
+        "apiKey": "c19d59bf8d60469e94732a186b99d705.XplhOQ77QJ4BeFuG",
+        "models": [
+          {
+            "id": "glm-5.2",
+            "name": "glm-5.2",
+            "input": [
+              "text"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "plugins": {
+    "enabled": true,
+    "allow": [
+      "deepseek",
+      "llama-cpp",
+      "memory-core",
+      "device-pair"
+    ],
+    "entries": {
+      "deepseek": {
+        "enabled": true
+      },
+      "memory-core": {
+        "enabled": true,
+        "config": {
+          "dreaming": {
+            "enabled": true
+          }
+        }
+      },
+      "llama-cpp": {
+        "enabled": true
+      }
+    },
+    "bundledDiscovery": "compat"
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.6.9",
+    "lastTouchedAt": "2026-06-22T12:28:28.164Z"
+  },
+  "skills": {
+    "entries": {
+      "addy-api-and-interface-design": {
+        "enabled": false
+      },
+      "addy-browser-testing": {
+        "enabled": false
+      },
+      "addy-ci-cd-and-automation": {
+        "enabled": false
+      },
+      "addy-code-review-and-quality": {
+        "enabled": false
+      },
+      "addy-code-simplification": {
+        "enabled": false
+      },
+      "addy-context-engineering": {
+        "enabled": false
+      },
+      "addy-using-agent-skills": {
+        "enabled": false
+      },
+      "addy-test-driven-development": {
+        "enabled": false
+      },
+      "addy-spec-driven-development": {
+        "enabled": false
+      },
+      "addy-source-driven-development": {
+        "enabled": false
+      },
+      "addy-shipping-and-launch": {
+        "enabled": false
+      },
+      "addy-planning-and-task-breakdown": {
+        "enabled": false
+      },
+      "addy-performance-optimization": {
+        "enabled": false
+      },
+      "addy-observability-and-instrumentation": {
+        "enabled": false
+      },
+      "addy-interview-me": {
+        "enabled": false
+      },
+      "addy-incremental-implementation": {
+        "enabled": false
+      },
+      "addy-idea-refine": {
+        "enabled": false
+      },
+      "addy-git-workflow-and-versioning": {
+        "enabled": false
+      },
+      "addy-frontend-ui-engineering": {
+        "enabled": false
+      },
+      "addy-doubt-driven-development": {
+        "enabled": false
+      },
+      "addy-documentation-and-adrs": {
+        "enabled": false
+      },
+      "addy-deprecation-and-migration": {
+        "enabled": false
+      },
+      "addy-debugging-and-error-recovery": {
+        "enabled": false
+      },
+      "code-safe-workflow": {
+        "enabled": false
+      },
+      "config-patch-safety": {
+        "enabled": false
+      },
+      "browser-testing-with-devtools": {
+        "enabled": false
+      },
+      "contemplation-engine": {
+        "enabled": false
+      },
+      "cross-machine-sop": {
+        "enabled": true
+      },
+      "cut-survival": {
+        "enabled": false
+      },
+      "dandan": {
+        "enabled": false
+      },
+      "dandan-mcp-server-deploy": {
+        "enabled": true
+      },
+      "edit-web-restart": {
+        "enabled": false
+      },
+      "hermes-pty-repair": {
+        "enabled": false
+      },
+      "inject-helper-channel": {
+        "enabled": true
+      },
+      "security-hardening": {
+        "enabled": false
+      },
+      "system-panorama": {
+        "enabled": false
+      },
+      "subagent-dispatch-rules": {
+        "enabled": false
+      }
+    }
+  },
+  "mcp": {
+    "servers": {
+      "dandan": {
+        "command": "node",
+        "args": [
+          "/vol1/@apphome/trim.openclaw/data/workspace/scripts/dandan-mcp-server.mjs"
+        ]
+      },
+      "sandglass": {
+        "command": "python3",
+        "args": [
+          "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass_source/sandglass_mcp.py"
+        ],
+        "env": {
+          "NEXSANDBASE_HOME": "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass"
+        }
+      },
+      "searxng": {
+        "command": "python3",
+        "args": [
+          "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/scripts/searxng_mcp.py"
+        ],
+        "env": {
+          "SEARXNG_URL": "http://127.0.0.1:8888"
+        }
+      }
+    }
+  },
+  "tools": {
+    "sandbox": {
+      "tools": {
+        "alsoAllow": [
+          "bundle-mcp"
+        ],
+        "deny": [
+          "exec"
+        ]
+      }
+    }
+  },
+  "commands": {
+    "nativeSkills": false
+  },
+  "wizard": {
+    "lastRunAt": "2026-06-22T03:01:28.426Z",
+    "lastRunVersion": "2026.6.9",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "cron": {
+    "sessionRetention": "1h",
+    "runLog": {
+      "maxBytes": "500kb",
+      "keepLines": 200
+    }
+  }
+}

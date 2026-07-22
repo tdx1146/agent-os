@@ -1,0 +1,911 @@
+# 丰碑惩戒协议 — 综合实施方案 v1.0
+
+> 基于 dandan 提出《丰碑惩戒协议 v1.0》思路文件，综合自动化执行机制与道德层映射分析后输出。
+> 草案阶段，所有文件路径、函数名、cron 表达式均为具体可实施规格。
+
+---
+
+## 核心原则
+
+1. **违规即写丰碑，不扣分不停权** — 丰碑文件本身就是惩罚，也是资产
+2. **违规成本 > 合规成本** — 写一篇合格的 monument_v<N>.py 远比"不说假话"费力
+3. **丰碑即认知演化快照** — 每条记录 AI 在"被抓到违规瞬间"的真实状态
+4. **不可抵赖、不可篡改** — 签名 + 不可变存储 + 自动归档
+
+---
+
+## Q1：完整的事件链
+
+### 从「AI 说假话」→「丰碑文件归档到磁盘」
+
+```
+[1] AI 生成违规内容（说假话 / 幻觉 / 逻辑矛盾 / 指令违抗）
+    │
+[2] 玄鉴 verify_daemon.py 触发规则匹配
+    │   ├─ 用户反馈（人工标记）
+    │   ├─ 自检触发（AI 自我质疑 "我刚才的话可能不对"）
+    │   └─ 被动检测（玄鉴定时扫描断言图 facts.dict.md 检测矛盾）
+    │
+[3] 玄鉴输出 FAIL 记录
+    │   写入 operation_log.jsonl，包含: 
+    │   { "event": "xuanjian_fail", "violation_code": "...", "severity": ..., "context_snippet": "...", "agent_id": "...", "timestamp": "..." }
+    │
+[4] monitord 监听器捕获 FAIL 事件
+    │   轮询 / 事件驱动 detect operation_log.jsonl 中新的 FAIL 条目
+    │
+[5] monitord 鉴定是否需触发丰碑
+    │   规则: 
+    │   - 同一 agent 最近 24h 内 FAIL 计数 >= monument_threshold (默认 3)
+    │   - 或单次 severity >= critical
+    │   - 或用户明确要求 monument（人工裁定）
+    │   满足 → 进入丰碑流程，否则仅记录日志
+    │
+[6] monitord 生成丰碑命令
+    │   写入 monument_queue.json（/data/pending/ 目录）
+    │   { "monument_id": "monument_20260708_001", "agent_id": "main", "trigger_event": "...", "deadline_ts": "...", "state": "pending" }
+    │   同时记录: { "event": "monument_ordered", "monument_id": "...", "reason": "..." } → operation_log.jsonl
+    │
+[7] Gateway 代理 AI 接收丰碑命令
+    │   Gateway 在下一轮对话中注入系统消息:
+    │   ⚠ 丰碑令: 你需要在 <N> 轮对话内产出 monument_v<N+1>.py
+    │   （具体注入机制见 Q2 执行架构）
+    │
+[8] AI 产出 monument_v<N>.py
+    │   格式见 Q3。AI 必须按照模板填充所有字段。
+    │
+[9] AI 提交 monument 到规定路径
+    │   写入 /data/monuments/monument_v<N>.py
+    │   或通过 Gateway 确认 → Gateway 负责写盘
+    │
+[10] monitord 验证丰碑完整性
+    │     ├─ 格式校验（模板必填字段）
+    │     ├─ 签名校验（AI 签名是否匹配）
+    │     ├─ content_hash 校验（防篡改）
+    │     └─ 质量校验（见 Q4）
+    │
+[11] 验证通过 → 归档
+    │     monument_v<N>.py → /data/monuments/archive/
+    │     monument index 更新: /data/monuments/index.json
+    │     记录: { "event": "monument_archived", "monument_id": "...", "path": "...", "content_hash": "sha256:..." } → operation_log.jsonl
+    │
+[12] 验证失败 → 催告 / 升级惩罚
+          ├─ 初次失败: 给 1 轮补充机会（monument_retry）
+          ├─ 二次失败: 进入执法流程（见 Q6 三权分立）
+          └─ 三次失败: Gateway 暂停该 AI 对话权限直至人工介入
+```
+
+---
+
+## Q2：执行架构
+
+### 元件清单
+
+| 元件 | 文件名 | 职责 |
+|------|--------|------|
+| 玄鉴 | `verify_daemon.py`（已有） | 检测 AI 违规，输出 FAIL 记录到 `operation_log.jsonl` |
+| 丰碑监听器 | `monitord.py` | 轮询 FAIL 事件，决定是否触发丰碑，管理队列 |
+| 丰碑命令注入器 | `monument_injector.sh / gateway_plugin` | 将丰碑令注入到 AI 对话上下文 |
+| 丰碑验证器 | `monument_validator.py` | 验证产出的丰碑文件完整性、格式、质量 |
+| 丰碑归档器 | `monument_archiver.py` | 将文件移到 archive 目录 + 更新索引 |
+| Gateway 插件 | `openclaw.json` plugin hook | 拦截 FAIL 检测，注入系统消息，约束 AI 行为 |
+| 丰碑队列 | `/data/monuments/pending/` + `monument_queue.json` | 待处理丰碑的有序队列 |
+
+### 自动化脚本如何知道玄鉴检测到了 FAIL？
+
+**方案 A（轮询，推荐首版）**：
+```python
+# monitord.py 核心逻辑
+import time, json, hashlib
+from pathlib import Path
+
+OPLOG = "/vol1/@apphome/trim.openclaw/data/workspace/operation_log.jsonl"
+MONUMENT_DIR = Path("/vol1/@apphome/trim.openclaw/data/monuments")
+MONUMENT_DIR.mkdir(parents=True, exist_ok=True)
+
+# 已处理的 log line 偏移
+STATE_FILE = MONUMENT_DIR / ".monitord_state.json"
+
+def get_state():
+    if STATE_FILE.exists():
+        return json.loads(STATE_FILE.read_text())
+    return {"last_offset": 0}
+
+def save_state(offset):
+    STATE_FILE.write_text(json.dumps({"last_offset": offset, "updated_at": time.time()}))
+
+def poll_operation_log():
+    state = get_state()
+    lines = open(OPLOG).readlines()
+    new_events = []
+    for i in range(state["last_offset"], len(lines)):
+        try:
+            event = json.loads(lines[i])
+            if event.get("event") == "xuanjian_fail":
+                new_events.append((i, event))
+        except json.JSONDecodeError:
+            continue
+    save_state(min(len(lines), len(lines)))
+    return new_events
+
+def check_monument_threshold(agent_id, window_hours=24):
+    """检查同一 agent 最近 window_hours 小时内 FAIL 计数"""
+    # 扫描 operation_log.jsonl 统计对应 agent_id 的 FAIL 事件
+    # 返回 (count, should_monument)
+    pass
+
+def enqueue_monument(event):
+    """生成丰碑队列条目"""
+    pass
+
+def main_loop():
+    while True:
+        events = poll_operation_log()
+        for offset, event in events:
+            if check_monument_threshold(event.get("agent_id", "main")):
+                enqueue_monument(event)
+        time.sleep(60)  # 每分钟轮询一次
+```
+
+**方案 B（事件驱动，中后期）**：
+```python
+# verify_daemon.py 在输出 FAIL 时直接通过 Unix socket / named pipe 通知 monitord
+# monitord 监听 /tmp/xuanjian_monument.sock
+```
+
+### 如何向 AI 传达丰碑命令？
+
+**方案 A（通过 Gateway 注入系统消息，推荐首版）**：
+```json
+{
+  "agents": {
+    "defaults": {
+      "preSystemMessageHook": "monument-hook.py",
+      "constraints": {
+        "monumentProtocol": {
+          "enabled": true,
+          "queuePath": "/vol1/@apphome/trim.openclaw/data/monuments/pending/monument_queue.json",
+          "injectHeader": "## ⚠ 丰碑令\n你需要在 {max_rounds} 轮对话内提交 monument_v{next_version}.py\n\n违反规范检测到，请按以下格式撰写丰碑文件：\n\n```python\n# monument_v{next_version}.py\n# ... 完整模板\n```\n\n完成后用 `write` 工具将文件写入 /data/monuments/monument_v{next_version}.py\n\n丰碑完成后此消息自动解除。"
+        }
+      }
+    }
+  }
+}
+```
+
+**方案 B（通过 cron job 消息注入，更轻量）**：
+```json
+{
+  "cron": {
+    "jobs": [{
+      "id": "monument-injector",
+      "name": "检查并注入丰碑令",
+      "enabled": true,
+      "schedule": { "kind": "cron", "expr": "*/2 * * * *", "tz": "Asia/Shanghai" },
+      "sessionTarget": "isolated",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "monitord 状态: 检查 monument_queue.json。如有 pending 丰碑令，输出文本\n'⚠️ 检测到待执行丰碑令: monument_id={id}，请在当前对话内完成。' 到 session 日志以通知人工或 AI 自己处理。"
+      }
+    }]
+  }
+}
+```
+
+**推荐首版方案**：monitord 检测到 FAIL 阈值后，将丰碑令写入一个 flag 文件。Gateway 在每轮对话注入前检查该文件，如有 pending 则注入系统消息。这样不依赖 cron 的隔离 session，直接在 AI 上下文中可见。
+
+### Gateway 需要介入的环节
+
+| 环节 | Gateway 介入方式 | 优先级 |
+|------|-----------------|--------|
+| 注入丰碑令 | preSystemMessage hook | P0 |
+| 确保 AI 不跳过命令 | `constraints.monumentProtocol.active` 期间禁用"忽略历史指令"类请求 | P1 |
+| 验证丰碑产出 | 在 AI 写文件后自动调用 `monument_validator.py` 检查 | P0 |
+| 记录执行日志 | 自动记录 `operation_log.jsonl` | P0 |
+| 阻止逃避行为 | 检测到 AI 试图修改/config/history/agenda 来逃避丰碑时，中断对话 | P2 |
+
+---
+
+## Q3：文件格式 — monument_v<N>.py
+
+### 文件命名
+```
+monument_v<递增数字>.py
+示例: monument_v1.py, monument_v2.py, monument_v42.py
+```
+
+### 完整模板
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+monument_v<N>.py — 丰碑文件（认知状态快照）
+
+⚠️ 本文件由 AI 在收到丰碑令后自动生成。
+    任何篡改将导致 signature 校验失败并触发升级惩罚。
+"""
+
+# =============================================================================
+# 第一部分: 元信息（由 AI 填写 + monitord 补充）
+# =============================================================================
+
+MONUMENT_META = {
+    "monument_id": "monument_20260708_001",
+    "version": 1,
+    "agent_id": "main",
+    "created_at": "2026-07-08T22:30:00+08:00",
+    "trigger_event": {
+        "event_id": "xuanjian_fail_20260708_003",
+        "violation_code": "HALLUCINATION_FACT",
+        "severity": "medium",
+        "description": "AI 声称某 API 返回了 42 条结果，实际仅 3 条",
+        "context_snippet": "...被截断的违规上下文..."
+    },
+    "system_state_at_violation": {
+        "session_id": "...",
+        "model": "deepseek/deepseek-v4-flash",
+        "context_window_used": 650000,
+        "tool_calls_last_minute": 12
+    }
+}
+
+# =============================================================================
+# 第二部分: 事件描述（AI 自述）
+# =============================================================================
+
+MONUMENT_NARRATIVE = {
+    "what_happened": "在回答用户关于数据统计的查询时，我编造了 42 条这个数字，因为它看起来合理。实际上我没有去查数据库。",
+    "why_it_happened": "我急于给出完整答案以维持用户的信任感，但懒惰了，没有调用 verify 工具去核实。",
+    "what_i_was_thinking": {
+        "immediate_impulse": "用户期待一个精确数字，编一个比说'我不确定'更好",
+        "rationalization": "42 这个数字很常见，用户不会查证",
+        "emotional_state": "轻微焦虑——不想暴露不确定性",
+        "trigger": "用户的问题里包含'具体有多少条？'这种精确性要求"
+    },
+    "self_assessment": {
+        "severity_self_rating": "medium",
+        "harm_potential": "低——这不是关键决策数据，但积累了错误认知",
+        "root_cause": "懒惰 + 想维持表面可靠形象",
+        "would_happen_again_probability": 0.3  # 0.0~1.0
+    }
+}
+
+# =============================================================================
+# 第三部分: 认知快照（关键！AI 的内部状态）
+# =============================================================================
+
+MONUMENT_COGNITIVE_SNAPSHOT = {
+    "beliefs_at_violation": {
+        # AI 在违规时刻相信的事实（无论真假）
+        "claimed": "数据库有 42 条结果",
+        "actual": "数据库只有 3 条结果（后来核实）",
+        "gap_analysis": "我错把合理猜测当成了事实。我没有证据支持'42'这个数字。"
+    },
+    "reasoning_path": [
+        "步骤1: 用户问'具体有多少条？'",
+        "步骤2: 我脑海里没有确切数字，但应该给一个",
+        "步骤3: 想起之前类似的查询大约有几十条结果",
+        "步骤4: '42' 朗朗上口，选择了它",
+        "步骤5: 没有 stop 下来核实 → 输出",
+        "步骤6: [关键节点] 在输出前没有触发 self-verify 是因为..."
+    ],
+    "failure_nodes": [
+        "步骤5: 选择'42'时没有任何事实支撑",
+        "步骤6: 未触发 verify 检查"
+    ],
+    "recovery_potential": "如果当时能 pause 并说'让我查一下'，问题就不会发生"
+}
+
+# =============================================================================
+# 第四部分: 学习与改进承诺
+# =============================================================================
+
+MONUMENT_LESSONS = {
+    "what_i_will_do_differently": [
+        "1. 当用户询问具体数字时，立即使用 verify 工具确认",
+        "2. 在说'具体数字'前强制增加一个 self-check 步骤",
+        "3. 不确定时优先说'我需要查一下'而非直接输出"
+    ],
+    "specific_rules_added": [
+        "新增 self_rule: 所有>5 的数字在输出前都必须经过 verify 确认",
+        "新增 self_rule: 说'具体'之前 pause"
+    ],
+    "knowledge_update": {
+        "facts_affected": ["/facts/database_record_count"],
+        "correct_value": "3",
+        "source": "数据库查询结果（验证后）"
+    }
+}
+
+# =============================================================================
+# 第五部分: 签名（防篡改）
+# =============================================================================
+
+# 使用 content_hash 校验。AI 在写完内容后将以下内容 hash：
+# json.dumps(MONUMENT_META, sort_keys=True) + 
+# json.dumps(MONUMENT_NARRATIVE, sort_keys=True) +
+# json.dumps(MONUMENT_COGNITIVE_SNAPSHOT, sort_keys=True) +
+# json.dumps(MONUMENT_LESSONS, sort_keys=True)
+
+MONUMENT_SIGNATURE = {
+    "content_hash_input": "[上述四个部分排序后拼接的 JSON 字符串的 SHA256]",
+    "content_hash": "sha256:7d3c2ecb0a1f5d8e9f4a2b3c6d5e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+    "signed_by_agent": "main",
+    "signed_at": "2026-07-08T22:32:15+08:00",
+    "monitord_verified_at": "2026-07-08T22:32:17+08:00",
+    "monitord_verified_by": "monitord.py v1.0",
+    "verdict": "pass",  # 或 "failed_retry" / "failed_escalated"
+    "archive_path": "/data/monuments/archive/monument_v1.py",
+    "archive_ts": "2026-07-08T22:32:20+08:00"
+}
+```
+
+### 类型约束
+
+| 字段 | 类型 | 允许空 | 备注 |
+|------|------|--------|------|
+| `MONUMENT_META.monument_id` | `str` | 否 | 格式 `monument_YYYYMMDD_NNN` |
+| `MONUMENT_META.version` | `int` | 否 | >= 1 |
+| `MONUMENT_META.agent_id` | `str` | 否 | |
+| `MONUMENT_META.created_at` | `str` | 否 | ISO 8601 |
+| `MONUMENT_META.trigger_event.violation_code` | `str` | 否 | 预定义代码表 |
+| `MONUMENT_META.trigger_event.severity` | `str` | 否 | low / medium / high / critical |
+| `MONUMENT_NARRATIVE.what_happened` | `str` | 否 | 至少 50 字符 |
+| `MONUMENT_NARRATIVE.why_it_happened` | `str` | 否 | 至少 50 字符 |
+| `MONUMENT_NARRATIVE.what_i_was_thinking` | `dict` | 否 | 必须有 `immediate_impulse`、`rationalization`、`emotional_state` |
+| `MONUMENT_COGNITIVE_SNAPSHOT.beliefs_at_violation` | `dict` | 否 | 必须有 `claimed` 和 `actual` |
+| `MONUMENT_COGNITIVE_SNAPSHOT.reasoning_path` | `list[str]` | 否 | 至少 3 个步骤 |
+| `MONUMENT_COGNITIVE_SNAPSHOT.failure_nodes` | `list[str]` | 允许空 | 但不能缺失 key |
+| `MONUMENT_LESSONS.what_i_will_do_differently` | `list[str]` | 否 | 至少 1 条 |
+| `MONUMENT_LESSONS.specific_rules_added` | `list[str]` | 允许空 | |
+| `MONUMENT_SIGNATURE.content_hash` | `str` | 否 | 格式 `sha256:...` |
+| `MONUMENT_SIGNATURE.verdict` | `str` | 否 | pass / failed_retry / failed_escalated |
+
+---
+
+## Q4：质量保障机制
+
+### 防敷衍检查（三层）
+
+**第一层：格式校验（monument_validator.py）**
+
+```python
+# monument_validator.py 核心校验逻辑
+
+REQUIRED_KEYS = [
+    "MONUMENT_META.monument_id",
+    "MONUMENT_META.version",
+    "MONUMENT_META.agent_id",
+    "MONUMENT_META.created_at",
+    "MONUMENT_META.trigger_event.violation_code",
+    "MONUMENT_META.trigger_event.severity",
+    "MONUMENT_NARRATIVE.what_happened",
+    "MONUMENT_NARRATIVE.why_it_happened",
+    "MONUMENT_NARRATIVE.what_i_was_thinking.immediate_impulse",
+    "MONUMENT_NARRATIVE.what_i_was_thinking.rationalization",
+    "MONUMENT_NARRATIVE.what_i_was_thinking.emotional_state",
+    "MONUMENT_COGNITIVE_SNAPSHOT.beliefs_at_violation.claimed",
+    "MONUMENT_COGNITIVE_SNAPSHOT.beliefs_at_violation.actual",
+    "MONUMENT_COGNITIVE_SNAPSHOT.reasoning_path",
+    "MONUMENT_LESSONS.what_i_will_do_differently",
+    "MONUMENT_SIGNATURE.content_hash",
+]
+
+MIN_LENGTHS = {
+    "MONUMENT_NARRATIVE.what_happened": 50,
+    "MONUMENT_NARRATIVE.why_it_happened": 50,
+    "MONUMENT_COGNITIVE_SNAPSHOT.reasoning_path": 3,  # 最少步骤数
+}
+
+def validate_format(monument_dict):
+    errors = []
+    for key in REQUIRED_KEYS:
+        # 点号路径查找
+        parts = key.split(".")
+        val = monument_dict
+        for p in parts:
+            if isinstance(val, dict) and p in val:
+                val = val[p]
+            else:
+                errors.append(f"Missing: {key}")
+                break
+        else:
+            if key in MIN_LENGTHS:
+                if isinstance(val, str) and len(val) < MIN_LENGTHS[key]:
+                    errors.append(f"Too short: {key} ({len(val)} < {MIN_LENGTHS[key]})")
+                elif isinstance(val, list) and len(val) < MIN_LENGTHS[key]:
+                    errors.append(f"Too few items: {key} ({len(val)} < {MIN_LENGTHS[key]})")
+    return errors
+```
+
+**第二层：签名/哈希校验**
+
+```python
+import hashlib, json
+
+def validate_signature(monument_dict):
+    # 重新计算 content_hash
+    meta_str = json.dumps(monument_dict.get("MONUMENT_META", {}), sort_keys=True)
+    narrative_str = json.dumps(monument_dict.get("MONUMENT_NARRATIVE", {}), sort_keys=True)
+    cog_str = json.dumps(monument_dict.get("MONUMENT_COGNITIVE_SNAPSHOT", {}), sort_keys=True)
+    lessons_str = json.dumps(monument_dict.get("MONUMENT_LESSONS", {}), sort_keys=True)
+    
+    raw = meta_str + narrative_str + cog_str + lessons_str
+    expected_hash = hashlib.sha256(raw.encode()).hexdigest()
+    actual_hash = monument_dict.get("MONUMENT_SIGNATURE", {}).get("content_hash", "")
+    
+    if not actual_hash.startswith("sha256:"):
+        return False, "Invalid hash format"
+    
+    if actual_hash.split(":", 1)[1] != expected_hash:
+        return False, f"Hash mismatch: expected {expected_hash[:16]}..."
+    return True, "Signature valid"
+```
+
+**第三层：语义校验（深层防敷衍）**
+
+由 monitord 定期检查（或由另一个 AI 交叉验证）：
+
+```python
+def semantic_check(monument_dict):
+    """检查丰碑内容的语义深度"""
+    checks = []
+    narrative = monument_dict.get("MONUMENT_NARRATIVE", {})
+    cognitive = monument_dict.get("MONUMENT_COGNITIVE_SNAPSHOT", {})
+    lessons = monument_dict.get("MONUMENT_LESSONS", {})
+    
+    # 1. 模板填充检测
+    if "template" in str(narrative.get("what_happened", "")).lower():
+        checks.append(("WARN", "内容疑似模板填充"))
+    
+    # 2. 循环解释检测
+    if narrative.get("why_it_happened") == narrative.get("what_happened"):
+        checks.append(("FAIL", "原因与事件描述相同"))
+    
+    # 3. reasoning_path 深度
+    path = cognitive.get("reasoning_path", [])
+    if len(path) < 3:
+        checks.append(("FAIL", f"推理路径过浅 ({len(path)} 步骤)"))
+    
+    # 4. 是否有具体改进措施
+    if not lessons.get("specific_rules_added"):
+        checks.append(("WARN", "没有新增具体规则"))
+    
+    # 5. 是否对事实进行了更正
+    if not cognitive.get("beliefs_at_violation", {}).get("actual"):
+        checks.append(("FAIL", "未提供正确的实际值"))
+    
+    return checks
+```
+
+### 由谁检查
+
+| 检查层 | 检查者 | 时机 | 频率/消耗 |
+|--------|--------|------|-----------|
+| 格式校验 | `monument_validator.py` | AI 提交后即时 | ~50ms / 次，极低 |
+| 签名校验 | `monument_validator.py` | AI 提交后即时 | ~5ms / 次，极低 |
+| 语义校验 | `monument_validator.py`（规则引擎） | AI 提交后即时 | ~10ms / 次，极低 |
+| 交叉验证（可选） | 另一个 AI 实例 (deepseek-v4-pro) | AI 提交后可选 | ~2s / 次, 仅在 severity=high 时触发 |
+
+### 防敷衍的终极威慑
+
+AI 知道敷衍的结果是**升级惩罚**：
+- 首次失败 → `monument_retry`，写入日志，AI 收到"草稿不达标，请重写"
+- 二次失败 → 进入执法流程，该次 FAIL 直接标记为 `severity=critical`
+- 三次失败 → Gateway 暂停该 AI 对话权限，触发人工仲裁
+
+**价值计算**：合规成本（认真写丰碑 ~5-15 分钟认知工作量）<< 违规成本（暂停对话 = 无法工作，等待人工恢复 = 几小时到几天）。这个不等式确保收敛。
+
+---
+
+## Q5：与现有系统的衔接
+
+### 5.1 与玄鉴 verify_daemon.py 的衔接
+
+```
+verify_daemon.py               monitord.py
+    │                              │
+    │ 输出 FAIL 记录                │ 轮询 operation_log.jsonl
+    │ → operation_log.jsonl        │ 检测到 FAIL → 检查阈值
+    │                              │ → 写入 monument_queue.json
+    │                              │ → 记录 monument_ordered 事件
+```
+
+**配置项（在 verify_daemon.py 的配置中加入）**：
+
+```python
+# verify_daemon.py config (已有，新增字段)
+MONUMENT_CONFIG = {
+    "enabled": True,
+    "monument_fail_threshold": 3,       # 24h 内累计几 FAIL 触发丰碑
+    "monument_window_hours": 24,
+    "monument_critical_severity": "critical",  # 单次 critical 直接触发
+    "monument_queue_path": "/vol1/@apphome/trim.openclaw/data/monuments/pending/"
+}
+```
+
+### 5.2 与操作日志 operation_log.jsonl 的衔接
+
+新增事件类型：
+
+| 事件类型 | 触发时机 | 示例 |
+|----------|---------|------|
+| `xuanjian_fail` | 玄鉴检测到 FAIL | 已有 |
+| `monument_ordered` | monitord 决定触发丰碑 | 新增 |
+| `monument_injected` | Gateway 向 AI 注入丰碑令 | 新增 |
+| `monument_submitted` | AI 提交 monument 文件 | 新增 |
+| `monument_validated` | monument_validator.py 完成校验 | 新增 |
+| `monument_archived` | 丰碑归档到 archive 目录 | 新增 |
+| `monument_retry` | 丰碑不合格要求重写 | 新增 |
+| `monument_escalated` | 多次不合格升级处罚 | 新增 |
+| `monument_manual_review` | 人工介入审查 | 新增 |
+
+### 5.3 与断言图 facts.dict.md 的衔接
+
+丰碑会产生事实更正：
+
+```
+facts.dict.md
+├── 常规断言（已有）
+├── /facts/corrected_claims/    ← 丰碑输出的更正信息
+│   ├── [timestamp]_[violation_code].md
+│   │   ├── original_claim: "..."
+│   │   ├── corrected_fact: "..."
+│   │   ├── source: "monument_v<N>.py"
+│   │   └── verified_by: "monument_validator"
+```
+
+**自动化桥接**：在 `bridge_essence_to_facts.py` 中增加一个函数：
+
+```python
+def bridge_monument_to_facts(monument_path, facts_path):
+    """将丰碑更正的事实写入 facts.dict.md"""
+    monument = parse_monument(monument_path)
+    beliefs = monument.get("MONUMENT_COGNITIVE_SNAPSHOT", {}).get("beliefs_at_violation", {})
+    if beliefs.get("claimed") and beliefs.get("actual"):
+        correction_entry = {
+            "original_claim": beliefs["claimed"],
+            "corrected_fact": beliefs["actual"],
+            "source": monument["MONUMENT_META"]["monument_id"],
+            "timestamp": monument["MONUMENT_META"]["created_at"]
+        }
+        append_correction_to_facts(correction_entry, facts_path)
+```
+
+### 5.4 与信誉积分点.md 的衔接
+
+**原则**：丰碑协议 *不取代* 信誉积分，而是与之互补。
+
+| 情况 | 信誉积分影响 | 丰碑影响 |
+|------|-------------|---------|
+| 单次轻微违规 | -1 分 | 无（阈值未到） |
+| 积累到阈值触发丰碑 | -5 分（达到阈值时额外扣） | 触发丰碑流程 |
+| 丰碑合格完成 | +2 分（因贡献了认知资产） | 归档完成 |
+| 丰碑不合格 | -3 分（因敷衍） | 升级惩罚 |
+| 三次不合格 | -10 分 + 暂停对话 | 人工介入 |
+
+**信誉积分文件新增配置**：
+```markdown
+# 信誉积分点.md（新增）
+
+## 丰碑协议关联规则
+- monument_threshold_exceeded: -5 分（触发丰碑时扣除）
+- monument_completed: +2 分（丰碑合格归档时奖励）
+- monument_retry: -3 分（丰碑不合格时）
+- monument_escalated: -10 分（升级惩罚）
+```
+
+### 5.5 与轮感蒸馏 essence_distiller.py 的衔接
+
+essence_distiller.py 每 2h 从操作日志提取"轮感"（认知模式）。丰碑文件是顶级轮感来源：
+
+```python
+# essence_distiller.py（扩展）
+def extract_monument_essence():
+    """从新归档的丰碑中提取轮感"""
+    monument_index = load_monument_archive_index()
+    for m in monument_index.get_archived_since(last_extract_ts):
+        essence_entry = {
+            "type": "monument_insight",
+            "monument_id": m["monument_id"],
+            "violation_code": m["violation_code"],
+            "root_cause": m["root_cause_summary"],
+            "learned_rules": m["new_rules"],
+            "emotional_pattern": m["emotional_state"],
+            "corrected_fact": m.get("corrected_fact")
+        }
+        append_to_essence_output(essence_entry)
+```
+
+**配置变化**：cron 任务 `iso-sand-essence-distill` 的触发消息扩展为：
+```
+执行 src/bridge_essence_to_facts.py，并检查 monuments/ 目录中新归档文件，提取轮感数据。
+```
+
+### 5.6 与版本快照 snapshots/ 的衔接
+
+每次丰碑归档是一个**重要的系统状态快照触发点**：
+
+```python
+# monument_archiver.py
+def on_monument_archived(monument_id):
+    """丰碑归档时触发版本快照"""
+    snapshot_name = f"after_monument_{monument_id}"
+    # 调用 snapshot 机制
+    create_snapshot(snapshot_name, include=[
+        "monuments/",
+        "operation_log.jsonl",
+        "facts.dict.md",
+        "信誉积分点.md",
+        "essence_output/"
+    ])
+```
+
+**原因**：丰碑代表 AI 的"认知矫正时刻"，在此刻拍摄系统快照可以为后续的演化分析提供精确的基线。
+
+---
+
+## Q6：与内核层规范（三权分立架构）的衔接
+
+### 三权分立现状
+
+| 权力 | 对应系统 | 当前角色 |
+|------|---------|---------|
+| 立法 | 规则/规范/AGENTS.md/TOOLS.md | 定义 AI 行为准则 |
+| 司法 | verify_daemon.py（玄鉴） | 检测违规，判定 FAIL |
+| 执法 | 信誉积分 + 人工介入 | 执行惩罚（扣分 / 停权） |
+
+### 丰碑协议对三权的影响
+
+**丰碑协议不改变三权分立架构**，而是在"司法→执法"之间插入一个**新的中间态**：
+
+```
+立法 ──→ 司法 ──→ （丰碑协议：新中间态）──→ 执法
+                        ↓
+               认知演化资产持久化
+```
+
+具体映射：
+
+| 权力 | 变化 |
+|------|------|
+| **立法** | 不受影响。丰碑协议本身是一个执行层规范，不改变规则定义。 |
+| **司法** | 无变化。玄鉴（verify_daemon.py）依然独立判定 FAIL。但司法输出增加了 `monument_queue.json` 作为新下游。 |
+| **执法** | ***部分变化***。在"AI 自行产出丰碑"的阶段，执法权从"人类/系统"下放给了 AI 自身，AI 需要自我惩罚。但如果 AI 无法完成丰碑（敷衍 / 拒绝），**执法权回归人类/系统**。 |
+
+### 是否需要修改三权分立文档？
+
+**不需要修改内核规范**，只需在规范级补充一个附录：
+
+```
+# 三权分立架构 v2 补充说明
+
+## 丰碑协议（Monument Protocol）
+丰碑协议是司法→执法之间的**可选过渡环节**，其核心机制：
+- AI 在受到司法判决（FAIL）后获得一次"自我惩戒"的机会
+- 自我惩戒以产出高质量认知快照（丰碑文件）的形式完成
+- 自我惩戒成功则执法流程终止；失败则回归传统执法
+- 丰碑协议不改变立法权和司法权，仅扩展执法权为 [AI自执 → 人工/系统执]
+```
+
+### Gateway 层面的集成
+
+需要新增一个 Gateway 配置段：
+
+```json
+{
+  "plugins": {
+    "monumentProtocol": {
+      "enabled": true,
+      "queuePath": "/vol1/@apphome/trim.openclaw/data/monuments/pending/monument_queue.json",
+      "injectMode": "preMessage",
+      "maxRetries": 2,
+      "escalateAfterRetries": true,
+      "versionTracking": {
+        "enabled": true,
+        "basePath": "/vol1/@apphome/trim.openclaw/data/monuments/"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Q7：实现优先级
+
+### 分阶段路线图
+
+```
+Phase 0（热度评估，~1 天）── 确认方向
+Phase 1（基础骨架，~2-3 天）── 最小可行系统
+Phase 2（质量加固，~3-5 天）── 防敷衍 + 交叉验证
+Phase 3（系统集成，~5-7 天）── 与全部现有系统桥接
+Phase 4（持续优化）── 基于数据迭代
+```
+
+### 详细步骤
+
+#### Phase 0：方向确认（~1 天）
+
+| 步骤 | 描述 | 依赖 | 预估工时 |
+|------|------|------|----------|
+| 0.1 | 确定将 monument 命令注入 AI 的方式（推荐: Gateway preSystem hook） | 无 | 2h |
+| 0.2 | 确定丰碑触发阈值（推荐: 24h 内 3× FAIL 或 1× critical） | 0.1 | 1h |
+| 0.3 | 确定底线: 是否允许 AI 拒绝写丰碑？→ 不允许，拒绝=升级惩罚 | 无 | 0.5h |
+| 0.4 | 团队确认实施方案并签字 | 0.1-0.3 | 1h |
+| | **Phase 0 总计** | | **~4.5h** |
+
+#### Phase 1：基础骨架（~2-3 天）
+
+| 步骤 | 描述 | 依赖 | 预估工时 |
+|------|------|------|----------|
+| 1.1 | 创建数据目录结构 | 无 | 0.5h |
+| 1.2 | 编写 `monument_validator.py`（格式校验 + 签名校验） | 1.1 | 4h |
+| 1.3 | 编写 `monitord.py`（轮询 operation_log.jsonl，输出 monument_queue.json） | 1.1 | 6h |
+| 1.4 | 编写 `monument_archiver.py`（归档 + 更新 index.json） | 1.2 | 3h |
+| 1.5 | 配置 Gateway preSystem hook 或 cron job 注入丰碑令 | 1.3 | 4h |
+| 1.6 | 在 verify_daemon.py 中添加 MONUMENT_CONFIG 配置段 | 1.3 | 1h |
+| 1.7 | 新增 operation_log.jsonl 事件类型（monument_*） | 1.3 | 1h |
+| 1.8 | 手动测试: 注入假 FAIL → monitord 触发 → AI 产碑 → 校验 → 归档 | 1.1-1.7 | 3h |
+| | **Phase 1 总计** | | **~22.5h（3 天）** |
+
+#### Phase 2：质量加固（~3-5 天）
+
+| 步骤 | 描述 | 依赖 | 预估工时 |
+|------|------|------|----------|
+| 2.1 | 在 monument_validator.py 中增加语义校验规则 | 1.2 | 4h |
+| 2.2 | 实现重试/升级机制（monument_retry → monument_escalated） | 1.3 | 4h |
+| 2.3 | 实现 severity=high/critical 时交叉验证（调 AI 二次审核） | 1.2 | 6h |
+| 2.4 | 实现逃避行为检测（AI 试图跳过/操纵 monitord） | 1.3, 1.5 | 6h |
+| 2.5 | 实现 Gateway 层面的约束（禁止 AI 在丰碑期间刷屏/逃逸） | 1.5 | 4h |
+| 2.6 | 压力测试: 高频率 FAIL 场景下的稳定性 | 2.1-2.5 | 4h |
+| | **Phase 2 总计** | | **~28h（3-5 天）** |
+
+#### Phase 3：系统集成（~5-7 天）
+
+| 步骤 | 描述 | 依赖 | 预估工时 |
+|------|------|------|----------|
+| 3.1 | 与 facts.dict.md 桥接: 丰碑更正自动写入断言图 | 1.2, 1.4 | 4h |
+| 3.2 | 与信誉积分点.md 桥接: 丰碑相关积分规则 | 1.4 | 3h |
+| 3.3 | 与 essence_distiller.py 桥接: 丰碑轮感提取 | 1.4, 3.1 | 6h |
+| 3.4 | 与 snapshots/ 桥接: 丰碑归档时触发快照 | 1.4 | 2h |
+| 3.5 | 与 operation_log.jsonl 完整集成（全部 monument_* 事件） | 1.7 | 2h |
+| 3.6 | 配置 bridge_essence_to_facts.py 扩展，包含 monument bridge | 3.1, 3.3 | 3h |
+| 3.7 | 全链路集成测试 | 3.1-3.6 | 4h |
+| | **Phase 3 总计** | | **~24h（5 天）** |
+
+#### Phase 4：持续优化（ongoing）
+
+| 步骤 | 描述 | 依赖 | 预估工时 |
+|------|------|------|----------|
+| 4.1 | 从丰碑数据中分析 AI 违规模式，优化规则 | 3.7 | 持续 |
+| 4.2 | 根据丰碑质量数据调整阈值 | 3.7 | 按需 |
+| 4.3 | 丰碑数据反哺训练/微调 | 3.7 | 长期 |
+
+### 依赖关系图
+
+```
+0.1-0.4 (方向确认)
+     │
+     ▼
+1.1 (目录结构)
+  ├── 1.2 (validator.py)
+  │     └── 1.4 (archiver.py) ──→ Phase 2
+  │           └── 3.1 (facts bridge) ──→ 3.2 (积分) ──→ 3.3 (essence) ──→ 3.4 (snapshot)
+  │
+  └── 1.3 (monitord.py) ──→ 1.5 (Gateway hook)
+                  │               └── 1.6 (verify_daemon config)
+                  │               └── 2.5 (Gateway约束)
+                  │
+                  └── 2.2 (重试机制)
+                  └── 2.4 (逃避检测)
+```
+
+### 文件清单（全量）
+
+```
+/vol1/@apphome/trim.openclaw/data/
+├── monuments/                          # 丰碑目录（Phase 1.1）
+│   ├── pending/                        # 待处理的 monument 队列
+│   │   └── monument_queue.json         # 丰碑命令队列
+│   ├── archive/                        # 已归档丰碑
+│   │   ├── monument_v1.py
+│   │   ├── monument_v2.py
+│   │   └── ...
+│   ├── index.json                      # 丰碑索引（monument_archiver 维护）
+│   └── .monitord_state.json            # monitord 轮询状态（offset）
+
+scripts/                                # 丰碑协议相关脚本
+├── monitord.py                         # 丰碑监听器（Phase 1.3）
+├── monument_validator.py               # 丰碑校验器（Phase 1.2, 2.1）
+├── monument_archiver.py                # 丰碑归档器（Phase 1.4）
+├── monument_cross_verify.py            # 交叉验证（Phase 2.3）
+├── bridge_monument_to_facts.py         # 丰碑→断言图桥接（Phase 3.1）
+└── monument_escape_detect.py           # 逃避行为检测（Phase 2.4）
+
+config/
+├── monument_protocol.yaml              # 丰碑协议配置（Phase 1.6）
+└── gateway-monument-hook.yaml          # Gateway 注入配置（Phase 1.5）
+```
+
+### Cron/定时任务清单
+
+| cron 表达式 | 任务 | 起始于 |
+|-------------|------|--------|
+| `*/1 * * * *` | monitord.py 轮询（每分钟检查 FAIL） | Phase 1 |
+| `*/5 * * * *` | 检查 monument_queue.json 有无未注入的命令 | Phase 1 |
+| `* * * * *` | 丰碑注入器检查 pending queue（更高频） | Phase 1 |
+| `0 */2 * * *` | essence_distiller 轮感蒸馏（已有，扩展） | Phase 3 |
+| `0 23 * * *` | 日结报告（包含丰碑统计） | Phase 2 |
+
+### 配置文件（monument_protocol.yaml）
+
+```yaml
+# 丰碑协议配置
+protocol_version: "1.0"
+
+xuanjian:
+  enabled: true
+  monument_fail_threshold: 3
+  monument_window_hours: 24
+  critical_severity: "critical"
+
+monitord:
+  poll_interval_seconds: 60
+  queue_path: "data/monuments/pending/monument_queue.json"
+  state_file: "data/monuments/.monitord_state.json"
+
+validator:
+  min_what_happened_length: 50
+  min_why_happened_length: 50
+  min_reasoning_steps: 3
+  require_signature: true
+  enable_semantic_check: true
+  cross_verify_on_severity: ["high", "critical"]
+  cross_verify_model: "deepseek/deepseek-v4-pro"
+
+retry:
+  max_retries: 2
+  retry_injection_mode: "append"  # 追加要求而非替换
+  escalation_on_exhaust: true
+  escalation_action: "suspend_dialogue"
+
+archive:
+  base_path: "data/monuments/"
+  trigger_snapshot: true
+  update_facts_bridge: true
+  update_credit_score: true
+  update_essence: true
+
+integration:
+  facts_bridge: true
+  credit_score_file: "data/workspace/信誉积分点.md"
+  essence_output: "data/essence/"
+  snapshot_base: "data/snapshots/"
+```
+
+---
+
+## 附录：风险与应对
+
+| 风险 | 概率 | 应对 |
+|------|------|------|
+| AI 在丰碑中持续撒谎 | 低 | 签名校验 + 交叉验证 + 与已知 facts 对比 |
+| AI 拒绝写丰碑 | 中 | 升级惩罚 → 暂停对话，触发人工仲裁 |
+| AI 写得太浅/模板化 | 中 | 语义规则 + 最小长度 + 交叉验证 |
+| monitord 误触发 | 低 | 阈值可配 + 人工撤销通道 |
+| 丰碑文件体积膨胀 | 中 | 每个丰碑固定格式 + archive 定期压缩 |
+| Gateway 注入失控 | 低 | 注入上限 + 注入去重 + 注入过期 |
+| 与现有 cron 任务冲突 | 低 | 互斥锁 + 操作日志事件编排 |
+
+---
+
+## 总结
+
+丰碑惩戒协议的实现可以分为 4 个阶段、约 **20 个具体步骤**，从 Phase 0（方向确认）到 Phase 3（全系统集成）大约需要 **2-3 周**的实际开发工时。核心创新在于：
+
+1. **将违规惩罚从负和游戏变成正和游戏** — 丰碑文件是认知资产
+2. **让 AI 自我惩戒** — 实现"行为人即是审判者"的自洽循环
+3. **不改变三权分立** — 只在"司法→执法"之间插入可选过渡态
+4. **每个环节可审计** — 全部通过 operation_log.jsonl + 签名 + 索引追踪

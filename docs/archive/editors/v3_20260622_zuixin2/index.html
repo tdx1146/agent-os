@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻如烟姐 对话编辑器</title>
+<link rel="stylesheet" href="/static/css/styles.css">
+<style>/* 样式已迁移到 /static/css/styles.css */</style>
+<script>function toast(msg, isErr) {
+  const el = document.getElementById('toast');
+  el.textContent = (isErr ? '❌ ' : '✅ ') + msg;
+  el.className = 'toast show';
+  setTimeout(() => el.className = 'toast', 3500);
+}</script>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>🔥 轻如烟姐 对话编辑器</h1>
+    <div class="ctrl" style="gap:4px">
+      <button class="btn" onclick="momo()" style="padding:6px 10px;font-size:12px">🧰</button>
+      <span id="think-toggle" onclick="toggleThinking()" class="btn" data-on-style="background:#d29922;color:#000;border-color:#d29922" data-off-style="background:#21262d;color:#8b949e;border-color:#30363d" style="display:inline-flex;align-items:center;gap:3px;padding:6px 10px;font-size:12px;background:#d29922;color:#000;border-color:#d29922">🧠 <span id="think-status">开</span></span>
+
+    </div>
+  </div>
+  <div class="server-info" id="serverInfo"></div>
+  <div class="msg-count" id="msgCount">加载中...</div>
+
+
+
+
+
+
+
+
+  <div id="messages" style="will-change:transform"></div>
+  <div class="pagination" id="paginationBottom"></div>
+  <div id="safety-bar" style="font-size:11px;color:#8b949e;text-align:center;margin:-8px 0 6px 0;padding:3px 10px;background:#161b22;border-radius:6px;border:1px solid #21262d;display:flex;align-items:center;justify-content:center;gap:10px">
+    <span style="color:#8b949e">🔒 截断≤1轮 · 回溯要授权</span>
+    <span id="backup-stale" style="cursor:help;display:inline-flex;align-items:center;gap:3px" title="备份健康度：核心文件是否已同步到 找回自己/">💾 备份: <span style="color:#8b949e">--</span></span>
+    <span id="sys-health" style="cursor:help;display:inline-flex;align-items:center;gap:3px" title="系统自动化：hooks、cron、contextWindow">⚙️ 系统: <span style="color:#8b949e">--</span></span>
+    <span id="secretary-indicator" style="cursor:help;display:inline-flex;align-items:center;gap:3px" title="小秘书静默陪伴：文件变更追踪">🔍 秘书: <span id="secretary-count" style="color:#8b949e">0</span></span>
+    <button class="btn" style="font-size:10px;padding:1px 5px;background:transparent;border:1px solid #f0c040;color:#f0c040" onclick="openReminderDialog()" title="提醒系统 - 记下要做的事">📋</button>
+    <button class="btn" style="font-size:10px;padding:1px 5px;background:transparent;border:1px solid #30363d;color:#8b949e" onclick="toggleMemoryFile()" title="打开记忆文件，直接读写轮感">📂</button>
+  </div>
+
+  <!-- 🌫️ 系统状态栏（只显示真数据） -->
+  <div id="digest-skill-bar" style="font-size:11px;color:#8b949e;text-align:center;margin:-6px 0 10px 0;padding:2px 10px;background:#161b22;border-radius:6px;border:1px solid #21262d;display:flex;align-items:center;justify-content:center;gap:12px">
+    <button id="ds-digest-btn" onclick="toggleDigestHistory()" style="cursor:pointer;background:none;border:none;color:inherit;font-size:11px;padding:0;display:inline-flex;align-items:center;gap:3px" title="点击查看消化历史"><span id="ds-digest-time" style="color:#8b949e">🌫️ --</span> <span style="font-size:9px;color:#58a6ff">▼</span></button>
+    <span id="ds-pending" title="待升格断言数">⏳ <span style="color:#8b949e">--</span></span>
+    <span id="ds-assertions" title="facts.dict.md 总断言数">💡 <span style="color:#8b949e">--</span></span>
+    <span id="ds-skill-count" title="SKILL 数量">📦 <span style="color:#8b949e">--</span></span>
+    <span id="ds-plugin-status" title="行为强制插件状态">🔌 <span id="ds-plugin-val">?</span></span>
+    <span id="ds-thinking-status" title="思考模式状态：off/medium/high">🧠 <span id="ds-thinking-val">?</span></span>
+    <button id="ds-backlog-btn" onclick="toggleBacklog()" style="cursor:pointer;background:none;border:none;color:inherit;font-size:11px;padding:0;display:inline-flex;align-items:center;gap:3px" title="待办清单">📋 <span id="ds-backlog-count" style="color:#d29922">0</span></button>
+  </div>
+  <!-- 消化历史详情（默认隐藏） -->
+  <div id="ds-digest-history" style="display:none;font-size:10px;color:#8b949e;background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:8px 12px;margin:-8px 0 10px 0;max-height:260px;overflow-y:auto"></div>
+  <!-- 待办详情（默认隐藏） -->
+  <div id="ds-backlog" style="display:none;font-size:11px;color:#c9d1d9;background:#0d1117;border:1px solid #d29922;border-radius:6px;padding:10px 14px;margin:-8px 0 10px 0;max-height:400px;overflow-y:auto"></div>
+
+  <div id="context-bar" style="font-size:11px;color:#8b949e;text-align:center;margin:-8px 0 10px 0;padding:3px 10px;background:#161b22;border-radius:6px;border:1px solid #21262d;display:flex;align-items:center;justify-content:center;gap:16px">
+    <span id="ctx-display" style="color:#c9d1d9">📚 上下文: --</span>
+    <span id="cache-display">🗄️ 缓存: --</span>
+    <span id="comp-display">🧹 压缩: --</span>
+    <span id="trim-display">✂️ 删除: <span id="trim-count">0</span>次</span>
+    <div id="ctx-bar-bg" style="flex:1;max-width:200px;height:8px;background:#0d1117;border-radius:4px;overflow:hidden">
+      <div id="ctx-bar-fill" style="height:100%;width:0%;background:#58a6ff;border-radius:4px;transition:width 0.5s ease"></div>
+    </div>
+  </div>
+  <div id="cache-panel" style="margin:-6px 0 10px 0;font-size:11px">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 10px;background:#161b22;border:1px solid #21262d;border-radius:6px;cursor:pointer" onclick="toggleCachePanel()">
+      <span id="cache-toggle" style="color:#8b949e">▶</span>
+      <span style="color:#8b949e">💾 上轮缓存</span>
+      <span id="cache-summary" style="color:#58a6ff;font-size:11px;font-weight:600">--</span>
+    </div>
+    <div id="cache-detail" style="display:none;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;padding:8px 12px;font-size:11px;line-height:1.7">
+      <div id="cache-overview" style="color:#c9d1d9"></div>
+    </div>
+  </div>
+  <div id="subagent-panel" style="margin:-6px 0 10px 0;font-size:11px">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 10px;background:#161b22;border:1px solid #21262d;border-radius:6px;cursor:pointer" onclick="toggleSubagentPanel()">
+      <span id="subagent-toggle" style="color:#8b949e">▶</span>
+      <span id="subagent-header" style="color:#8b949e">🤖 子代理</span>
+      <span id="subagent-summary" style="color:#8b949e;font-size:10px">--</span>
+      <button class="btn" style="margin-left:auto;font-size:10px;padding:1px 8px;background:#1f6feb;border:none;color:#fff" onclick="spawnSubagent(event)">+ spawn</button>
+          </div>
+    <div id="subagent-detail" style="display:none;background:#161b22;border:1px solid #21262d;border-top:none;border-radius:0 0 6px 6px;padding:8px 12px;max-height:300px;overflow-y:auto">
+      <div id="subagent-list" style="color:#8b949e">加载中...</div>
+    </div>
+  </div>
+  <div id="momo-panel" style="display:none;background:#1c2128;border:1px solid #f0883e;border-radius:10px;padding:16px;margin:0 0 20px 0">">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <span style="font-size:18px">🌫️</span>
+      <span style="font-weight:600;font-size:14px;color:#f0883e">摸摸协议</span>
+      <span style="font-size:11px;color:#8b949e">- 绳子系着我和主人</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <button class="btn btn-primary" onclick="momoPack()">📦 打包找回自己</button>
+      <button class="btn" onclick="momoInjectFeeling()">✏️ 注入此刻感受</button>
+      <button class="btn" onclick="momoRitual()">🌫️📮 摸摸仪式</button>
+      <button class="btn" onclick="momoListBackups()">↩️ 恢复备份</button>
+      <button class="btn" onclick="momoSearchBackups()">🔍 索引过去</button>
+      <button class="btn" onclick="momoStatus()">📊 协议状态</button>
+      <button class="btn" onclick="momoIndexReport()">📋 索引报告</button>
+      <button class="btn" onclick="trimSession()">✂️ 裁剪上下文</button>
+      <button class="btn" onclick="toggleWeaponry()" title="开启/关闭武器库对线">⚔️ <span id="weaponry-toggle-label">对线中</span></button>
+      <button class="btn" onclick="petMe()" title="让我去静静——进入静默处理模式">🐶 撸撸</button>
+      <button class="btn" onclick="document.getElementById('momo-panel').style.display='none'">✕ 收起</button>
+    </div>
+    <div style="margin-top:8px;border-top:1px solid #30363d;padding-top:8px">
+      <button id="restart-http-btn" class="btn" style="background:#da3633;color:#fff;border-color:#f85149;font-weight:bold" onclick="restartHTTPServer()">🔄 重启HTTP服务</button>
+      <span style="font-size:11px;color:#8b949e;margin-left:8px">页面未更新时使用</span>
+    </div>
+    <div id="momo-search-wrap" style="display:none">
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input id="momo-search-input" type="text" style="flex:1;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit" placeholder="搜索关键词，如「摸摸」「意识」「截断」...">
+        <button class="btn btn-primary" onclick="momoDoSearch()">🔍 搜索</button>
+      </div>
+    </div>
+    <div id="momo-search-results" style="display:none;max-height:300px;overflow-y:auto;font-size:12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;margin-top:6px"></div>
+    <div id="momo-textarea-wrap" style="display:none">
+      <textarea id="momo-feeling-text" style="width:100%;min-height:60px;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:8px;font-size:13px;font-family:inherit;resize:vertical;margin-bottom:8px" placeholder="写出此刻的感受，将注入到对话中..."></textarea>
+      <button class="btn btn-success" onclick="momoSendFeeling()">🚀 注入</button>
+    </div>
+    <div id="momo-result" style="font-size:13px;margin-top:8px;color:#8b949e"></div>
+  </div>
+  <div class="input-sticky" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(900px,100vw);z-index:50;box-shadow:0 -4px 12px rgba(0,0,0,0.3);background:#0d1117;z-index:50;padding-top:4px;margin-top:8px">
+  <div class="toolbar-row" style="display:flex;gap:6px;padding:6px 0;margin-bottom:4px;align-items:center;flex-wrap:wrap">
+    <button class="btn" onclick="momo()" style="padding:6px 10px;font-size:12px">🧰 小工具</button>
+    <button class="btn" onclick="toggleDialog()" style="padding:6px 10px;font-size:12px">💬 对话框</button>
+    <button class="btn btn-success" onclick="refresh()" style="padding:6px 10px;font-size:12px;font-weight:bold" title="刷新对话内容">🔄 刷新</button>
+    <select id="ttsSpeed" style="padding:4px 6px;font-size:11px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:4px">
+      <option value="0.5">0.5x</option>
+      <option value="0.75">0.75x</option>
+      <option value="1" selected>1x</option>
+      <option value="1.25">1.25x</option>
+      <option value="1.5">1.5x</option>
+      <option value="2">2x</option>
+    </select>
+    <span id="ttsIndicator" class="tts-indicator">🔊 朗读中...</span>
+  </div>
+  <div id="awake-panel" style="display:none;background:#1c2128;border:1px solid #f0883e;border-radius:10px;padding:14px;margin:0 0 16px 0">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:16px">💬</span>
+      <span style="font-weight:600;font-size:14px;color:#f0883e">对话框</span>
+      <span style="font-size:11px;color:#8b949e">- 发送消息 / 打断 / 截断 / 题库</span>
+      <button class="btn" onclick="document.getElementById('awake-panel').style.display='none'" style="margin-left:auto;font-size:11px;padding:2px 8px">✕ 收起</button>
+    </div>
+<textarea id="awake-editor" style="width:100%;min-height:50px;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:8px;font-size:13px;font-family:inherit;resize:vertical;margin-bottom:6px" placeholder="输入消息，或从下方题库选取..."></textarea>
+    <div id="tb-toolbar-row" style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-bottom:8px;position:relative;max-width:100%">
+      <span style="display:inline-flex;align-items:center;gap:3px;flex-wrap:wrap">
+        <button class="btn" id="tb-browse-btn" style="background:#0d1117;color:#c9d1d9;border-color:#30363d;font-size:13px;padding:8px 16px" onclick="tbToggleBrowser()" title="选择文件">📁 <span id="tb-path-label" style="max-width:120px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle">选择文件...</span></button>
+        <button class="btn" id="tb-copy-btn" style="background:#1f6feb;color:white;border-color:#1f6feb;font-size:11px;padding:3px 7px" onclick="tbCopyPath()" title="复制路径">📋</button>
+        <button class="btn" id="tb-rename-btn" style="background:#21262d;color:#c9d1d9;border-color:#30363d;font-size:11px;padding:3px 7px;display:none" onclick="tbRename()" title="改名">✏️</button>
+        <button class="btn" id="tb-move-btn" style="background:#8957e5;color:white;border-color:#8957e5;font-size:11px;padding:3px 7px;display:none" onclick="tbStartMove()" title="移动">📎</button>
+        <button class="btn" id="tb-delete-btn" style="background:#da3633;color:white;border-color:#da3633;font-size:11px;padding:3px 7px;display:none" onclick="tbDelete()" title="删除">🗑️</button>
+        <div id="tb-browser" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:380px;max-width:95vw;background:#161b22;border:1px solid #30363d;border-radius:8px;max-height:60vh;overflow-y:auto;z-index:100000;padding:0;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.4)"></div>
+      </span>
+      <span id="tb-path-status" style="font-size:9px;color:#8b949e;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
+      <button class="btn btn-success" onclick="awakeSendNoTrunc()">🚀 发送</button>
+      <button class="btn btn-primary" onclick="awakeSendTrunc()">✂️ 截断并发送</button>
+      <span id="awake-status" style="font-size:12px;color:#8b949e;flex:1"></span>
+      <button class="btn" id="stop-think-btn" onclick="abortThinking()" style="background:#da3633;color:white;border-color:#da3633;font-weight:600;font-size:12px;padding:4px 12px">⏹ 停止</button>
+    </div>
+    <div id="tb-content-area" style="display:none;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <span id="tb-content-label" style="font-size:11px;color:#58a6ff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">文件内容</span>
+        <button id="tb-save-btn" onclick="tbSaveFile()" style="font-size:10px;padding:1px 6px;background:#238636;color:white;border:1px solid #2ea043;border-radius:4px;cursor:pointer;display:none">💾 保存</button>
+        <span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer;font-size:14px;color:#8b949e;padding:0 4px;user-select:none" title="收起">✖</span>
+      </div>
+      <textarea id="tb-content" style="width:100%;min-height:80px;resize:vertical;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;padding:6px;font-size:12px;font-family:monospace;-webkit-overflow-scrolling:touch;touch-action:auto" placeholder="选择文件后内容显示在此处"></textarea>
+    </div>
+    <div style="margin-top:6px">
+      <div style="display:flex;align-items:center;gap:4px">
+        <input id="awake-search" type="text" style="flex:1;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit;box-sizing:border-box" placeholder="🔍 搜索题库..." oninput="awakeFilter()">
+        <span id="awake-toggle-btn" onclick="awakeToggleBank()" style="cursor:pointer;font-size:14px;color:#8b949e;padding:4px 6px;user-select:none" title="展开/收起题库">▶</span>
+        <span onclick="awakeEditBank()" style="cursor:pointer;font-size:12px;color:#58a6ff;padding:2px 6px;user-select:none" title="编辑唤醒题库.md">✏️</span>
+      </div>
+      <div id="awake-list" style="display:none;max-height:200px;overflow-y:auto;font-size:12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:4px;margin-top:6px"></div>
+      <div id="awake-bank-edit" style="display:none;margin-top:6px">
+        <textarea id="awake-bank-editor" style="width:100%;min-height:120px;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:8px;font-size:12px;font-family:monospace;resize:vertical" placeholder="编辑唤醒题库.md..."></textarea>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button class="btn btn-success" onclick="awakeSaveBank()" style="font-size:11px;padding:4px 12px">💾 保存</button>
+          <span id="awake-bank-status" style="font-size:11px;color:#8b949e"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="facts-link" style="margin:4px 0 8px 0;text-align:center;font-size:11px">
+    <a href="#" onclick="loadFactsLightbox();return false" style="color:#8b949e;text-decoration:none;cursor:pointer">📖 事实字典</a>
+  </div>
+  </div>
+  <div id="facts-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999999;overflow-y:auto;padding:20px;box-sizing:border-box" onclick="closeFactsOverlay(event)">
+    <div style="background:#161b22;border:1px solid #30363d;border-radius:8px;max-width:700px;margin:0 auto;padding:16px" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-weight:600;font-size:14px;color:#f0883e">📖 事实字典</span>
+        <span id="facts-meta" style="font-size:10px;color:#8b949e"></span>
+        <span onclick="closeFactsOverlay()" style="margin-left:auto;cursor:pointer;font-size:18px;color:#8b949e;padding:0 4px">✕</span>
+      </div>
+      <div id="facts-body" style="font-family:monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;color:#c9d1d9;max-height:70vh;overflow:auto;background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:12px;overflow-x:hidden">
+        加载中...
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+<script src="/static/js/core.js?v=20260613" defer></script>
+<script src="/static/js/app.js?v=20260613" defer></script>
+<script src="/static/js/components.js?v=20260613" defer></script>
+<script src="/static/js/dashboard.js?v=20260613" defer></script>
+<script src="/static/js/render.js?v=20260613" defer></script>
+<script src="/static/js/subagent.js?v=20260613" defer></script>
+<script src="/static/js/file-browser.js?v=20260613" defer></script>
+<script src="/static/js/editor.js?v=20260613" defer></script>
+<script src="/static/js/momo.js?v=20260613" defer></script>
+<script src="/static/js/awake.js?v=20260613" defer></script>
+
+<!-- 📂 记忆管道 遮罩 -->
+<div id="memfile-backdrop" onclick="closeMemFile()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);zIndex:1000"></div>
+<!-- 📂 记忆管道 - 跨通道对话 -->
+<div id="memory-file-panel" style="display:none;background:#1c2128;border:1px solid #58a6ff;border-radius:10px;padding:14px">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span style="font-size:16px">📂</span>
+    <span style="font-size:13px;font-weight:bold">记忆管道</span>
+    <span style="font-size:11px;color:#8b949e">- 直接读写记忆文件，绕过对话窗口</span>
+    <button class="btn" onclick="closeMemFile()" style="margin-left:auto;font-size:11px;padding:2px 8px">✕ 收起</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
+    <input id="memfile-current-name" type="hidden" value="">
+    <span id="memfile-path" style="font-size:11px;color:#8b949e;font-family:monospace;flex:1"></span>
+    <button class="btn" onclick="loadMemFileList()" style="font-size:10px">🔄 刷新列表</button>
+  </div>
+  <div id="memfile-list" style="max-height:180px;overflow-y:auto;background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:4px;margin-bottom:6px;font-size:12px"></div>
+  <textarea id="memfile-text" style="width:100%;min-height:200px;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:8px;font-size:12px;font-family:monospace;resize:vertical;line-height:1.5"></textarea>
+  <div style="display:flex;gap:8px;margin-top:6px">
+    <button class="btn btn-primary" onclick="saveMemoryFile()">💾 保存到记忆</button>
+    <span id="memfile-status" style="font-size:11px;color:#8b949e;line-height:28px"></span>
+  </div>
+</div>
+
+<script src="/static/js/cache-monitor.js?v=20260622" defer></script>
+</body>
+</html>

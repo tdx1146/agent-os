@@ -1,0 +1,19 @@
+{
+  "_说明": "轻如烟编辑器配置文件。只填和环境变量无法自动发现的差异项。换机器只改这个。",
+  "LIGHT_SMOKE_DIR": "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟",
+  "ALL_AUTO_DIR": "/vol1/@team/qh团队/QH/AI专用/所有自动化",
+  "BROWSE_ROOT": "/vol1/@team/qh团队/QH/AI专用",
+  "DATA_DIR": "/vol1/@apphome/trim.openclaw/data/home/.openclaw/agents/main/sessions",
+  "EDITOR_PORT": 18888,
+  "HTTPS_PORT": null,
+  "HTTPS_CERT": null,
+  "HTTPS_KEY": null,
+  "GATEWAY_HOST": "127.0.0.1",
+  "GATEWAY_TOKEN": null,
+  "OPENCLAW_HOME": "/vol1/@apphome/trim.openclaw/data/home/.openclaw",
+  "IDENTITY_PATH": null,
+  "WORKSPACE": "/vol1/@apphome/trim.openclaw/data/workspace",
+  "INJECT_LOCK_DIR": null,
+  "BACKUP_DIR": null,
+  "MOMO_DIR": null
+}

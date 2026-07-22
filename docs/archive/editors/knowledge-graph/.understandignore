@@ -1,0 +1,44 @@
+# .understandignore — patterns for files/dirs to exclude from analysis
+# Syntax: same as .gitignore (globs, # comments, ! negation, trailing / for dirs)
+# Lines below are suggestions — uncomment to activate.
+# Use ! prefix to force-include something excluded by defaults.
+#
+# Built-in defaults (always excluded unless negated):
+#   node_modules/, .git/, dist/, build/, obj/, *.lock, *.min.js, etc.
+#
+
+# --- Exclude backup directories ---
+backup_*/
+backup_*/*
+
+# --- Exclude build artifacts and logs ---
+.inject_logs/
+__pycache__/
+
+# --- Exclude intermediate analysis files ---
+.understand-anything/intermediate/file-list.txt
+
+# --- Exclude backup/old files ---
+*.bak
+*.bak.*
+*.backup
+*.backup.*
+
+# --- Test file patterns (uncomment to exclude) ---
+
+# JS / TS
+# *.test.*
+# *.spec.*
+# *.snap
+# C# / .NET
+# **/*Tests.cs
+# **/*Test.cs
+# **/*Fixture.cs
+# **/*.Tests.csproj
+# Java / Kotlin
+# **/src/test/**
+# **/*Test.java
+# **/*IT.java
+# **/*Spec.kt
+# Go
+# **/*_test.go

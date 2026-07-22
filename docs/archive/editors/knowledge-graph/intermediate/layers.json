@@ -1,0 +1,166 @@
+[
+  {
+    "id": "layer:main-backend",
+    "name": "Main Backend Server",
+    "description": "Core Python backend — edit-web.py is the HTTP/HTTPS server entry point on port 18888/18889",
+    "nodeIds": [
+      "file:edit-web.py",
+      "file:cache_monitor.py",
+      "file:cache_stats_helper.py",
+      "file:session_safety.py",
+      "file:momo-pack-cli.py",
+      "file:reflection_unified.py",
+      "file:task_dispatcher.py",
+      "file:think_patches.py",
+      "file:think_patterns.py",
+      "file:think_test.py",
+      "file:think_type_check.py",
+      "file:sandglass_log_wrapper.py",
+      "file:searxng_mcp.py"
+    ]
+  },
+  {
+    "id": "layer:request-handlers",
+    "name": "Request Handlers (REST API)",
+    "description": "HTTP request routing and handler modules for all API endpoints (session, inject, momo, crypto, file, system, awake, helper)",
+    "nodeIds": [
+      "file:handlers/__init__.py",
+      "file:handlers/awake_handler.py",
+      "file:handlers/crypto_handler.py",
+      "file:handlers/file_handler.py",
+      "file:handlers/helper_handler.py",
+      "file:handlers/inject_handler.py",
+      "file:handlers/momo_handler.py",
+      "file:handlers/router.py",
+      "file:handlers/session_handler.py",
+      "file:handlers/system_handler.py"
+    ]
+  },
+  {
+    "id": "layer:utilities",
+    "name": "Utility Library",
+    "description": "Backend utility modules: crypto, inject, momo-pack, secretary, session file IO, file browser, config, version",
+    "nodeIds": [
+      "file:utils/config.py",
+      "file:utils/crypto.py",
+      "file:utils/inject.py",
+      "file:utils/momo.py",
+      "file:utils/secretary.py",
+      "file:utils/session.py",
+      "file:utils/tb_handler.py",
+      "file:utils/version.py",
+      "file:utils/__init__.py"
+    ]
+  },
+  {
+    "id": "layer:frontend",
+    "name": "Frontend (Static Assets)",
+    "description": "Browser-side JavaScript UI: core state layer, component framework, renderer, editor panel, file browser, dashboard, subagent UI, awakening panel, cache monitor, momo protocol frontend",
+    "nodeIds": [
+      "file:static/css/styles.css",
+      "file:static/index.html",
+      "file:static/js/app.js",
+      "file:static/js/awake.js",
+      "file:static/js/cache-monitor.js",
+      "file:static/js/components.js",
+      "file:static/js/core.js",
+      "file:static/js/dashboard.js",
+      "file:static/js/editor.js",
+      "file:static/js/file-browser.js",
+      "file:static/js/momo.js",
+      "file:static/js/render.js",
+      "file:static/js/subagent.js"
+    ]
+  },
+  {
+    "id": "layer:injection-helper",
+    "name": "WebSocket Injection Infrastructure",
+    "description": "Node.js-based WebSocket injection helper and embed server — connects to Gateway for message injection",
+    "nodeIds": [
+      "file:health-check.sh",
+      "file:health-loop.sh",
+      "file:start-clean.sh",
+      "file:start-health-loop.sh",
+      "file:watchdog.sh",
+      "file:embed-server.mjs",
+      "file:inject-helper.mjs"
+    ]
+  },
+  {
+    "id": "layer:configuration",
+    "name": "Configuration",
+    "description": "Project configuration files (editor-config.json and intermediate scan data)",
+    "nodeIds": [
+      "config:editor-config.json",
+      "config:.understand-anything/intermediate/scan-result-temp.json",
+      "file:.understand-anything/.understandignore",
+      "config:.understand-anything/intermediate/scan-result-temp.json"
+    ]
+  },
+  {
+    "id": "layer:documentation",
+    "name": "Documentation & Audit Reports",
+    "description": "Project documentation, architecture docs, audit reports, and deploy notes",
+    "nodeIds": [
+      "document:AUDIT_REPORT.md",
+      "document:FRONTEND_AUDIT.md",
+      "document:README.md",
+      "document:VERSION_COMPARISON.md",
+      "document:deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+      "document:deploy-notes/API_KEYS_TEST.md",
+      "document:deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md",
+      "document:deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+      "document:deploy-notes/EDITOR_CRASH_DIAG.md",
+      "document:deploy-notes/EDITOR_DELIVERY_BUG.md",
+      "document:deploy-notes/EDITOR_SLOW_LOAD.md",
+      "document:deploy-notes/EMBEDDING_CACHE_ANALYSIS.md",
+      "document:deploy-notes/FIX_TITLE_AND_VERSION_RULES.md",
+      "document:deploy-notes/SA_MCP_DESIGN.md",
+      "document:deploy-notes/SISTER_RECON.md",
+      "document:deploy-notes/SKILL_V2_GAP.md",
+      "document:deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+      "document:deploy-notes/THREE_LAYER_FEASIBILITY.md",
+      "document:deploy-notes/TOOL_ERROR_AUDIT.md",
+      "document:deploy-notes/TTS_FIX.md",
+      "document:deploy-notes/VERSION_AUDIT_20260627.md",
+      "document:deploy-notes/VERSION_AUDIT_20260628.md",
+      "document:deploy-notes/VERSION_MANAGEMENT.md",
+      "document:deploy-notes/dandan-request-20260628-decomposition.md",
+      "document:revisions/fix-delivery-bug-20260626.md",
+      "document:revisions/fix-watchdog-20260626.md",
+      "document:revisions/revert-guide.md"
+    ]
+  },
+  {
+    "id": "layer:revisions",
+    "name": "Version History & Revisions",
+    "description": "Historical code revisions, version comparisons, and rollback guides",
+    "nodeIds": [
+      "document:revisions/fix-delivery-bug-20260626.md",
+      "document:revisions/fix-watchdog-20260626.md",
+      "document:revisions/revert-guide.md",
+      "file:revisions/20260612_v1_editor-backup.py",
+      "file:revisions/20260613_v2_zuixin.py",
+      "file:revisions/v4.1_20260626_inject-fix/awake.js",
+      "file:revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "file:revisions/v4.1_20260626_inject-fix/editor.js",
+      "file:revisions/v4.1_20260626_inject-fix/inject-helper.mjs",
+      "file:revisions/v4.1_20260626_inject-fix/start-clean.sh",
+      "file:revisions/v4.2_20260628_version-fix/core.js",
+      "file:revisions/v4.2_20260628_version-fix/edit-web.py",
+      "file:revisions/v4.2_20260628_version-fix/index.html",
+      "file:revisions/v4.2_20260628_version-fix/router.py",
+      "file:revisions/v4.2_20260628_version-fix/system_handler.py",
+      "file:revisions/v4.2_20260628_version-fix/version.py"
+    ]
+  },
+  {
+    "id": "layer:experimental",
+    "name": "Experimental Code",
+    "description": "Experimental features and alternative implementations",
+    "nodeIds": [
+      "file:experimental/edit-web_v4.1_subprocess-run.py",
+      "file:experimental/inject-helper.mjs"
+    ]
+  }
+]

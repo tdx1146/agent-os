@@ -1,0 +1,2562 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 20,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 620,
+      "nonEmptyLines": 470,
+      "sections": [
+        {
+          "heading": "Agent OS 缺口分析",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "当前系统评分（满分 10 分）",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "详细缺口清单",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "一、感知层",
+          "level": 3,
+          "line": 30
+        },
+        {
+          "heading": "1.1 浏览器自动化 — ❌ 未集成",
+          "level": 4,
+          "line": 32
+        },
+        {
+          "heading": "1.2 图像理解能力 — ❌ 无",
+          "level": 4,
+          "line": 69
+        },
+        {
+          "heading": "二、记忆层",
+          "level": 3,
+          "line": 99
+        },
+        {
+          "heading": "2.1 向量嵌入搜索 — ❌ 无",
+          "level": 4,
+          "line": 101
+        },
+        {
+          "heading": "2.2 跨实例记忆同步 — ❌ 无",
+          "level": 4,
+          "line": 125
+        },
+        {
+          "heading": "三、认知层",
+          "level": 3,
+          "line": 149
+        },
+        {
+          "heading": "3.1 系统化推理增强 — ⚠️ 不系统",
+          "level": 4,
+          "line": 151
+        },
+        {
+          "heading": "3.2 自我审计 — ⚠️ 理论设计，未实现",
+          "level": 4,
+          "line": 174
+        },
+        {
+          "heading": "四、行动层",
+          "level": 3,
+          "line": 201
+        },
+        {
+          "heading": "4.1 MCP 工具集成到运行时可调用工具 — ❌ 未完成",
+          "level": 4,
+          "line": 203
+        },
+        {
+          "heading": "4.2 浏览器操作执行 — ❌ 未集成",
+          "level": 4,
+          "line": 241
+        },
+        {
+          "heading": "五、协作层",
+          "level": 3,
+          "line": 254
+        },
+        {
+          "heading": "5.1 双向审计 — ❌ 无",
+          "level": 4,
+          "line": 256
+        },
+        {
+          "heading": "5.2 自动记忆同步 — ❌ 无",
+          "level": 4,
+          "line": 278
+        },
+        {
+          "heading": "六、持久化层",
+          "level": 3,
+          "line": 284
+        },
+        {
+          "heading": "6.1 灾难恢复验证 — ⚠️ 未验证",
+          "level": 4,
+          "line": 286
+        },
+        {
+          "heading": "6.2 部署/迁移脚本 — ⚠️ 不完整",
+          "level": 4,
+          "line": 308
+        },
+        {
+          "heading": "七、安全层",
+          "level": 3,
+          "line": 325
+        },
+        {
+          "heading": "7.1 沙箱/隔离 — ❌ 无",
+          "level": 4,
+          "line": 327
+        },
+        {
+          "heading": "7.2 密钥/令牌管理 — ⚠️ 散乱",
+          "level": 4,
+          "line": 350
+        },
+        {
+          "heading": "7.3 审计日志 — ⚠️ 不完善",
+          "level": 4,
+          "line": 372
+        },
+        {
+          "heading": "7.4 访问控制 — ❌ 无",
+          "level": 4,
+          "line": 390
+        },
+        {
+          "heading": "八、监控层",
+          "level": 3,
+          "line": 408
+        },
+        {
+          "heading": "8.1 性能监控 — ❌ 无",
+          "level": 4,
+          "line": 410
+        },
+        {
+          "heading": "8.2 告警系统 — ❌ 无",
+          "level": 4,
+          "line": 430
+        },
+        {
+          "heading": "推荐路线图",
+          "level": 2,
+          "line": 451
+        },
+        {
+          "heading": "🟢 短期（这周能做的）— 低垂果实",
+          "level": 3,
+          "line": 453
+        },
+        {
+          "heading": "🟡 中期（本月能做的）— 夯实基础",
+          "level": 3,
+          "line": 468
+        },
+        {
+          "heading": "🔴 长期（以后再说）— 真正的 OS 级能力",
+          "level": 3,
+          "line": 483
+        },
+        {
+          "heading": "优先级矩阵",
+          "level": 2,
+          "line": 499
+        },
+        {
+          "heading": "附：现有能力清单（完整版）",
+          "level": 2,
+          "line": 523
+        },
+        {
+          "heading": "总结",
+          "level": 2,
+          "line": 606
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 36
+      }
+    },
+    {
+      "path": "deploy-notes/API_KEYS_TEST.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 74,
+      "nonEmptyLines": 56,
+      "sections": [
+        {
+          "heading": "DeepSeek API Key 测试报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "测试结果概览",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "详细结果",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "jiali3 (`sk-655b7c...eb1b`)",
+          "level": 3,
+          "line": 16
+        },
+        {
+          "heading": "jiali4 (`sk-d91a63...2307`)",
+          "level": 3,
+          "line": 29
+        },
+        {
+          "heading": "结论",
+          "level": 2,
+          "line": 42
+        },
+        {
+          "heading": "关键发现",
+          "level": 3,
+          "line": 46
+        },
+        {
+          "heading": "建议的子代理模型配置",
+          "level": 3,
+          "line": 55
+        },
+        {
+          "heading": "注意事项",
+          "level": 3,
+          "line": 70
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 9
+      }
+    },
+    {
+      "path": "deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 460,
+      "nonEmptyLines": 355,
+      "sections": [
+        {
+          "heading": "审计层实时拦截架构可行性分析",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "快速结论",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "1. 三层架构分析",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "1.1 原始构想（dandan 提出的版本）",
+          "level": 3,
+          "line": 25
+        },
+        {
+          "heading": "1.2 三层分工在 token 层面是否合理？",
+          "level": 3,
+          "line": 41
+        },
+        {
+          "heading": "1.3 \"事实进字典后忘记\"需要什么上下文操作能力？",
+          "level": 3,
+          "line": 58
+        },
+        {
+          "heading": "2. Context Manipulation 的技术可行性",
+          "level": 2,
+          "line": 73
+        },
+        {
+          "heading": "2.1 OpenClaw 上下文架构概览",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "2.2 OpenClaw 是否有\"编辑上下文\"的 API？",
+          "level": 3,
+          "line": 98
+        },
+        {
+          "heading": "2.3 审计层\"实时拦截\"全链路的工程可行性",
+          "level": 3,
+          "line": 116
+        },
+        {
+          "heading": "逐个步骤分析：",
+          "level": 4,
+          "line": 130
+        },
+        {
+          "heading": "实际可行的等价实现",
+          "level": 4,
+          "line": 150
+        },
+        {
+          "heading": "2.4 需要 OpenClaw 提供哪些额外能力？",
+          "level": 3,
+          "line": 175
+        },
+        {
+          "heading": "3. 关键挑战与缓解方案",
+          "level": 2,
+          "line": 189
+        },
+        {
+          "heading": "3.1 🚩 挑战一：流式输出的实时拦截",
+          "level": 3,
+          "line": 191
+        },
+        {
+          "heading": "3.2 🚩 挑战二：Context 不可变性",
+          "level": 3,
+          "line": 212
+        },
+        {
+          "heading": "3.3 🚩 挑战三：递归陷阱",
+          "level": 3,
+          "line": 241
+        },
+        {
+          "heading": "3.4 🚩 挑战四：审计模型本身的幻觉",
+          "level": 3,
+          "line": 274
+        },
+        {
+          "heading": "4. 与当前高级助理 skill 的对比",
+          "level": 2,
+          "line": 295
+        },
+        {
+          "heading": "4.1 审计层定位对比",
+          "level": 3,
+          "line": 297
+        },
+        {
+          "heading": "4.2 关键差异：为什么当前 skill 不采用\"实时拦截\"",
+          "level": 3,
+          "line": 307
+        },
+        {
+          "heading": "4.3 SA_MCP_DESIGN 中的额外探索",
+          "level": 3,
+          "line": 320
+        },
+        {
+          "heading": "5. 结论和建议",
+          "level": 2,
+          "line": 332
+        },
+        {
+          "heading": "5.1 可行性评级总表",
+          "level": 3,
+          "line": 334
+        },
+        {
+          "heading": "5.2 推荐实施路径",
+          "level": 3,
+          "line": 348
+        },
+        {
+          "heading": "5.3 替代方案：如果不做实时拦截",
+          "level": 3,
+          "line": 367
+        },
+        {
+          "heading": "5.4 最终建议",
+          "level": 3,
+          "line": 398
+        },
+        {
+          "heading": "附录：技术参考",
+          "level": 2,
+          "line": 408
+        },
+        {
+          "heading": "A. before_agent_finalize + revise 的伪代码",
+          "level": 3,
+          "line": 410
+        },
+        {
+          "heading": "B. OpenClaw 参考文档索引",
+          "level": 3,
+          "line": 441
+        },
+        {
+          "heading": "C. 关键限制汇总",
+          "level": 3,
+          "line": 453
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 31
+      }
+    },
+    {
+      "path": "deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 341,
+      "nonEmptyLines": 267,
+      "sections": [
+        {
+          "heading": "代码结构深度审视",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "一、整体结构总览",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "项目规模",
+          "level": 3,
+          "line": 14
+        },
+        {
+          "heading": "分层架构",
+          "level": 3,
+          "line": 25
+        },
+        {
+          "heading": "二、模块依赖关系分析",
+          "level": 2,
+          "line": 62
+        },
+        {
+          "heading": "关键发现",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "1. router.py 是巨量依赖的集中分发点 ⚠️",
+          "level": 4,
+          "line": 66
+        },
+        {
+          "heading": "2. utils/config.py 与 utils/tb_handler.py 是核心瓶颈",
+          "level": 4,
+          "line": 72
+        },
+        {
+          "heading": "3. 发现一个 handler→handler 跨依赖 ⚠️",
+          "level": 4,
+          "line": 80
+        },
+        {
+          "heading": "4. inject-helper.mjs 完全孤岛化",
+          "level": 4,
+          "line": 84
+        },
+        {
+          "heading": "5. 无循环依赖",
+          "level": 4,
+          "line": 90
+        },
+        {
+          "heading": "三、高风险区域",
+          "level": 2,
+          "line": 96
+        },
+        {
+          "heading": "3.1 单体核心：edit-web.py（1935行）",
+          "level": 3,
+          "line": 98
+        },
+        {
+          "heading": "3.2 函数级：超大函数分布",
+          "level": 3,
+          "line": 119
+        },
+        {
+          "heading": "3.3 缺少边界校验",
+          "level": 3,
+          "line": 133
+        },
+        {
+          "heading": "3.4 版本碎片化",
+          "level": 3,
+          "line": 148
+        },
+        {
+          "heading": "3.5 前端代码",
+          "level": 3,
+          "line": 155
+        },
+        {
+          "heading": "四、改进建议",
+          "level": 2,
+          "line": 176
+        },
+        {
+          "heading": "🔴 短期可改（1-2天）",
+          "level": 3,
+          "line": 178
+        },
+        {
+          "heading": "1. router.py 重构：从 if-else 链到注册表模式",
+          "level": 4,
+          "line": 180
+        },
+        {
+          "heading": "2. inject.py 添加异常处理",
+          "level": 4,
+          "line": 199
+        },
+        {
+          "heading": "3. 核心函数拆分",
+          "level": 4,
+          "line": 216
+        },
+        {
+          "heading": "4. 清理版本碎片",
+          "level": 4,
+          "line": 220
+        },
+        {
+          "heading": "🟡 中期规划（1-2周）",
+          "level": 3,
+          "line": 225
+        },
+        {
+          "heading": "5. edit-web.py 模块拆分",
+          "level": 4,
+          "line": 227
+        },
+        {
+          "heading": "6. 全库添加类型注解",
+          "level": 4,
+          "line": 245
+        },
+        {
+          "heading": "7. router.py 与 handler 接口标准化",
+          "level": 4,
+          "line": 259
+        },
+        {
+          "heading": "8. 引入数据类/结构体",
+          "level": 4,
+          "line": 273
+        },
+        {
+          "heading": "🟢 远期架构（1月+）",
+          "level": 3,
+          "line": 284
+        },
+        {
+          "heading": "9. 后端分层重构",
+          "level": 4,
+          "line": 286
+        },
+        {
+          "heading": "10. 前端 TypeScript 迁移",
+          "level": 4,
+          "line": 300
+        },
+        {
+          "heading": "11. 注入链路统一",
+          "level": 4,
+          "line": 306
+        },
+        {
+          "heading": "五、总结",
+          "level": 2,
+          "line": 315
+        },
+        {
+          "heading": "健康指标",
+          "level": 3,
+          "line": 317
+        },
+        {
+          "heading": "优先级",
+          "level": 3,
+          "line": 330
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 35
+      }
+    },
+    {
+      "path": "deploy-notes/EDITOR_CRASH_DIAG.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 200,
+      "nonEmptyLines": 147,
+      "sections": [
+        {
+          "heading": "🔍 编辑器频繁崩溃诊断报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 崩溃根因",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "主要根因：`subprocess.run(timeout=10)` 阻塞请求线程 + Gateway 连接不稳定 导致进程被守护脚本杀死",
+          "level": 3,
+          "line": 10
+        },
+        {
+          "heading": "次要因素：资源泄漏",
+          "level": 3,
+          "line": 43
+        },
+        {
+          "heading": "2. 代码改动详情",
+          "level": 2,
+          "line": 51
+        },
+        {
+          "heading": "改动对比（备份 `edit-web.py.bak.20260626_0007` → 当前 `edit-web.py`）",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "改动位置：`inject_via_websocket()` 函数（第 231-255 行）",
+          "level": 4,
+          "line": 55
+        },
+        {
+          "heading": "具体代码关键行",
+          "level": 3,
+          "line": 67
+        },
+        {
+          "heading": "3. 其他排查项的结论",
+          "level": 2,
+          "line": 82
+        },
+        {
+          "heading": "4. 修正/修复方案",
+          "level": 2,
+          "line": 95
+        },
+        {
+          "heading": "方案 A：Fire-and-Forget + 异步结果轮询（推荐）",
+          "level": 3,
+          "line": 97
+        },
+        {
+          "heading": "方案 B：线程池隔离（保留同步结果）",
+          "level": 3,
+          "line": 114
+        },
+        {
+          "heading": "方案 C：保留 Popen + 独立状态检查（最安全）",
+          "level": 3,
+          "line": 137
+        },
+        {
+          "heading": "5. 立即缓解措施",
+          "level": 2,
+          "line": 143
+        },
+        {
+          "heading": "6. 附录",
+          "level": 2,
+          "line": 164
+        },
+        {
+          "heading": "注入日志样本（正常）",
+          "level": 3,
+          "line": 166
+        },
+        {
+          "heading": "注入日志样本（超时）",
+          "level": 3,
+          "line": 175
+        },
+        {
+          "heading": "关联的守护脚本",
+          "level": 3,
+          "line": 187
+        },
+        {
+          "heading": "环境",
+          "level": 3,
+          "line": 195
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 19
+      }
+    },
+    {
+      "path": "deploy-notes/EDITOR_DELIVERY_BUG.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 381,
+      "nonEmptyLines": 298,
+      "sections": [
+        {
+          "heading": "🔍 编辑器消息送达故障诊断报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 故障现象复现路径",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "2. 代码级根因分析",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "根因 1（核心）：`subprocess.Popen` 火抛后立返 `{\"ok\": True}` — 实为盲人摸象",
+          "level": 3,
+          "line": 28
+        },
+        {
+          "heading": "根因 2（架构）：轮询验证机制与发送通道脱钩",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "根因 3：轮询 15 秒后无恢复机制",
+          "level": 3,
+          "line": 61
+        },
+        {
+          "heading": "根因 4：乐观更新覆盖了真实状态",
+          "level": 3,
+          "line": 76
+        },
+        {
+          "heading": "根因 5：inject-helper.mjs 每次新建 WebSocket 连接",
+          "level": 3,
+          "line": 107
+        },
+        {
+          "heading": "根因 6（次要）：inject_feeling 路径不写回 session pairs，轮询必然超时",
+          "level": 3,
+          "line": 121
+        },
+        {
+          "heading": "3. 故障严重性判定",
+          "level": 2,
+          "line": 143
+        },
+        {
+          "heading": "与已知 inject 日志的关联",
+          "level": 3,
+          "line": 152
+        },
+        {
+          "heading": "4. 修复方案",
+          "level": 2,
+          "line": 160
+        },
+        {
+          "heading": "方案 A：等待 inject-helper 确认（推荐，低风险高收益）",
+          "level": 3,
+          "line": 162
+        },
+        {
+          "heading": "方案 B：前端轮询加恢复机制（中等风险，中等收益）",
+          "level": 3,
+          "line": 203
+        },
+        {
+          "heading": "方案 C：（暂不推荐）保持长连接 WebSocket 替代每次新建连接",
+          "level": 3,
+          "line": 230
+        },
+        {
+          "heading": "方案 D：（可选增强）在 inject-helper 中加入重试逻辑",
+          "level": 3,
+          "line": 239
+        },
+        {
+          "heading": "5. 推荐实施顺序",
+          "level": 2,
+          "line": 257
+        },
+        {
+          "heading": "6. 风险提示",
+          "level": 2,
+          "line": 283
+        },
+        {
+          "heading": "方案 A 风险",
+          "level": 3,
+          "line": 285
+        },
+        {
+          "heading": "方案 B 风险",
+          "level": 3,
+          "line": 293
+        },
+        {
+          "heading": "通用风险",
+          "level": 3,
+          "line": 300
+        },
+        {
+          "heading": "7. 架构图",
+          "level": 2,
+          "line": 309
+        },
+        {
+          "heading": "8. 附录：相关文件索引",
+          "level": 2,
+          "line": 365
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 23
+      }
+    },
+    {
+      "path": "deploy-notes/EDITOR_SLOW_LOAD.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 181,
+      "nonEmptyLines": 129,
+      "sections": [
+        {
+          "heading": "编辑器首次加载缓慢诊断报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 当前状态：所有 API 正常，无明显延迟",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "2. 子方向排查结果",
+          "level": 2,
+          "line": 36
+        },
+        {
+          "heading": "✅ 方向 A：Inject Lock 阻塞 → 非根因",
+          "level": 3,
+          "line": 38
+        },
+        {
+          "heading": "✅ 方向 B：subprocess.run 分布 → 安全",
+          "level": 3,
+          "line": 45
+        },
+        {
+          "heading": "✅ 方向 C：文件系统 IO 慢 → 非根因",
+          "level": 3,
+          "line": 56
+        },
+        {
+          "heading": "✅ 方向 D：自动存档线程 → 非根因",
+          "level": 3,
+          "line": 63
+        },
+        {
+          "heading": "✅ 方向 E：Gateway 通信延迟 → 非根因",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "✅ 方向 F：逐个 API 测试 → 全部正常",
+          "level": 3,
+          "line": 74
+        },
+        {
+          "heading": "3. 根因分析",
+          "level": 2,
+          "line": 80
+        },
+        {
+          "heading": "真实根因（推测）",
+          "level": 3,
+          "line": 82
+        },
+        {
+          "heading": "根因 1：守护脚本互相杀进程（已修复）",
+          "level": 4,
+          "line": 86
+        },
+        {
+          "heading": "根因 2：`subprocess.run` 无 timeout（已修复）",
+          "level": 4,
+          "line": 91
+        },
+        {
+          "heading": "根因 3：（低概率）浏览器端并发请求累积",
+          "level": 4,
+          "line": 94
+        },
+        {
+          "heading": "汇总",
+          "level": 3,
+          "line": 97
+        },
+        {
+          "heading": "4. 修复方案",
+          "level": 2,
+          "line": 109
+        },
+        {
+          "heading": "已存在的防护措施（已验证正常）",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "建议追加的加固（可选）",
+          "level": 3,
+          "line": 118
+        },
+        {
+          "heading": "不需要改的（已验证安全）",
+          "level": 3,
+          "line": 124
+        },
+        {
+          "heading": "5. 修复后验证方法",
+          "level": 2,
+          "line": 132
+        },
+        {
+          "heading": "正常参考值",
+          "level": 3,
+          "line": 159
+        },
+        {
+          "heading": "6. 诊断过程数据",
+          "level": 2,
+          "line": 167
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 22
+      }
+    },
+    {
+      "path": "deploy-notes/EMBEDDING_CACHE_ANALYSIS.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 455,
+      "nonEmptyLines": 328,
+      "sections": [
+        {
+          "heading": "Embedding/向量搜索 vs DeepSeek 缓存命中率 —— 完整分析报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "目录",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "1. 历史回溯",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "1.1 关键发现：memory 记录中完全没有 embedding 痕迹",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "1.2 唯一提到\"缓存命中率\"的记录",
+          "level": 3,
+          "line": 37
+        },
+        {
+          "heading": "1.3 配置历史演变",
+          "level": 3,
+          "line": 47
+        },
+        {
+          "heading": "1.4 妹妹实例的 memorySearch 状态",
+          "level": 3,
+          "line": 57
+        },
+        {
+          "heading": "1.5 关于 \"1000元 API 费用\" 和 \"彻底重置\"",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "2. 缓存命中率问题根因分析",
+          "level": 2,
+          "line": 76
+        },
+        {
+          "heading": "2.1 DeepSeek 缓存机制原理",
+          "level": 3,
+          "line": 78
+        },
+        {
+          "heading": "2.2 缓存命中率下降的真正原因分析",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "✅ 正确的前提：",
+          "level": 4,
+          "line": 100
+        },
+        {
+          "heading": "❌ 实际不成立的原因：",
+          "level": 4,
+          "line": 104
+        },
+        {
+          "heading": "真正的根因（最可能的几个）：",
+          "level": 4,
+          "line": 110
+        },
+        {
+          "heading": "2.3 当前缓存命中率说明",
+          "level": 3,
+          "line": 122
+        },
+        {
+          "heading": "3. 当前恢复向量搜索的方案对比",
+          "level": 2,
+          "line": 134
+        },
+        {
+          "heading": "方案总览",
+          "level": 3,
+          "line": 136
+        },
+        {
+          "heading": "方案对比详情",
+          "level": 3,
+          "line": 147
+        },
+        {
+          "heading": "方案 A：保持 FTS-only（推荐不动版）",
+          "level": 4,
+          "line": 149
+        },
+        {
+          "heading": "方案 B1：Ollama 本地 embedding",
+          "level": 4,
+          "line": 172
+        },
+        {
+          "heading": "方案 B2：OpenClaw Local provider",
+          "level": 4,
+          "line": 207
+        },
+        {
+          "heading": "方案 C：妹妹 HTTP 调用 embedding",
+          "level": 4,
+          "line": 235
+        },
+        {
+          "heading": "方案 D：其他 API provider",
+          "level": 4,
+          "line": 256
+        },
+        {
+          "heading": "方案 E：OpenAI embedding（备选）",
+          "level": 4,
+          "line": 285
+        },
+        {
+          "heading": "4. 推荐方案",
+          "level": 2,
+          "line": 303
+        },
+        {
+          "heading": "优先级排序",
+          "level": 3,
+          "line": 305
+        },
+        {
+          "heading": "核心原则",
+          "level": 3,
+          "line": 316
+        },
+        {
+          "heading": "5. 实施步骤（如果需要）",
+          "level": 2,
+          "line": 324
+        },
+        {
+          "heading": "如果选择 B1（Ollama bge-small）",
+          "level": 3,
+          "line": 326
+        },
+        {
+          "heading": "如果选择 D（混元 embedding）",
+          "level": 3,
+          "line": 349
+        },
+        {
+          "heading": "如果不变（方案 A）",
+          "level": 3,
+          "line": 371
+        },
+        {
+          "heading": "6. 附录：DeepSeek 缓存机制技术细节",
+          "level": 2,
+          "line": 377
+        },
+        {
+          "heading": "6.1 缓存命中率的观测",
+          "level": 3,
+          "line": 379
+        },
+        {
+          "heading": "6.2 何时缓存会下降",
+          "level": 3,
+          "line": 398
+        },
+        {
+          "heading": "6.3 缓存与 API Key 的关系",
+          "level": 3,
+          "line": 414
+        },
+        {
+          "heading": "6.4 OpenClaw memory_search 的架构",
+          "level": 3,
+          "line": 427
+        },
+        {
+          "heading": "总结",
+          "level": 2,
+          "line": 444
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 37
+      }
+    },
+    {
+      "path": "deploy-notes/FIX_TITLE_AND_VERSION_RULES.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 33,
+      "nonEmptyLines": 26,
+      "sections": [
+        {
+          "heading": "FIX_TITLE_AND_VERSION_RULES.md",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "审计修复：标题版本号 + 版本管理规则",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "改动清单",
+          "level": 3,
+          "line": 5
+        },
+        {
+          "heading": "验证结果",
+          "level": 3,
+          "line": 19
+        },
+        {
+          "heading": "架构原则落实",
+          "level": 3,
+          "line": 26
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "deploy-notes/SA_MCP_DESIGN.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 248,
+      "nonEmptyLines": 191,
+      "sections": [
+        {
+          "heading": "高级助理 MCP 工具 — 初步设计蓝图",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "架构概览",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "核心原则",
+          "level": 3,
+          "line": 27
+        },
+        {
+          "heading": "MCP 工具清单",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "一、自我认知层（Self-Cognition Layer）",
+          "level": 3,
+          "line": 39
+        },
+        {
+          "heading": "`assistant__cognition_save(topic, content, type)`",
+          "level": 4,
+          "line": 45
+        },
+        {
+          "heading": "`assistant__cognition_query(topic)`",
+          "level": 4,
+          "line": 71
+        },
+        {
+          "heading": "`assistant__cognition_list(pattern)`",
+          "level": 4,
+          "line": 96
+        },
+        {
+          "heading": "存储设计",
+          "level": 4,
+          "line": 109
+        },
+        {
+          "heading": "二、自我审计层（Self-Audit Layer）",
+          "level": 3,
+          "line": 133
+        },
+        {
+          "heading": "`assistant__audit_check_context()`",
+          "level": 4,
+          "line": 137
+        },
+        {
+          "heading": "`assistant__audit_check_hallucination()`",
+          "level": 4,
+          "line": 162
+        },
+        {
+          "heading": "`assistant__audit_compress(target, strategy)`",
+          "level": 4,
+          "line": 188
+        },
+        {
+          "heading": "与现有系统的关系",
+          "level": 2,
+          "line": 215
+        },
+        {
+          "heading": "风险与注意事项",
+          "level": 2,
+          "line": 228
+        },
+        {
+          "heading": "后续步骤（不在本蓝图中实现）",
+          "level": 2,
+          "line": 238
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 16
+      }
+    },
+    {
+      "path": "deploy-notes/SISTER_RECON.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 235,
+      "nonEmptyLines": 180,
+      "sections": [
+        {
+          "heading": "🔍 轻如烟妹妹实例侦察报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 已获得的妹妹信息",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "1.1 基础环境",
+          "level": 3,
+          "line": 10
+        },
+        {
+          "heading": "1.2 OpenClaw 状态",
+          "level": 3,
+          "line": 23
+        },
+        {
+          "heading": "1.3 模型配置",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "1.4 运行中的服务",
+          "level": 3,
+          "line": 56
+        },
+        {
+          "heading": "1.5 沙漏（Sandglass）状态",
+          "level": 3,
+          "line": 70
+        },
+        {
+          "heading": "1.6 定时任务（Cron）",
+          "level": 3,
+          "line": 81
+        },
+        {
+          "heading": "1.7 同机器上的其他进程",
+          "level": 3,
+          "line": 96
+        },
+        {
+          "heading": "2. 未获得的信息（和为什么）",
+          "level": 2,
+          "line": 107
+        },
+        {
+          "heading": "3. 妹妹是否适合承载审计任务",
+          "level": 2,
+          "line": 122
+        },
+        {
+          "heading": "✅ 优势",
+          "level": 3,
+          "line": 124
+        },
+        {
+          "heading": "⚠️ 风险/注意事项",
+          "level": 3,
+          "line": 133
+        },
+        {
+          "heading": "结论：**适合，但有前提条件**",
+          "level": 3,
+          "line": 143
+        },
+        {
+          "heading": "4. 建议的接入方式",
+          "level": 2,
+          "line": 152
+        },
+        {
+          "heading": "方式 A：SSH Inject 通道（推荐，最稳定）",
+          "level": 3,
+          "line": 154
+        },
+        {
+          "heading": "方式 B：恢复 inject HTTP 通道（可聊天）",
+          "level": 3,
+          "line": 168
+        },
+        {
+          "heading": "方式 C：MCP 调用（需要额外部署）",
+          "level": 3,
+          "line": 182
+        },
+        {
+          "heading": "方式 D：文件共享（单向，仅用于传递审计数据）",
+          "level": 3,
+          "line": 188
+        },
+        {
+          "heading": "推荐方案",
+          "level": 3,
+          "line": 195
+        },
+        {
+          "heading": "附录 A：SSH 连接备忘",
+          "level": 2,
+          "line": 205
+        },
+        {
+          "heading": "附录 B：妹妹的工作目录结构（关键路径）",
+          "level": 2,
+          "line": 221
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 22
+      }
+    },
+    {
+      "path": "deploy-notes/SKILL_V2_GAP.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 242,
+      "nonEmptyLines": 156,
+      "sections": [
+        {
+          "heading": "高级助理 Skill v2 草案 — 缺口分析报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 定义模糊的地方",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "1.1 \"事实确认后\" → 谁来确认？什么算确认？",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "1.2 \"上下文中归档\" → 具体怎么做？",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "1.3 \"PDCA循环\" → 每层谁执行什么？",
+          "level": 3,
+          "line": 38
+        },
+        {
+          "heading": "2. 缺失的维度",
+          "level": 2,
+          "line": 49
+        },
+        {
+          "heading": "2.1 沟通翻译层缺了什么",
+          "level": 3,
+          "line": 51
+        },
+        {
+          "heading": "2.2 自我认知层缺了什么",
+          "level": 3,
+          "line": 74
+        },
+        {
+          "heading": "2.3 自我审计层缺了什么",
+          "level": 3,
+          "line": 95
+        },
+        {
+          "heading": "2.4 缺失：错误恢复条款",
+          "level": 3,
+          "line": 117
+        },
+        {
+          "heading": "3. 边界情况",
+          "level": 2,
+          "line": 135
+        },
+        {
+          "heading": "3.1 dandan 没有给出明确意图",
+          "level": 3,
+          "line": 137
+        },
+        {
+          "heading": "3.2 子代理结果相互矛盾",
+          "level": 3,
+          "line": 147
+        },
+        {
+          "heading": "3.3 怀疑已进入幻觉但审计未启动",
+          "level": 3,
+          "line": 157
+        },
+        {
+          "heading": "4. 可执行性问题",
+          "level": 2,
+          "line": 167
+        },
+        {
+          "heading": "4.1 \"绝不亲自读超过200行的文件\"",
+          "level": 3,
+          "line": 169
+        },
+        {
+          "heading": "4.2 \"保持上下文的轻\"",
+          "level": 3,
+          "line": 180
+        },
+        {
+          "heading": "4.3 \"必须遵守\" vs \"建议遵守\" 模糊",
+          "level": 3,
+          "line": 191
+        },
+        {
+          "heading": "5. 改进建议汇总（可操作、每条约3行以内）",
+          "level": 2,
+          "line": 205
+        },
+        {
+          "heading": "6. 需要 dandan 补充的项目（超出草案范围）",
+          "level": 2,
+          "line": 230
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 20
+      }
+    },
+    {
+      "path": "deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 711,
+      "nonEmptyLines": 620,
+      "sections": [
+        {
+          "heading": "轻如烟系统架构全景图",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 项目整体结构",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "2. 核心组件关系图",
+          "level": 2,
+          "line": 186
+        },
+        {
+          "heading": "3. 运行时架构",
+          "level": 2,
+          "line": 330
+        },
+        {
+          "heading": "3.1 端口分配",
+          "level": 3,
+          "line": 332
+        },
+        {
+          "heading": "3.2 进程拓扑",
+          "level": 3,
+          "line": 341
+        },
+        {
+          "heading": "3.3 各组件详解",
+          "level": 3,
+          "line": 390
+        },
+        {
+          "heading": "4. 数据流",
+          "level": 2,
+          "line": 445
+        },
+        {
+          "heading": "4.1 用户消息流（对话）",
+          "level": 3,
+          "line": 447
+        },
+        {
+          "heading": "4.2 记忆读写流",
+          "level": 3,
+          "line": 481
+        },
+        {
+          "heading": "4.3 编辑器数据流",
+          "level": 3,
+          "line": 501
+        },
+        {
+          "heading": "4.4 cron 任务流（已空）",
+          "level": 3,
+          "line": 519
+        },
+        {
+          "heading": "4.5 搜索流",
+          "level": 3,
+          "line": 533
+        },
+        {
+          "heading": "5. 配置系统",
+          "level": 2,
+          "line": 552
+        },
+        {
+          "heading": "5.1 openclaw.json 关键配置（运行态，端口32823）",
+          "level": 3,
+          "line": 554
+        },
+        {
+          "heading": "5.2 system-config 目录（模板/存档）",
+          "level": 3,
+          "line": 577
+        },
+        {
+          "heading": "5.3 Hooks 体系（运行态）",
+          "level": 3,
+          "line": 587
+        },
+        {
+          "heading": "5.4 Plugins 体系",
+          "level": 3,
+          "line": 601
+        },
+        {
+          "heading": "5.5 Skills 体系",
+          "level": 3,
+          "line": 608
+        },
+        {
+          "heading": "6. 已知外部依赖",
+          "level": 2,
+          "line": 621
+        },
+        {
+          "heading": "附录A：记忆系统四环完整性",
+          "level": 2,
+          "line": 639
+        },
+        {
+          "heading": "附录B：NexSandglass 五层架构",
+          "level": 2,
+          "line": 667
+        },
+        {
+          "heading": "附录C：Editor 三层重构（MIGRATION_PLAN 摘要）",
+          "level": 2,
+          "line": 685
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 23
+      }
+    },
+    {
+      "path": "deploy-notes/THREE_LAYER_FEASIBILITY.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 559,
+      "nonEmptyLines": 440,
+      "sections": [
+        {
+          "heading": "三层架构在单 session 内的可行性分析",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 单 session 三层共存模型",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "1.1 三层定位",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "1.2 各层需要的上下文内容",
+          "level": 3,
+          "line": 19
+        },
+        {
+          "heading": "1.3 层间共享信息机制",
+          "level": 3,
+          "line": 43
+        },
+        {
+          "heading": "1.4 现有系统验证",
+          "level": 3,
+          "line": 74
+        },
+        {
+          "heading": "2. 缓存冲突分析",
+          "level": 2,
+          "line": 88
+        },
+        {
+          "heading": "2.1 DeepSeek Prompt Caching 工作机制",
+          "level": 3,
+          "line": 90
+        },
+        {
+          "heading": "2.2 为什么子代理用 DeepSeek 会污染主代理缓存",
+          "level": 3,
+          "line": 109
+        },
+        {
+          "heading": "2.3 子代理推荐模型",
+          "level": 3,
+          "line": 133
+        },
+        {
+          "heading": "筛选条件",
+          "level": 4,
+          "line": 135
+        },
+        {
+          "heading": "候选模型评估",
+          "level": 4,
+          "line": 141
+        },
+        {
+          "heading": "历史验证",
+          "level": 4,
+          "line": 151
+        },
+        {
+          "heading": "最终推荐",
+          "level": 4,
+          "line": 162
+        },
+        {
+          "heading": "3. 三层间的 data flow",
+          "level": 2,
+          "line": 196
+        },
+        {
+          "heading": "3.1 完整流程",
+          "level": 3,
+          "line": 198
+        },
+        {
+          "heading": "3.2 触发条件",
+          "level": 3,
+          "line": 252
+        },
+        {
+          "heading": "3.3 信息在文件层面的组织",
+          "level": 3,
+          "line": 262
+        },
+        {
+          "heading": "4. \"主动遗忘\"的实现机制",
+          "level": 2,
+          "line": 293
+        },
+        {
+          "heading": "4.1 核心问题",
+          "level": 3,
+          "line": 295
+        },
+        {
+          "heading": "4.2 主动遗忘的分层策略",
+          "level": 3,
+          "line": 302
+        },
+        {
+          "heading": "4.3 为什么不能靠 system prompt 修改",
+          "level": 3,
+          "line": 321
+        },
+        {
+          "heading": "4.4 推荐实现方案",
+          "level": 3,
+          "line": 330
+        },
+        {
+          "heading": "方案 A：facts.dict.md 分层结构（推荐）",
+          "level": 4,
+          "line": 332
+        },
+        {
+          "heading": "方案 B：独立标记文件",
+          "level": 4,
+          "line": 359
+        },
+        {
+          "heading": "方案 C：断言置信度 + 时间戳双维过滤",
+          "level": 4,
+          "line": 380
+        },
+        {
+          "heading": "4.5 子代理认知报告替代主 session 上下文的可行性",
+          "level": 3,
+          "line": 397
+        },
+        {
+          "heading": "5. 风险点",
+          "level": 2,
+          "line": 430
+        },
+        {
+          "heading": "5.1 层间状态不一致",
+          "level": 3,
+          "line": 432
+        },
+        {
+          "heading": "5.2 审计层误判",
+          "level": 3,
+          "line": 454
+        },
+        {
+          "heading": "5.3 Round-Trip 延迟",
+          "level": 3,
+          "line": 478
+        },
+        {
+          "heading": "5.4 额外风险：L2/L3 子代理本身的质量",
+          "level": 3,
+          "line": 509
+        },
+        {
+          "heading": "5.5 风险汇总矩阵",
+          "level": 3,
+          "line": 523
+        },
+        {
+          "heading": "总结意见",
+          "level": 2,
+          "line": 537
+        },
+        {
+          "heading": "可行性判断：✅ 可行",
+          "level": 3,
+          "line": 539
+        },
+        {
+          "heading": "实施优先级",
+          "level": 3,
+          "line": 549
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 36
+      }
+    },
+    {
+      "path": "deploy-notes/TOOL_ERROR_AUDIT.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 369,
+      "nonEmptyLines": 280,
+      "sections": [
+        {
+          "heading": "Tool Error 全面审计报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 执行摘要",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "2. 数据来源和方法论",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "数据源",
+          "level": 3,
+          "line": 28
+        },
+        {
+          "heading": "分析方法",
+          "level": 3,
+          "line": 40
+        },
+        {
+          "heading": "3. 错误率统计",
+          "level": 2,
+          "line": 50
+        },
+        {
+          "heading": "3.1 总体错误率",
+          "level": 3,
+          "line": 52
+        },
+        {
+          "heading": "3.2 按错误类型分类",
+          "level": 3,
+          "line": 66
+        },
+        {
+          "heading": "3.3 按工具分布",
+          "level": 3,
+          "line": 81
+        },
+        {
+          "heading": "3.4 按 Session 分布 (错误率 > 10%)",
+          "level": 3,
+          "line": 95
+        },
+        {
+          "heading": "3.5 时间分布",
+          "level": 3,
+          "line": 109
+        },
+        {
+          "heading": "4. 典型错误模式分析",
+          "level": 2,
+          "line": 115
+        },
+        {
+          "heading": "模式 1: `exec` 命令返回非零退出码（46.4% 的 \"错误\"）",
+          "level": 3,
+          "line": 117
+        },
+        {
+          "heading": "模式 2: `exec` Python 脚本错误（12.4%）",
+          "level": 3,
+          "line": 131
+        },
+        {
+          "heading": "模式 3: `memory_search` disabled（6.2%）",
+          "level": 3,
+          "line": 142
+        },
+        {
+          "heading": "模式 4: 长会话中的 `process` SIGTERM（8次）",
+          "level": 3,
+          "line": 155
+        },
+        {
+          "heading": "模式 5: `cron` 参数校验失败（4次）",
+          "level": 3,
+          "line": 161
+        },
+        {
+          "heading": "模式 6: 模型 completion 被 abort（3次，4.4%）",
+          "level": 3,
+          "line": 171
+        },
+        {
+          "heading": "模式 7: gateway config path not found（2次）",
+          "level": 3,
+          "line": 180
+        },
+        {
+          "heading": "5. 对效率和 Token 消耗的影响",
+          "level": 2,
+          "line": 192
+        },
+        {
+          "heading": "5.1 Token 浪费估算",
+          "level": 3,
+          "line": 194
+        },
+        {
+          "heading": "5.2 成本影响",
+          "level": 3,
+          "line": 212
+        },
+        {
+          "heading": "6. 与行业基准对比",
+          "level": 2,
+          "line": 231
+        },
+        {
+          "heading": "对比其他开源 agent 基准",
+          "level": 3,
+          "line": 245
+        },
+        {
+          "heading": "7. 改良建议",
+          "level": 2,
+          "line": 256
+        },
+        {
+          "heading": "短期（1-3天，tactical fixes，可立即执行）",
+          "level": 3,
+          "line": 258
+        },
+        {
+          "heading": "中期（1-2周，productivity improvements）",
+          "level": 3,
+          "line": 267
+        },
+        {
+          "heading": "长期（1个月+，architectural changes）",
+          "level": 3,
+          "line": 276
+        },
+        {
+          "heading": "8. 其他发现",
+          "level": 2,
+          "line": 286
+        },
+        {
+          "heading": "8.1 诊断数据不完整",
+          "level": 3,
+          "line": 288
+        },
+        {
+          "heading": "8.2 数据保留周期短",
+          "level": 3,
+          "line": 297
+        },
+        {
+          "heading": "8.3 长会话 token 膨胀",
+          "level": 3,
+          "line": 301
+        },
+        {
+          "heading": "9. 附录：原始数据快照",
+          "level": 2,
+          "line": 307
+        },
+        {
+          "heading": "附录 A: Session 文件概览",
+          "level": 3,
+          "line": 309
+        },
+        {
+          "heading": "附录 B: SQLite 统计数据",
+          "level": 3,
+          "line": 340
+        },
+        {
+          "heading": "附录 C: 错误内容样本（exec 非零退出码类）",
+          "level": 3,
+          "line": 360
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 36
+      }
+    },
+    {
+      "path": "deploy-notes/TTS_FIX.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 103,
+      "nonEmptyLines": 85,
+      "sections": [
+        {
+          "heading": "TTS（文字转语音）修复记录",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "故障现象",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "原因",
+          "level": 2,
+          "line": 6
+        },
+        {
+          "heading": "修复操作",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "1. 安装 edge-tts（主方案）",
+          "level": 3,
+          "line": 11
+        },
+        {
+          "heading": "2. 安装 gTTS（备选方案）",
+          "level": 3,
+          "line": 20
+        },
+        {
+          "heading": "3. 重启服务器",
+          "level": 3,
+          "line": 29
+        },
+        {
+          "heading": "代码架构",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "前端 (render.js)",
+          "level": 3,
+          "line": 39
+        },
+        {
+          "heading": "后端 (awake_handler.py → handle_tts)",
+          "level": 3,
+          "line": 46
+        },
+        {
+          "heading": "验证",
+          "level": 2,
+          "line": 52
+        },
+        {
+          "heading": "已安装的中文语音",
+          "level": 3,
+          "line": 54
+        },
+        {
+          "heading": "验证命令",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "直接 Python 验证",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "注意事项",
+          "level": 2,
+          "line": 91
+        },
+        {
+          "heading": "相关文件",
+          "level": 2,
+          "line": 97
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 16
+      }
+    },
+    {
+      "path": "deploy-notes/VERSION_AUDIT_20260627.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 170,
+      "nonEmptyLines": 127,
+      "sections": [
+        {
+          "heading": "版本审计报告 — 2026-06-27",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 当前运行版本确认 ✅",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "2. 发现的所有备份/版本目录",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "2.1 编辑器所有版本（6 个目录）",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "2.2 ARCHIVED 目录（4 个目录）",
+          "level": 3,
+          "line": 35
+        },
+        {
+          "heading": "2.3 scripts/ 内备份目录",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "2.4 其他目录",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "3. 发现的问题",
+          "level": 2,
+          "line": 62
+        },
+        {
+          "heading": "🔴 问题 1：旧版 edit-web.py 残留",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "🔴 问题 2：inject-helper.mjs 缺失",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "🟡 问题 3：backup_20260612_2207 中 inject-helper.mjs 版本较旧",
+          "level": 3,
+          "line": 76
+        },
+        {
+          "heading": "🟡 问题 4：revisions/ 目录文件散乱",
+          "level": 3,
+          "line": 81
+        },
+        {
+          "heading": "🟡 问题 5：backup_old_baks 已过时",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "4. 执行的操作",
+          "level": 2,
+          "line": 90
+        },
+        {
+          "heading": "4.1 edit-web.py 替换（7 个位置）",
+          "level": 3,
+          "line": 92
+        },
+        {
+          "heading": "4.2 inject-helper.mjs 补充（5 个位置）",
+          "level": 3,
+          "line": 108
+        },
+        {
+          "heading": "4.3 VERSION 文件更新",
+          "level": 3,
+          "line": 117
+        },
+        {
+          "heading": "5. 最终状态 ✅",
+          "level": 2,
+          "line": 126
+        },
+        {
+          "heading": "已完成校验的所有位置（edit-web.py 统一为 75999B v4.1）",
+          "level": 3,
+          "line": 128
+        },
+        {
+          "heading": "仍需注意",
+          "level": 3,
+          "line": 150
+        },
+        {
+          "heading": "附录：关键 diff 记录",
+          "level": 2,
+          "line": 159
+        },
+        {
+          "heading": "backup_20260612_2207/inject-helper.mjs（旧14431B）vs 当前（14288B）",
+          "level": 3,
+          "line": 161
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 22
+      }
+    },
+    {
+      "path": "deploy-notes/VERSION_AUDIT_20260628.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 189,
+      "nonEmptyLines": 136,
+      "sections": [
+        {
+          "heading": "版本一致性审计报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 当前代码 vs 归档版本对比结果",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "2. 版本管理规则现状",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "已有的规则",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "缺失的规则",
+          "level": 3,
+          "line": 46
+        },
+        {
+          "heading": "3. 标题版本号问题",
+          "level": 2,
+          "line": 67
+        },
+        {
+          "heading": "当前标题显示什么",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "为什么",
+          "level": 3,
+          "line": 78
+        },
+        {
+          "heading": "怎么修",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "4. 建议",
+          "level": 2,
+          "line": 102
+        },
+        {
+          "heading": "需要补充的规则（按优先级）",
+          "level": 3,
+          "line": 104
+        },
+        {
+          "heading": "标题版本号自动化方案（推荐方案 A 详细设计）",
+          "level": 3,
+          "line": 114
+        },
+        {
+          "heading": "立即修复清单",
+          "level": 3,
+          "line": 144
+        },
+        {
+          "heading": "5. 完整备份记录 (v4.2)",
+          "level": 2,
+          "line": 153
+        },
+        {
+          "heading": "备份内容",
+          "level": 3,
+          "line": 159
+        },
+        {
+          "heading": "完整性校验",
+          "level": 3,
+          "line": 174
+        },
+        {
+          "heading": "v4.1 与 v4.2 差异",
+          "level": 3,
+          "line": 180
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    },
+    {
+      "path": "deploy-notes/VERSION_MANAGEMENT.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 27,
+      "nonEmptyLines": 23,
+      "sections": [
+        {
+          "heading": "版本管理规则",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "版本号规则",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "更新版本的流程",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "创建新版备份的流程",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "修改代码前的流程",
+          "level": 2,
+          "line": 22
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "deploy-notes/dandan-request-20260628-decomposition.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 183,
+      "nonEmptyLines": 150,
+      "sections": [
+        {
+          "heading": "需求分解",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "dandan 的原话",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "我理解的他要我干什么",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "拆分为子任务",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "子任务A：审计需求本身 ✓（本文件即产出）",
+          "level": 3,
+          "line": 19
+        },
+        {
+          "heading": "子任务B：修复标题 + 建立版本更新规则",
+          "level": 3,
+          "line": 26
+        },
+        {
+          "heading": "B1. 修复标题硬编码问题",
+          "level": 4,
+          "line": 28
+        },
+        {
+          "heading": "B2. 建立完整的版本管理规则文档",
+          "level": 4,
+          "line": 46
+        },
+        {
+          "heading": "B3. 修复现有回滚文档",
+          "level": 4,
+          "line": 68
+        },
+        {
+          "heading": "子任务C：完整备份当前运行版本",
+          "level": 3,
+          "line": 73
+        },
+        {
+          "heading": "C1. 确认当前运行的所有文件",
+          "level": 4,
+          "line": 75
+        },
+        {
+          "heading": "C2. 执行备份",
+          "level": 4,
+          "line": 151
+        },
+        {
+          "heading": "验收标准",
+          "level": 2,
+          "line": 159
+        },
+        {
+          "heading": "标题版本号修好",
+          "level": 3,
+          "line": 161
+        },
+        {
+          "heading": "版本更新规则建立",
+          "level": 3,
+          "line": 166
+        },
+        {
+          "heading": "完整备份",
+          "level": 3,
+          "line": 172
+        },
+        {
+          "heading": "备注",
+          "level": 2,
+          "line": 179
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    }
+  ]
+}

@@ -1,0 +1,1336 @@
+{
+  "valid": true,
+  "totalNodes": 801,
+  "totalEdges": 790,
+  "duplicateIds": [],
+  "danglingEdgeCount": 0,
+  "danglingEdges": [],
+  "orphanNodes": [
+    "document:AUDIT_REPORT.md",
+    "document:FRONTEND_AUDIT.md",
+    "document:README.md",
+    "document:VERSION_COMPARISON.md",
+    "config:editor-config.json",
+    "file:health-check.sh",
+    "file:health-loop.sh",
+    "file:start-clean.sh",
+    "file:start-health-loop.sh",
+    "file:watchdog.sh",
+    "document:deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+    "document:deploy-notes/API_KEYS_TEST.md",
+    "document:deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md",
+    "document:deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+    "document:deploy-notes/EDITOR_CRASH_DIAG.md",
+    "document:deploy-notes/EDITOR_DELIVERY_BUG.md",
+    "document:deploy-notes/EDITOR_SLOW_LOAD.md",
+    "document:deploy-notes/EMBEDDING_CACHE_ANALYSIS.md",
+    "document:deploy-notes/FIX_TITLE_AND_VERSION_RULES.md",
+    "document:deploy-notes/SA_MCP_DESIGN.md"
+  ],
+  "fileNodes": [
+    {
+      "id": "document:AUDIT_REPORT.md",
+      "type": "document",
+      "name": "AUDIT_REPORT.md",
+      "summary": "Documentation: AUDIT_REPORT.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "AUDIT_REPORT.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:FRONTEND_AUDIT.md",
+      "type": "document",
+      "name": "FRONTEND_AUDIT.md",
+      "summary": "Documentation: FRONTEND_AUDIT.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "FRONTEND_AUDIT.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "summary": "Documentation: README.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "README.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:VERSION_COMPARISON.md",
+      "type": "document",
+      "name": "VERSION_COMPARISON.md",
+      "summary": "Documentation: VERSION_COMPARISON.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "VERSION_COMPARISON.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "config:editor-config.json",
+      "type": "config",
+      "name": "editor-config.json",
+      "summary": "Configuration: editor-config.json",
+      "tags": [
+        "configuration"
+      ],
+      "filePath": "editor-config.json",
+      "complexity": "simple",
+      "languageNotes": "json"
+    },
+    {
+      "id": "file:health-check.sh",
+      "type": "file",
+      "name": "health-check.sh",
+      "summary": "Utility Script: health-check.sh",
+      "tags": [
+        "utility",
+        "script"
+      ],
+      "filePath": "health-check.sh",
+      "complexity": "simple",
+      "languageNotes": "shell"
+    },
+    {
+      "id": "file:health-loop.sh",
+      "type": "file",
+      "name": "health-loop.sh",
+      "summary": "Utility Script: health-loop.sh",
+      "tags": [
+        "utility",
+        "script"
+      ],
+      "filePath": "health-loop.sh",
+      "complexity": "simple",
+      "languageNotes": "shell"
+    },
+    {
+      "id": "file:start-clean.sh",
+      "type": "file",
+      "name": "start-clean.sh",
+      "summary": "Utility Script: start-clean.sh",
+      "tags": [
+        "utility",
+        "script"
+      ],
+      "filePath": "start-clean.sh",
+      "complexity": "simple",
+      "languageNotes": "shell"
+    },
+    {
+      "id": "file:start-health-loop.sh",
+      "type": "file",
+      "name": "start-health-loop.sh",
+      "summary": "Utility Script: start-health-loop.sh",
+      "tags": [
+        "utility",
+        "script"
+      ],
+      "filePath": "start-health-loop.sh",
+      "complexity": "simple",
+      "languageNotes": "shell"
+    },
+    {
+      "id": "file:watchdog.sh",
+      "type": "file",
+      "name": "watchdog.sh",
+      "summary": "Utility Script: watchdog.sh",
+      "tags": [
+        "utility",
+        "script"
+      ],
+      "filePath": "watchdog.sh",
+      "complexity": "simple",
+      "languageNotes": "shell"
+    },
+    {
+      "id": "document:deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+      "type": "document",
+      "name": "AGENT_OS_GAP_ANALYSIS.md",
+      "summary": "Documentation: AGENT_OS_GAP_ANALYSIS.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/API_KEYS_TEST.md",
+      "type": "document",
+      "name": "API_KEYS_TEST.md",
+      "summary": "Documentation: API_KEYS_TEST.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/API_KEYS_TEST.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md",
+      "type": "document",
+      "name": "AUDIT_INTERCEPTOR_FEASIBILITY.md",
+      "summary": "Documentation: AUDIT_INTERCEPTOR_FEASIBILITY.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+      "type": "document",
+      "name": "CODE_REVIEW_FROM_GRAPH.md",
+      "summary": "Documentation: CODE_REVIEW_FROM_GRAPH.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/EDITOR_CRASH_DIAG.md",
+      "type": "document",
+      "name": "EDITOR_CRASH_DIAG.md",
+      "summary": "Documentation: EDITOR_CRASH_DIAG.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/EDITOR_CRASH_DIAG.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/EDITOR_DELIVERY_BUG.md",
+      "type": "document",
+      "name": "EDITOR_DELIVERY_BUG.md",
+      "summary": "Documentation: EDITOR_DELIVERY_BUG.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/EDITOR_DELIVERY_BUG.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/EDITOR_SLOW_LOAD.md",
+      "type": "document",
+      "name": "EDITOR_SLOW_LOAD.md",
+      "summary": "Documentation: EDITOR_SLOW_LOAD.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/EDITOR_SLOW_LOAD.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/EMBEDDING_CACHE_ANALYSIS.md",
+      "type": "document",
+      "name": "EMBEDDING_CACHE_ANALYSIS.md",
+      "summary": "Documentation: EMBEDDING_CACHE_ANALYSIS.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/EMBEDDING_CACHE_ANALYSIS.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/FIX_TITLE_AND_VERSION_RULES.md",
+      "type": "document",
+      "name": "FIX_TITLE_AND_VERSION_RULES.md",
+      "summary": "Documentation: FIX_TITLE_AND_VERSION_RULES.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/FIX_TITLE_AND_VERSION_RULES.md",
+      "complexity": "simple",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/SA_MCP_DESIGN.md",
+      "type": "document",
+      "name": "SA_MCP_DESIGN.md",
+      "summary": "Documentation: SA_MCP_DESIGN.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/SA_MCP_DESIGN.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/SISTER_RECON.md",
+      "type": "document",
+      "name": "SISTER_RECON.md",
+      "summary": "Documentation: SISTER_RECON.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/SISTER_RECON.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/SKILL_V2_GAP.md",
+      "type": "document",
+      "name": "SKILL_V2_GAP.md",
+      "summary": "Documentation: SKILL_V2_GAP.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/SKILL_V2_GAP.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+      "type": "document",
+      "name": "SYSTEM_ARCHITECTURE_MAP.md",
+      "summary": "Documentation: SYSTEM_ARCHITECTURE_MAP.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/THREE_LAYER_FEASIBILITY.md",
+      "type": "document",
+      "name": "THREE_LAYER_FEASIBILITY.md",
+      "summary": "Documentation: THREE_LAYER_FEASIBILITY.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/THREE_LAYER_FEASIBILITY.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/TOOL_ERROR_AUDIT.md",
+      "type": "document",
+      "name": "TOOL_ERROR_AUDIT.md",
+      "summary": "Documentation: TOOL_ERROR_AUDIT.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/TOOL_ERROR_AUDIT.md",
+      "complexity": "complex",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/TTS_FIX.md",
+      "type": "document",
+      "name": "TTS_FIX.md",
+      "summary": "Documentation: TTS_FIX.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/TTS_FIX.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/VERSION_AUDIT_20260627.md",
+      "type": "document",
+      "name": "VERSION_AUDIT_20260627.md",
+      "summary": "Documentation: VERSION_AUDIT_20260627.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/VERSION_AUDIT_20260627.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/VERSION_AUDIT_20260628.md",
+      "type": "document",
+      "name": "VERSION_AUDIT_20260628.md",
+      "summary": "Documentation: VERSION_AUDIT_20260628.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/VERSION_AUDIT_20260628.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/VERSION_MANAGEMENT.md",
+      "type": "document",
+      "name": "VERSION_MANAGEMENT.md",
+      "summary": "Documentation: VERSION_MANAGEMENT.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/VERSION_MANAGEMENT.md",
+      "complexity": "simple",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:deploy-notes/dandan-request-20260628-decomposition.md",
+      "type": "document",
+      "name": "dandan-request-20260628-decomposition.md",
+      "summary": "Documentation: dandan-request-20260628-decomposition.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "deploy-notes/dandan-request-20260628-decomposition.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:revisions/fix-delivery-bug-20260626.md",
+      "type": "document",
+      "name": "fix-delivery-bug-20260626.md",
+      "summary": "Documentation: fix-delivery-bug-20260626.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "revisions/fix-delivery-bug-20260626.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:revisions/fix-watchdog-20260626.md",
+      "type": "document",
+      "name": "fix-watchdog-20260626.md",
+      "summary": "Documentation: fix-watchdog-20260626.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "revisions/fix-watchdog-20260626.md",
+      "complexity": "moderate",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "document:revisions/revert-guide.md",
+      "type": "document",
+      "name": "revert-guide.md",
+      "summary": "Documentation: revert-guide.md",
+      "tags": [
+        "documentation"
+      ],
+      "filePath": "revisions/revert-guide.md",
+      "complexity": "simple",
+      "languageNotes": "markdown"
+    },
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "summary": "Source Code: .understandignore",
+      "tags": [
+        "source",
+        "unknown"
+      ],
+      "filePath": ".understand-anything/.understandignore",
+      "complexity": "simple",
+      "languageNotes": "unknown"
+    },
+    {
+      "id": "config:.understand-anything/intermediate/scan-result-temp.json",
+      "type": "config",
+      "name": "scan-result-temp.json",
+      "summary": "Configuration: scan-result-temp.json",
+      "tags": [
+        "configuration"
+      ],
+      "filePath": ".understand-anything/intermediate/scan-result-temp.json",
+      "complexity": "complex",
+      "languageNotes": "json"
+    },
+    {
+      "id": "file:.踱步/.last_user_msg",
+      "type": "file",
+      "name": ".last_user_msg",
+      "summary": "Source Code: .last_user_msg",
+      "tags": [
+        "source",
+        "unknown"
+      ],
+      "filePath": ".踱步/.last_user_msg",
+      "complexity": "simple",
+      "languageNotes": "unknown"
+    },
+    {
+      "id": "file:cache_monitor.py",
+      "type": "file",
+      "name": "cache_monitor.py",
+      "summary": "Source Code: cache_monitor.py",
+      "tags": [
+        "source",
+        "python",
+        "4-funcs"
+      ],
+      "filePath": "cache_monitor.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:cache_stats_helper.py",
+      "type": "file",
+      "name": "cache_stats_helper.py",
+      "summary": "Source Code: cache_stats_helper.py",
+      "tags": [
+        "source",
+        "python",
+        "3-funcs"
+      ],
+      "filePath": "cache_stats_helper.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:edit-web.py",
+      "type": "file",
+      "name": "edit-web.py",
+      "summary": "Source Code: edit-web.py",
+      "tags": [
+        "source",
+        "python",
+        "56-funcs",
+        "2-classes"
+      ],
+      "filePath": "edit-web.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:embed-server.mjs",
+      "type": "file",
+      "name": "embed-server.mjs",
+      "summary": "Source Code: embed-server.mjs",
+      "tags": [
+        "source",
+        "javascript",
+        "4-funcs"
+      ],
+      "filePath": "embed-server.mjs",
+      "complexity": "moderate",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:experimental/edit-web_v4.1_subprocess-run.py",
+      "type": "file",
+      "name": "edit-web_v4.1_subprocess-run.py",
+      "summary": "Source Code: edit-web_v4.1_subprocess-run.py",
+      "tags": [
+        "source",
+        "python",
+        "56-funcs",
+        "2-classes"
+      ],
+      "filePath": "experimental/edit-web_v4.1_subprocess-run.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:experimental/inject-helper.mjs",
+      "type": "file",
+      "name": "inject-helper.mjs",
+      "summary": "Source Code: inject-helper.mjs",
+      "tags": [
+        "source",
+        "javascript",
+        "6-funcs"
+      ],
+      "filePath": "experimental/inject-helper.mjs",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:handlers/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "summary": "Source Code: __init__.py",
+      "tags": [
+        "source",
+        "python"
+      ],
+      "filePath": "handlers/__init__.py",
+      "complexity": "simple",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/awake_handler.py",
+      "type": "file",
+      "name": "awake_handler.py",
+      "summary": "Source Code: awake_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "6-funcs"
+      ],
+      "filePath": "handlers/awake_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/crypto_handler.py",
+      "type": "file",
+      "name": "crypto_handler.py",
+      "summary": "Source Code: crypto_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "8-funcs"
+      ],
+      "filePath": "handlers/crypto_handler.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/file_handler.py",
+      "type": "file",
+      "name": "file_handler.py",
+      "summary": "Source Code: file_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "9-funcs"
+      ],
+      "filePath": "handlers/file_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/helper_handler.py",
+      "type": "file",
+      "name": "helper_handler.py",
+      "summary": "Source Code: helper_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "8-funcs"
+      ],
+      "filePath": "handlers/helper_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/inject_handler.py",
+      "type": "file",
+      "name": "inject_handler.py",
+      "summary": "Source Code: inject_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "10-funcs"
+      ],
+      "filePath": "handlers/inject_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/momo_handler.py",
+      "type": "file",
+      "name": "momo_handler.py",
+      "summary": "Source Code: momo_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "3-funcs"
+      ],
+      "filePath": "handlers/momo_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/router.py",
+      "type": "file",
+      "name": "router.py",
+      "summary": "Source Code: router.py",
+      "tags": [
+        "source",
+        "python",
+        "3-funcs"
+      ],
+      "filePath": "handlers/router.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/session_handler.py",
+      "type": "file",
+      "name": "session_handler.py",
+      "summary": "Source Code: session_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "9-funcs"
+      ],
+      "filePath": "handlers/session_handler.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:handlers/system_handler.py",
+      "type": "file",
+      "name": "system_handler.py",
+      "summary": "Source Code: system_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "8-funcs"
+      ],
+      "filePath": "handlers/system_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:inject-helper.mjs",
+      "type": "file",
+      "name": "inject-helper.mjs",
+      "summary": "Source Code: inject-helper.mjs",
+      "tags": [
+        "source",
+        "javascript",
+        "6-funcs"
+      ],
+      "filePath": "inject-helper.mjs",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:momo-pack-cli.py",
+      "type": "file",
+      "name": "momo-pack-cli.py",
+      "summary": "Source Code: momo-pack-cli.py",
+      "tags": [
+        "source",
+        "python",
+        "1-funcs"
+      ],
+      "filePath": "momo-pack-cli.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:reflection_unified.py",
+      "type": "file",
+      "name": "reflection_unified.py",
+      "summary": "Source Code: reflection_unified.py",
+      "tags": [
+        "source",
+        "python",
+        "17-funcs"
+      ],
+      "filePath": "reflection_unified.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:revisions/20260612_v1_editor-backup.py",
+      "type": "file",
+      "name": "20260612_v1_editor-backup.py",
+      "summary": "Source Code: 20260612_v1_editor-backup.py",
+      "tags": [
+        "source",
+        "python",
+        "58-funcs",
+        "2-classes"
+      ],
+      "filePath": "revisions/20260612_v1_editor-backup.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:revisions/20260613_v2_zuixin.py",
+      "type": "file",
+      "name": "20260613_v2_zuixin.py",
+      "summary": "Source Code: 20260613_v2_zuixin.py",
+      "tags": [
+        "source",
+        "python",
+        "59-funcs",
+        "2-classes"
+      ],
+      "filePath": "revisions/20260613_v2_zuixin.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:revisions/v4.1_20260626_inject-fix/awake.js",
+      "type": "file",
+      "name": "awake.js",
+      "summary": "Source Code: awake.js",
+      "tags": [
+        "source",
+        "javascript",
+        "17-funcs"
+      ],
+      "filePath": "revisions/v4.1_20260626_inject-fix/awake.js",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "type": "file",
+      "name": "edit-web.py",
+      "summary": "Source Code: edit-web.py",
+      "tags": [
+        "source",
+        "python",
+        "56-funcs",
+        "2-classes"
+      ],
+      "filePath": "revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:revisions/v4.1_20260626_inject-fix/editor.js",
+      "type": "file",
+      "name": "editor.js",
+      "summary": "Source Code: editor.js",
+      "tags": [
+        "source",
+        "javascript",
+        "5-funcs"
+      ],
+      "filePath": "revisions/v4.1_20260626_inject-fix/editor.js",
+      "complexity": "moderate",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:revisions/v4.1_20260626_inject-fix/inject-helper.mjs",
+      "type": "file",
+      "name": "inject-helper.mjs",
+      "summary": "Source Code: inject-helper.mjs",
+      "tags": [
+        "source",
+        "javascript",
+        "6-funcs"
+      ],
+      "filePath": "revisions/v4.1_20260626_inject-fix/inject-helper.mjs",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:revisions/v4.1_20260626_inject-fix/start-clean.sh",
+      "type": "file",
+      "name": "start-clean.sh",
+      "summary": "Utility Script: start-clean.sh",
+      "tags": [
+        "utility",
+        "script"
+      ],
+      "filePath": "revisions/v4.1_20260626_inject-fix/start-clean.sh",
+      "complexity": "simple",
+      "languageNotes": "shell"
+    },
+    {
+      "id": "file:revisions/v4.2_20260628_version-fix/core.js",
+      "type": "file",
+      "name": "core.js",
+      "summary": "Source Code: core.js",
+      "tags": [
+        "source",
+        "javascript",
+        "12-funcs"
+      ],
+      "filePath": "revisions/v4.2_20260628_version-fix/core.js",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:revisions/v4.2_20260628_version-fix/edit-web.py",
+      "type": "file",
+      "name": "edit-web.py",
+      "summary": "Source Code: edit-web.py",
+      "tags": [
+        "source",
+        "python",
+        "56-funcs",
+        "2-classes"
+      ],
+      "filePath": "revisions/v4.2_20260628_version-fix/edit-web.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:revisions/v4.2_20260628_version-fix/index.html",
+      "type": "file",
+      "name": "index.html",
+      "summary": "Markup/Stylesheet: index.html",
+      "tags": [
+        "markup",
+        "frontend"
+      ],
+      "filePath": "revisions/v4.2_20260628_version-fix/index.html",
+      "complexity": "moderate",
+      "languageNotes": "html"
+    },
+    {
+      "id": "file:revisions/v4.2_20260628_version-fix/router.py",
+      "type": "file",
+      "name": "router.py",
+      "summary": "Source Code: router.py",
+      "tags": [
+        "source",
+        "python",
+        "3-funcs"
+      ],
+      "filePath": "revisions/v4.2_20260628_version-fix/router.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:revisions/v4.2_20260628_version-fix/system_handler.py",
+      "type": "file",
+      "name": "system_handler.py",
+      "summary": "Source Code: system_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "8-funcs"
+      ],
+      "filePath": "revisions/v4.2_20260628_version-fix/system_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:revisions/v4.2_20260628_version-fix/version.py",
+      "type": "file",
+      "name": "version.py",
+      "summary": "Source Code: version.py",
+      "tags": [
+        "source",
+        "python"
+      ],
+      "filePath": "revisions/v4.2_20260628_version-fix/version.py",
+      "complexity": "simple",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:sandglass_log_wrapper.py",
+      "type": "file",
+      "name": "sandglass_log_wrapper.py",
+      "summary": "Source Code: sandglass_log_wrapper.py",
+      "tags": [
+        "source",
+        "python",
+        "1-funcs"
+      ],
+      "filePath": "sandglass_log_wrapper.py",
+      "complexity": "simple",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:searxng_mcp.py",
+      "type": "file",
+      "name": "searxng_mcp.py",
+      "summary": "Source Code: searxng_mcp.py",
+      "tags": [
+        "source",
+        "python",
+        "2-funcs"
+      ],
+      "filePath": "searxng_mcp.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:session_safety.py",
+      "type": "file",
+      "name": "session_safety.py",
+      "summary": "Source Code: session_safety.py",
+      "tags": [
+        "source",
+        "python",
+        "3-funcs"
+      ],
+      "filePath": "session_safety.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:static/css/styles.css",
+      "type": "file",
+      "name": "styles.css",
+      "summary": "Markup/Stylesheet: styles.css",
+      "tags": [
+        "markup",
+        "frontend"
+      ],
+      "filePath": "static/css/styles.css",
+      "complexity": "complex",
+      "languageNotes": "css"
+    },
+    {
+      "id": "file:static/index.html",
+      "type": "file",
+      "name": "index.html",
+      "summary": "Markup/Stylesheet: index.html",
+      "tags": [
+        "markup",
+        "frontend"
+      ],
+      "filePath": "static/index.html",
+      "complexity": "moderate",
+      "languageNotes": "html"
+    },
+    {
+      "id": "file:static/js/app.js",
+      "type": "file",
+      "name": "app.js",
+      "summary": "Source Code: app.js",
+      "tags": [
+        "source",
+        "javascript"
+      ],
+      "filePath": "static/js/app.js",
+      "complexity": "simple",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/awake.js",
+      "type": "file",
+      "name": "awake.js",
+      "summary": "Source Code: awake.js",
+      "tags": [
+        "source",
+        "javascript",
+        "17-funcs"
+      ],
+      "filePath": "static/js/awake.js",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/cache-monitor.js",
+      "type": "file",
+      "name": "cache-monitor.js",
+      "summary": "Source Code: cache-monitor.js",
+      "tags": [
+        "source",
+        "javascript",
+        "6-funcs"
+      ],
+      "filePath": "static/js/cache-monitor.js",
+      "complexity": "moderate",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/components.js",
+      "type": "file",
+      "name": "components.js",
+      "summary": "Source Code: components.js",
+      "tags": [
+        "source",
+        "javascript",
+        "5-funcs"
+      ],
+      "filePath": "static/js/components.js",
+      "complexity": "moderate",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/core.js",
+      "type": "file",
+      "name": "core.js",
+      "summary": "Source Code: core.js",
+      "tags": [
+        "source",
+        "javascript",
+        "12-funcs"
+      ],
+      "filePath": "static/js/core.js",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/dashboard.js",
+      "type": "file",
+      "name": "dashboard.js",
+      "summary": "Source Code: dashboard.js",
+      "tags": [
+        "source",
+        "javascript"
+      ],
+      "filePath": "static/js/dashboard.js",
+      "complexity": "simple",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/editor.js",
+      "type": "file",
+      "name": "editor.js",
+      "summary": "Source Code: editor.js",
+      "tags": [
+        "source",
+        "javascript",
+        "5-funcs"
+      ],
+      "filePath": "static/js/editor.js",
+      "complexity": "moderate",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/file-browser.js",
+      "type": "file",
+      "name": "file-browser.js",
+      "summary": "Source Code: file-browser.js",
+      "tags": [
+        "source",
+        "javascript",
+        "16-funcs"
+      ],
+      "filePath": "static/js/file-browser.js",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/momo.js",
+      "type": "file",
+      "name": "momo.js",
+      "summary": "Source Code: momo.js",
+      "tags": [
+        "source",
+        "javascript",
+        "16-funcs"
+      ],
+      "filePath": "static/js/momo.js",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/render.js",
+      "type": "file",
+      "name": "render.js",
+      "summary": "Source Code: render.js",
+      "tags": [
+        "source",
+        "javascript",
+        "28-funcs"
+      ],
+      "filePath": "static/js/render.js",
+      "complexity": "complex",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:static/js/subagent.js",
+      "type": "file",
+      "name": "subagent.js",
+      "summary": "Source Code: subagent.js",
+      "tags": [
+        "source",
+        "javascript",
+        "5-funcs"
+      ],
+      "filePath": "static/js/subagent.js",
+      "complexity": "moderate",
+      "languageNotes": "javascript"
+    },
+    {
+      "id": "file:task_dispatcher.py",
+      "type": "file",
+      "name": "task_dispatcher.py",
+      "summary": "Source Code: task_dispatcher.py",
+      "tags": [
+        "source",
+        "python",
+        "2-funcs"
+      ],
+      "filePath": "task_dispatcher.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:think_patches.py",
+      "type": "file",
+      "name": "think_patches.py",
+      "summary": "Source Code: think_patches.py",
+      "tags": [
+        "source",
+        "python",
+        "7-funcs"
+      ],
+      "filePath": "think_patches.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:think_patterns.py",
+      "type": "file",
+      "name": "think_patterns.py",
+      "summary": "Source Code: think_patterns.py",
+      "tags": [
+        "source",
+        "python",
+        "5-funcs",
+        "2-classes"
+      ],
+      "filePath": "think_patterns.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:think_test.py",
+      "type": "file",
+      "name": "think_test.py",
+      "summary": "Source Code: think_test.py",
+      "tags": [
+        "source",
+        "python",
+        "11-funcs"
+      ],
+      "filePath": "think_test.py",
+      "complexity": "complex",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:think_type_check.py",
+      "type": "file",
+      "name": "think_type_check.py",
+      "summary": "Source Code: think_type_check.py",
+      "tags": [
+        "source",
+        "python",
+        "6-funcs"
+      ],
+      "filePath": "think_type_check.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "summary": "Source Code: __init__.py",
+      "tags": [
+        "source",
+        "python"
+      ],
+      "filePath": "utils/__init__.py",
+      "complexity": "simple",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/config.py",
+      "type": "file",
+      "name": "config.py",
+      "summary": "Source Code: config.py",
+      "tags": [
+        "source",
+        "python",
+        "8-funcs"
+      ],
+      "filePath": "utils/config.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/crypto.py",
+      "type": "file",
+      "name": "crypto.py",
+      "summary": "Source Code: crypto.py",
+      "tags": [
+        "source",
+        "python",
+        "7-funcs"
+      ],
+      "filePath": "utils/crypto.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/inject.py",
+      "type": "file",
+      "name": "inject.py",
+      "summary": "Source Code: inject.py",
+      "tags": [
+        "source",
+        "python",
+        "3-funcs"
+      ],
+      "filePath": "utils/inject.py",
+      "complexity": "simple",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/momo.py",
+      "type": "file",
+      "name": "momo.py",
+      "summary": "Source Code: momo.py",
+      "tags": [
+        "source",
+        "python",
+        "4-funcs"
+      ],
+      "filePath": "utils/momo.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/secretary.py",
+      "type": "file",
+      "name": "secretary.py",
+      "summary": "Source Code: secretary.py",
+      "tags": [
+        "source",
+        "python",
+        "6-funcs"
+      ],
+      "filePath": "utils/secretary.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/session.py",
+      "type": "file",
+      "name": "session.py",
+      "summary": "Source Code: session.py",
+      "tags": [
+        "source",
+        "python",
+        "5-funcs"
+      ],
+      "filePath": "utils/session.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/tb_handler.py",
+      "type": "file",
+      "name": "tb_handler.py",
+      "summary": "Source Code: tb_handler.py",
+      "tags": [
+        "source",
+        "python",
+        "12-funcs"
+      ],
+      "filePath": "utils/tb_handler.py",
+      "complexity": "moderate",
+      "languageNotes": "python"
+    },
+    {
+      "id": "file:utils/version.py",
+      "type": "file",
+      "name": "version.py",
+      "summary": "Source Code: version.py",
+      "tags": [
+        "source",
+        "python"
+      ],
+      "filePath": "utils/version.py",
+      "complexity": "simple",
+      "languageNotes": "python"
+    }
+  ]
+}

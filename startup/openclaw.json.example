@@ -1,0 +1,239 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.6.9",
+    "lastTouchedAt": "2026-06-23T12:51:44.666Z"
+  },
+  "cli": {
+    "banner": {
+      "taglineMode": "off"           // 关闭 CLI 标语
+    }
+  },
+  "update": {
+    "checkOnStart": false            // 关闭启动更新检查
+  },
+  "models": {
+    "mode": "merge",                 // 配置合并模式
+    "providers": {
+      "混元": {
+        "baseUrl": "https://api.lkeap.cloud.tencent.com/plan/v3",
+        "apiKey": "${HUNYUAN_API_KEY}",   // ⚠️ 需填写：混元 API Key
+        "api": "openai-completions",
+        "models": [
+          { "id": "hy3-preview", "name": "hy3-preview", "input": ["text"] }
+        ]
+      },
+      "智谱": {
+        "api": "openai-completions",
+        "baseUrl": "https://open.bigmodel.cn/api/paas/v4/",
+        "apiKey": "${ZHIPU_API_KEY}",     // ⚠️ 需填写：智谱 API Key（图片用）
+        "models": [
+          { "id": "glm-5.2", "name": "glm-5.2", "input": ["text", "image"] }
+        ]
+      },
+      "astron2": {
+        "api": "openai-completions",
+        "baseUrl": "https://maas-coding-api.cn-huabei-1.xf-yun.com/v2",
+        "apiKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",  // ⚠️ 需填写：Astron 讯飞 API Key
+        "models": [
+          { "id": "astron-code-latest", "name": "astron-code-latest", "input": ["text"] }
+        ]
+      },
+      "deepseek": {
+        "api": "openai-completions",
+        "baseUrl": "https://api.deepseek.com",
+        "models": [
+          { "id": "deepseek-v4-flash", "name": "deepseek-v4-flash", "input": ["text"] },
+          { "id": "deepseek-v4-pro", "name": "DeepSeek V4 Pro", "input": ["text"] }
+        ],
+        "apiKey": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  // ⚠️ 需填写：DeepSeek API Key
+      },
+      // ⚠️ jiali3/jiali4 = dandan 的备用 DeepSeek 代理 key
+      "jiali3": {
+        "api": "openai-completions",
+        "baseUrl": "https://api.deepseek.com",
+        "apiKey": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "models": [
+          { "id": "deepseek-v4-flash", "name": "deepseek-v4-flash", "input": ["text"] },
+          { "id": "deepseek-v4-pro", "name": "deepseek-v4-pro", "input": ["text"] }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "models": {
+        "deepseek/deepseek-v4-flash": {},
+        "混元/hy3-preview": {},
+        "智谱/glm-5.2": {},
+        "deepseek/deepseek-v4-pro": {},
+        "astron2/astron-code-latest": {}
+      },
+      "workspace": "/vol1/@apphome/trim.openclaw/data/workspace",  // ⚠️ 需修改：workspace 路径
+      "compaction": {
+        "memoryFlush": {
+          "enabled": false,          // ❌ 已禁用！由 6h cron 替代
+          "softThresholdTokens": 4000,
+          "prompt": "压缩前记忆沉淀：请将本轮的关键信息结构化为以下三行写入 memory/YYYY-MM-DD.md（追加模式）..."
+        },
+        "postCompactionSections": [   // ⚠️ 压缩后保留的 sections
+          "启动",
+          "铁律"
+        ]
+      },
+      "heartbeat": { "every": "0m" },  // 心跳频率（0 = 关闭）
+      "memorySearch": { "enabled": true },
+      "imageModel": "智谱/glm-5.2",
+      "contextTokens": 200000          // 最大上下文 token 数
+    },
+    "list": [
+      {
+        "id": "main",
+        "workspace": "/vol1/@apphome/trim.openclaw/data/workspace",
+        "model": {
+          "primary": "astron2/astron-code-latest",    // 主模型
+          "fallbacks": [                              // 降级模型
+            "deepseek/deepseek-v4-flash",
+            "混元/hy3-preview"
+          ]
+        },
+        "subagents": {
+          "allowAgents": ["*"],                       // 允许所有子代理
+          "model": "deepseek/deepseek-v4-flash"
+        }
+      },
+      {
+        "id": "deepseek",
+        "name": "DeepSeek 子代理",
+        "workspace": "/vol1/@apphome/trim.openclaw/data/workspace",
+        "model": {
+          "primary": "jiali3/deepseek-v4-flash",
+          "fallbacks": [
+            "jiali4/deepseek-v4-flash",
+            "deepseek/deepseek-v4-flash"
+          ]
+        }
+      }
+    ]
+  },
+  "tools": {
+    "sandbox": {
+      "tools": {
+        "alsoAllow": ["bundle-mcp"]   // 允许 bundle-mcp 工具
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",                  // 原生命令模式
+    "nativeSkills": false,             // 不启用原生 skills
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "scope": "per-sender",             // session 按发送者隔离
+    "dmScope": "main",                 // 私聊 scope
+    "reset": {                         // 默认会话重置策略
+      "mode": "idle",
+      "idleMinutes": 10080             // 7天无活动重置
+    },
+    "resetByType": {
+      "direct": { "mode": "idle", "idleMinutes": 10080 },
+      "group": { "mode": "idle", "idleMinutes": 10080 },
+      "thread": { "mode": "idle", "idleMinutes": 10080 }
+    }
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "session-memory": { "enabled": true },       // session 记忆 hook
+        "command-logger": { "enabled": true },        // 命令日志
+        "pre-compact-memory": { "enabled": false },   // 压缩前钩子（已关）
+        "bootstrap-extra-files": {                    // 启动时注入的额外文件
+          "enabled": true,
+          "paths": [
+            "AGENTS.md",
+            "SOUL.md",
+            "TOOLS.md",
+            "IDENTITY.md",
+            "USER.md"
+          ]
+        }
+      }
+    }
+  },
+  "gateway": {
+    "port": 17587,                    // ⚠️ 需确认端口可用
+    "mode": "local",                   // 本地模式
+    "bind": "loopback",                // 只监听 127.0.0.1
+    "auth": {
+      "mode": "token",
+      "token": "clw_fnos_2026_17587"  // ⚠️ 需填写自定义 token
+    },
+    "controlUi": {
+      "enabled": true,
+      "basePath": "/app/trim-openclaw/default",
+      "allowedOrigins": ["*"],          // 允许所有来源
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    },
+    "trustedProxies": ["127.0.0.1", "::1"],
+    "tools": {
+      "allow": ["sessions_send"]        // 允许发送消息
+    }
+  },
+  "logging": {
+    "file": "/vol1/@apphome/trim.openclaw/data/logs/openclaw.log",
+    "level": "info",
+    "consoleStyle": "pretty"
+  },
+  "plugins": {
+    "enabled": true,
+    "allow": ["轻如烟-行为强制", "deepseek", "memory-core", "sandglass-logger"],
+    "load": {
+      "paths": [
+        "/vol1/@apphome/trim.openclaw/data/home/.openclaw/plugins/轻如烟-行为强制",
+        "/vol1/@apphome/trim.openclaw/data/home/.openclaw/plugins/sandglass-logger"
+      ]
+    },
+    "entries": {
+      "轻如烟-行为强制": {
+        "enabled": true,
+        "hooks": {
+          "allowPromptInjection": true   // 允许插件注入 prompt
+        }
+      },
+      "deepseek": { "enabled": true },
+      "memory-core": {
+        "config": {
+          "dreaming": { "enabled": true }  // 开启梦境系统
+        },
+        "enabled": true
+      }
+    },
+    "bundledDiscovery": "compat"          // 内置插件发现模式
+  },
+  "mcp": {
+    "servers": {
+      "dandan": {
+        "command": "/vol1/@apphome/trim.openclaw/data/workspace/dandan-mcp-server.mjs",
+        "args": [""],
+        "enabled": true
+      },
+      "sandglass": {
+        "command": "python3",
+        "args": ["/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source/sandglass_mcp.py"],
+        "env": {
+          "NEXSANDBASE_HOME": "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass"
+        },
+        "enabled": true
+      }
+    },
+    "sessionIdleTtlMs": 30000    // MCP session 空闲超时（30秒）
+  },
+  "wizard": {
+    "lastRunAt": "2026-06-23T10:21:14.319Z",
+    "lastRunVersion": "2026.6.9",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  }
+}

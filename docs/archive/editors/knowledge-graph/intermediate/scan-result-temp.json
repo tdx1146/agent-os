@@ -1,0 +1,1232 @@
+{
+  "scriptCompleted": true,
+  "files": [
+    {
+      "path": ".understand-anything/.understandignore",
+      "language": "unknown",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".understand-anything/intermediate/file-list.txt",
+      "language": "txt",
+      "sizeLines": 567,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".踱步/.last_user_msg",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "AUDIT_REPORT.md",
+      "language": "markdown",
+      "sizeLines": 603,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backup_20260612_2207/awake.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/backup_20260612_2207/awake.py",
+      "language": "python",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/cache_stats_helper.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/cert.pem",
+      "language": "pem",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/check-facts-stale.sh",
+      "language": "shell",
+      "sizeLines": 106,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/edit-web.py",
+      "language": "python",
+      "sizeLines": 1935,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/edit-web.py.bak",
+      "language": "bak",
+      "sizeLines": 3821,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/edit-web.py.bak.20260610_final",
+      "language": "20260610_final",
+      "sizeLines": 3833,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/edit-web.py.bak.20260610_pre_sync",
+      "language": "20260610_pre_sync",
+      "sizeLines": 3833,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/edit-web.py.bak.20260627",
+      "language": "20260627",
+      "sizeLines": 3832,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/cache_stats_helper.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/edit-web.py",
+      "language": "python",
+      "sizeLines": 3792,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/index.html",
+      "language": "html",
+      "sizeLines": 448,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/awake.js",
+      "language": "javascript",
+      "sizeLines": 352,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/cache.js",
+      "language": "javascript",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/core.js",
+      "language": "javascript",
+      "sizeLines": 235,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/digestion.js",
+      "language": "javascript",
+      "sizeLines": 126,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/editor.js",
+      "language": "javascript",
+      "sizeLines": 198,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/facts.js",
+      "language": "javascript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/file-browser.js",
+      "language": "javascript",
+      "sizeLines": 440,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/indicators.js",
+      "language": "javascript",
+      "sizeLines": 96,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/memory-file.js",
+      "language": "javascript",
+      "sizeLines": 106,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/modules.js",
+      "language": "javascript",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/momo.js",
+      "language": "javascript",
+      "sizeLines": 345,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/pagination.js",
+      "language": "javascript",
+      "sizeLines": 91,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/reminders.js",
+      "language": "javascript",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/render.js",
+      "language": "javascript",
+      "sizeLines": 105,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/subagent.js",
+      "language": "javascript",
+      "sizeLines": 149,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/textarea.js",
+      "language": "javascript",
+      "sizeLines": 82,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/thinking.js",
+      "language": "javascript",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/static/js/tts.js",
+      "language": "javascript",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/utils/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/utils/crypto.py",
+      "language": "python",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/utils/inject.py",
+      "language": "python",
+      "sizeLines": 36,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/utils/momo.py",
+      "language": "python",
+      "sizeLines": 222,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/utils/secretary.py",
+      "language": "python",
+      "sizeLines": 87,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/utils/session.py",
+      "language": "python",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/final_snapshot_20260610/utils/tb_handler.py",
+      "language": "python",
+      "sizeLines": 206,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/cache_stats_helper.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/edit-web.py",
+      "language": "python",
+      "sizeLines": 3840,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/index.html",
+      "language": "html",
+      "sizeLines": 448,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/awake.js",
+      "language": "javascript",
+      "sizeLines": 352,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/cache.js",
+      "language": "javascript",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/core.js",
+      "language": "javascript",
+      "sizeLines": 235,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/digestion.js",
+      "language": "javascript",
+      "sizeLines": 126,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/editor.js",
+      "language": "javascript",
+      "sizeLines": 198,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/facts.js",
+      "language": "javascript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/file-browser.js",
+      "language": "javascript",
+      "sizeLines": 440,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/indicators.js",
+      "language": "javascript",
+      "sizeLines": 96,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/memory-file.js",
+      "language": "javascript",
+      "sizeLines": 106,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/modules.js",
+      "language": "javascript",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/momo.js",
+      "language": "javascript",
+      "sizeLines": 345,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/pagination.js",
+      "language": "javascript",
+      "sizeLines": 91,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/reminders.js",
+      "language": "javascript",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/render.js",
+      "language": "javascript",
+      "sizeLines": 105,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/subagent.js",
+      "language": "javascript",
+      "sizeLines": 149,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/textarea.js",
+      "language": "javascript",
+      "sizeLines": 82,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/thinking.js",
+      "language": "javascript",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610_v2/static/js/tts.js",
+      "language": "javascript",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610/cache_stats_helper.py",
+      "language": "python",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610/edit-web.py",
+      "language": "python",
+      "sizeLines": 3853,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610/static/index.html",
+      "language": "html",
+      "sizeLines": 432,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610/static/js/core.js",
+      "language": "javascript",
+      "sizeLines": 234,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/fix_snapshot_20260610/static/js/modules.js",
+      "language": "javascript",
+      "sizeLines": 2508,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/gateway-history.js",
+      "language": "javascript",
+      "sizeLines": 155,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/gateway-ws-protocol.md",
+      "language": "markdown",
+      "sizeLines": 255,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backup_20260612_2207/health-check.py",
+      "language": "python",
+      "sizeLines": 109,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/health-check.sh",
+      "language": "shell",
+      "sizeLines": 29,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/inject-helper.mjs",
+      "language": "javascript",
+      "sizeLines": 364,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/inject-helper.mjs.final",
+      "language": "final",
+      "sizeLines": 359,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/key.pem",
+      "language": "pem",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/lungan-watch.py",
+      "language": "python",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/lungan-watch.sh",
+      "language": "shell",
+      "sizeLines": 63,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/momo-pack-cli.py",
+      "language": "python",
+      "sizeLines": 236,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/night-watch.sh",
+      "language": "shell",
+      "sizeLines": 54,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/pacing-v3.sh",
+      "language": "shell",
+      "sizeLines": 58,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/pacing.sh",
+      "language": "shell",
+      "sizeLines": 25,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/pulse-cron.sh",
+      "language": "shell",
+      "sizeLines": 6,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/pulse.sh",
+      "language": "shell",
+      "sizeLines": 26,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/README_ARCHIVED.md",
+      "language": "markdown",
+      "sizeLines": 7,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backup_20260612_2207/self-stimulate.sh",
+      "language": "shell",
+      "sizeLines": 47,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/spawn-helper.mjs",
+      "language": "javascript",
+      "sizeLines": 322,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/start-editor.sh",
+      "language": "shell",
+      "sizeLines": 20,
+      "fileCategory": "script"
+    },
+    {
+      "path": "backup_20260612_2207/static/awaken_sansan_v2.py",
+      "language": "python",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/static/awaken_sansan.py",
+      "language": "python",
+      "sizeLines": 41,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/static/index.html",
+      "language": "html",
+      "sizeLines": 2859,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "backup_20260612_2207/static/index.html.bak.20260610_final",
+      "language": "20260610_final",
+      "sizeLines": 2859,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/static/index.html.bak.20260610_pre_sync",
+      "language": "20260610_pre_sync",
+      "sizeLines": 2859,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/static/sansan_system_map.md",
+      "language": "markdown",
+      "sizeLines": 55,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backup_20260612_2207/ws-auth-proxy.cjs",
+      "language": "javascript",
+      "sizeLines": 251,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_20260612_2207/唤醒题库.md",
+      "language": "markdown",
+      "sizeLines": 30,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backup_20260612_2207/守夜问题库.md",
+      "language": "markdown",
+      "sizeLines": 91,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backup_old_baks/edit-web.py.bak",
+      "language": "bak",
+      "sizeLines": 3821,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_old_baks/edit-web.py.bak.20260610_final",
+      "language": "20260610_final",
+      "sizeLines": 3833,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_old_baks/edit-web.py.bak.20260610_pre_sync",
+      "language": "20260610_pre_sync",
+      "sizeLines": 3833,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backup_old_baks/README_ARCHIVED.md",
+      "language": "markdown",
+      "sizeLines": 7,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "cache_monitor.py",
+      "language": "python",
+      "sizeLines": 215,
+      "fileCategory": "code"
+    },
+    {
+      "path": "cache_stats_helper.py",
+      "language": "python",
+      "sizeLines": 162,
+      "fileCategory": "code"
+    },
+    {
+      "path": "deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+      "language": "markdown",
+      "sizeLines": 620,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/API_KEYS_TEST.md",
+      "language": "markdown",
+      "sizeLines": 74,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/AUDIT_INTERCEPTOR_FEASIBILITY.md",
+      "language": "markdown",
+      "sizeLines": 460,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+      "language": "markdown",
+      "sizeLines": 341,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/dandan-request-20260628-decomposition.md",
+      "language": "markdown",
+      "sizeLines": 183,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/EDITOR_CRASH_DIAG.md",
+      "language": "markdown",
+      "sizeLines": 200,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/EDITOR_DELIVERY_BUG.md",
+      "language": "markdown",
+      "sizeLines": 381,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/EDITOR_SLOW_LOAD.md",
+      "language": "markdown",
+      "sizeLines": 181,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/EMBEDDING_CACHE_ANALYSIS.md",
+      "language": "markdown",
+      "sizeLines": 455,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/FIX_TITLE_AND_VERSION_RULES.md",
+      "language": "markdown",
+      "sizeLines": 33,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/SA_MCP_DESIGN.md",
+      "language": "markdown",
+      "sizeLines": 248,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/SISTER_RECON.md",
+      "language": "markdown",
+      "sizeLines": 235,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/SKILL_V2_GAP.md",
+      "language": "markdown",
+      "sizeLines": 242,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+      "language": "markdown",
+      "sizeLines": 711,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/THREE_LAYER_FEASIBILITY.md",
+      "language": "markdown",
+      "sizeLines": 559,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/TOOL_ERROR_AUDIT.md",
+      "language": "markdown",
+      "sizeLines": 369,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/TTS_FIX.md",
+      "language": "markdown",
+      "sizeLines": 103,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/VERSION_AUDIT_20260627.md",
+      "language": "markdown",
+      "sizeLines": 170,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/VERSION_AUDIT_20260628.md",
+      "language": "markdown",
+      "sizeLines": 189,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "deploy-notes/VERSION_MANAGEMENT.md",
+      "language": "markdown",
+      "sizeLines": 27,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "edit-web.py",
+      "language": "python",
+      "sizeLines": 1935,
+      "fileCategory": "code"
+    },
+    {
+      "path": "edit-web.py.backup.pre-refactor",
+      "language": "pre-refactor",
+      "sizeLines": 3807,
+      "fileCategory": "code"
+    },
+    {
+      "path": "edit-web.py.bak.20260626_0007",
+      "language": "20260626_0007",
+      "sizeLines": 1933,
+      "fileCategory": "code"
+    },
+    {
+      "path": "editor-config.json",
+      "language": "json",
+      "sizeLines": 19,
+      "fileCategory": "config"
+    },
+    {
+      "path": "embed-server.mjs",
+      "language": "javascript",
+      "sizeLines": 108,
+      "fileCategory": "code"
+    },
+    {
+      "path": "embed-server.mjs.backup",
+      "language": "backup",
+      "sizeLines": 108,
+      "fileCategory": "code"
+    },
+    {
+      "path": "experimental/edit-web_v4.1_subprocess-run.py",
+      "language": "python",
+      "sizeLines": 1935,
+      "fileCategory": "code"
+    },
+    {
+      "path": "experimental/inject-helper.mjs",
+      "language": "javascript",
+      "sizeLines": 359,
+      "fileCategory": "code"
+    },
+    {
+      "path": "FRONTEND_AUDIT.md",
+      "language": "markdown",
+      "sizeLines": 315,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "handlers/__init__.py",
+      "language": "python",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/awake_handler.py",
+      "language": "python",
+      "sizeLines": 121,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/crypto_handler.py",
+      "language": "python",
+      "sizeLines": 343,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/file_handler.py",
+      "language": "python",
+      "sizeLines": 213,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/helper_handler.py",
+      "language": "python",
+      "sizeLines": 211,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/inject_handler.py",
+      "language": "python",
+      "sizeLines": 191,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/momo_handler.py",
+      "language": "python",
+      "sizeLines": 157,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/router.py",
+      "language": "python",
+      "sizeLines": 177,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/session_handler.py",
+      "language": "python",
+      "sizeLines": 317,
+      "fileCategory": "code"
+    },
+    {
+      "path": "handlers/system_handler.py",
+      "language": "python",
+      "sizeLines": 238,
+      "fileCategory": "code"
+    },
+    {
+      "path": "health-check.sh",
+      "language": "shell",
+      "sizeLines": 17,
+      "fileCategory": "script"
+    },
+    {
+      "path": "health-loop.sh",
+      "language": "shell",
+      "sizeLines": 21,
+      "fileCategory": "script"
+    },
+    {
+      "path": "inject-helper.mjs",
+      "language": "javascript",
+      "sizeLines": 359,
+      "fileCategory": "code"
+    },
+    {
+      "path": "momo-pack-cli.py",
+      "language": "python",
+      "sizeLines": 236,
+      "fileCategory": "code"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 168,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "reflection_unified.py",
+      "language": "python",
+      "sizeLines": 844,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/20260612_v1_editor-backup.py",
+      "language": "python",
+      "sizeLines": 3772,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/20260613_v2_zuixin.py",
+      "language": "python",
+      "sizeLines": 3877,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/fix-delivery-bug-20260626.md",
+      "language": "markdown",
+      "sizeLines": 176,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "revisions/fix-watchdog-20260626.md",
+      "language": "markdown",
+      "sizeLines": 121,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "revisions/revert-guide.md",
+      "language": "markdown",
+      "sizeLines": 41,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "revisions/v4.1_20260626_inject-fix/awake.js",
+      "language": "javascript",
+      "sizeLines": 369,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "language": "python",
+      "sizeLines": 1935,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.1_20260626_inject-fix/editor.js",
+      "language": "javascript",
+      "sizeLines": 232,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.1_20260626_inject-fix/inject-helper.mjs",
+      "language": "javascript",
+      "sizeLines": 359,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.1_20260626_inject-fix/start-clean.sh",
+      "language": "shell",
+      "sizeLines": 38,
+      "fileCategory": "script"
+    },
+    {
+      "path": "revisions/v4.2_20260628_version-fix/core.js",
+      "language": "javascript",
+      "sizeLines": 311,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.2_20260628_version-fix/edit-web.py",
+      "language": "python",
+      "sizeLines": 1935,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.2_20260628_version-fix/index.html",
+      "language": "html",
+      "sizeLines": 246,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "revisions/v4.2_20260628_version-fix/router.py",
+      "language": "python",
+      "sizeLines": 177,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.2_20260628_version-fix/system_handler.py",
+      "language": "python",
+      "sizeLines": 238,
+      "fileCategory": "code"
+    },
+    {
+      "path": "revisions/v4.2_20260628_version-fix/version.py",
+      "language": "python",
+      "sizeLines": 7,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sandglass_log_wrapper.py",
+      "language": "python",
+      "sizeLines": 24,
+      "fileCategory": "code"
+    },
+    {
+      "path": "searxng_mcp.py",
+      "language": "python",
+      "sizeLines": 90,
+      "fileCategory": "code"
+    },
+    {
+      "path": "session_safety.py",
+      "language": "python",
+      "sizeLines": 282,
+      "fileCategory": "code"
+    },
+    {
+      "path": "start-clean.sh",
+      "language": "shell",
+      "sizeLines": 38,
+      "fileCategory": "script"
+    },
+    {
+      "path": "start-health-loop.sh",
+      "language": "shell",
+      "sizeLines": 4,
+      "fileCategory": "script"
+    },
+    {
+      "path": "static/css/styles.css",
+      "language": "css",
+      "sizeLines": 336,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "static/index.html",
+      "language": "html",
+      "sizeLines": 246,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "static/js/app.js",
+      "language": "javascript",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/awake.js",
+      "language": "javascript",
+      "sizeLines": 369,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/awake.js.bak.20260626_0007",
+      "language": "20260626_0007",
+      "sizeLines": 329,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/cache-monitor.js",
+      "language": "javascript",
+      "sizeLines": 139,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/components.js",
+      "language": "javascript",
+      "sizeLines": 274,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/core.js",
+      "language": "javascript",
+      "sizeLines": 311,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/dashboard.js",
+      "language": "javascript",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/editor.js",
+      "language": "javascript",
+      "sizeLines": 232,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/editor.js.bak.20260626_0007",
+      "language": "20260626_0007",
+      "sizeLines": 233,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/file-browser.js",
+      "language": "javascript",
+      "sizeLines": 473,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/momo.js",
+      "language": "javascript",
+      "sizeLines": 338,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/render.js",
+      "language": "javascript",
+      "sizeLines": 656,
+      "fileCategory": "code"
+    },
+    {
+      "path": "static/js/subagent.js",
+      "language": "javascript",
+      "sizeLines": 149,
+      "fileCategory": "code"
+    },
+    {
+      "path": "task_dispatcher.py",
+      "language": "python",
+      "sizeLines": 150,
+      "fileCategory": "code"
+    },
+    {
+      "path": "think_patches.py",
+      "language": "python",
+      "sizeLines": 136,
+      "fileCategory": "code"
+    },
+    {
+      "path": "think_patterns.py",
+      "language": "python",
+      "sizeLines": 664,
+      "fileCategory": "code"
+    },
+    {
+      "path": "think_test.py",
+      "language": "python",
+      "sizeLines": 462,
+      "fileCategory": "code"
+    },
+    {
+      "path": "think_type_check.py",
+      "language": "python",
+      "sizeLines": 266,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/__init__.py",
+      "language": "python",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/config.py",
+      "language": "python",
+      "sizeLines": 185,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/crypto.py",
+      "language": "python",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/inject.py",
+      "language": "python",
+      "sizeLines": 36,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/momo.py",
+      "language": "python",
+      "sizeLines": 222,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/secretary.py",
+      "language": "python",
+      "sizeLines": 87,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/session.py",
+      "language": "python",
+      "sizeLines": 138,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/tb_handler.py",
+      "language": "python",
+      "sizeLines": 216,
+      "fileCategory": "code"
+    },
+    {
+      "path": "utils/version.py",
+      "language": "python",
+      "sizeLines": 7,
+      "fileCategory": "code"
+    },
+    {
+      "path": "VERSION_COMPARISON.md",
+      "language": "markdown",
+      "sizeLines": 307,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "watchdog.sh",
+      "language": "shell",
+      "sizeLines": 10,
+      "fileCategory": "script"
+    }
+  ],
+  "totalFiles": 199,
+  "filteredByIgnore": 0,
+  "estimatedComplexity": "large",
+  "stats": {
+    "filesScanned": 199,
+    "byCategory": {
+      "code": 141,
+      "docs": 34,
+      "script": 16,
+      "markup": 7,
+      "config": 1
+    },
+    "byLanguage": {
+      "20260627": 1,
+      "unknown": 2,
+      "txt": 1,
+      "markdown": 33,
+      "python": 62,
+      "pem": 2,
+      "shell": 16,
+      "bak": 2,
+      "20260610_final": 3,
+      "20260610_pre_sync": 3,
+      "html": 6,
+      "javascript": 60,
+      "final": 1,
+      "pre-refactor": 1,
+      "20260626_0007": 3,
+      "json": 1,
+      "backup": 1,
+      "css": 1
+    }
+  }
+}

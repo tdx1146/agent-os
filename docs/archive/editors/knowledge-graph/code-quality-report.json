@@ -1,0 +1,325 @@
+{
+  "files_over_500_lines": [
+    {
+      "file": "AUDIT_REPORT.md",
+      "lines": 603
+    },
+    {
+      "file": "deploy-notes/AGENT_OS_GAP_ANALYSIS.md",
+      "lines": 620
+    },
+    {
+      "file": "deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+      "lines": 711
+    },
+    {
+      "file": "deploy-notes/THREE_LAYER_FEASIBILITY.md",
+      "lines": 559
+    },
+    {
+      "file": "reflection_unified.py",
+      "lines": 844
+    },
+    {
+      "file": "static/js/render.js",
+      "lines": 656
+    },
+    {
+      "file": "think_patterns.py",
+      "lines": 664
+    }
+  ],
+  "files_over_1000_lines": [
+    {
+      "file": "edit-web.py",
+      "lines": 1935
+    },
+    {
+      "file": "edit_web.py",
+      "lines": 1935
+    },
+    {
+      "file": "experimental/edit-web_v4.1_subprocess-run.py",
+      "lines": 1935
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "lines": 3877
+    },
+    {
+      "file": "revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "lines": 1935
+    },
+    {
+      "file": "revisions/v4.2_20260628_version-fix/edit-web.py",
+      "lines": 1935
+    }
+  ],
+  "highly_coupled_files": [
+    {
+      "file": "cache_stats_helper.py",
+      "incoming": 8,
+      "layer": "other"
+    },
+    {
+      "file": "handlers/__init__.py",
+      "incoming": 46,
+      "layer": "handler"
+    },
+    {
+      "file": "handlers/awake_handler.py",
+      "incoming": 10,
+      "layer": "handler"
+    },
+    {
+      "file": "handlers/crypto_handler.py",
+      "incoming": 12,
+      "layer": "handler"
+    },
+    {
+      "file": "handlers/file_handler.py",
+      "incoming": 16,
+      "layer": "handler"
+    },
+    {
+      "file": "handlers/helper_handler.py",
+      "incoming": 14,
+      "layer": "handler"
+    },
+    {
+      "file": "handlers/inject_handler.py",
+      "incoming": 18,
+      "layer": "handler"
+    },
+    {
+      "file": "handlers/session_handler.py",
+      "incoming": 18,
+      "layer": "handler"
+    },
+    {
+      "file": "handlers/system_handler.py",
+      "incoming": 14,
+      "layer": "handler"
+    },
+    {
+      "file": "utils/config.py",
+      "incoming": 45,
+      "layer": "util"
+    },
+    {
+      "file": "utils/momo.py",
+      "incoming": 24,
+      "layer": "util"
+    },
+    {
+      "file": "utils/secretary.py",
+      "incoming": 30,
+      "layer": "util"
+    },
+    {
+      "file": "utils/tb_handler.py",
+      "incoming": 72,
+      "layer": "util"
+    }
+  ],
+  "orphan_files": [],
+  "cross_layer_violations": [],
+  "missing_docstrings": [],
+  "large_functions": [
+    {
+      "file": "cache_monitor.py",
+      "function": "compute_stats",
+      "lines": 96
+    },
+    {
+      "file": "edit-web.py",
+      "function": "_digestion_skill_status",
+      "lines": 82
+    },
+    {
+      "file": "edit-web.py",
+      "function": "_search_backups",
+      "lines": 111
+    },
+    {
+      "file": "edit-web.py",
+      "function": "_log_file_save",
+      "lines": 86
+    },
+    {
+      "file": "edit_web.py",
+      "function": "_digestion_skill_status",
+      "lines": 82
+    },
+    {
+      "file": "edit_web.py",
+      "function": "_search_backups",
+      "lines": 111
+    },
+    {
+      "file": "edit_web.py",
+      "function": "_log_file_save",
+      "lines": 86
+    },
+    {
+      "file": "experimental/edit-web_v4.1_subprocess-run.py",
+      "function": "_digestion_skill_status",
+      "lines": 82
+    },
+    {
+      "file": "experimental/edit-web_v4.1_subprocess-run.py",
+      "function": "_search_backups",
+      "lines": 111
+    },
+    {
+      "file": "experimental/edit-web_v4.1_subprocess-run.py",
+      "function": "_log_file_save",
+      "lines": 86
+    },
+    {
+      "file": "handlers/crypto_handler.py",
+      "function": "handle_decrypt",
+      "lines": 91
+    },
+    {
+      "file": "handlers/momo_handler.py",
+      "function": "handle_momo",
+      "lines": 101
+    },
+    {
+      "file": "handlers/router.py",
+      "function": "get",
+      "lines": 105
+    },
+    {
+      "file": "handlers/session_handler.py",
+      "function": "handle_trim_session",
+      "lines": 108
+    },
+    {
+      "file": "momo-pack-cli.py",
+      "function": "pack",
+      "lines": 212
+    },
+    {
+      "file": "reflection_unified.py",
+      "function": "_search_all_memory",
+      "lines": 177
+    },
+    {
+      "file": "reflection_unified.py",
+      "function": "reflect",
+      "lines": 265
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "function": "_momo_pack",
+      "lines": 225
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "function": "_digestion_skill_status",
+      "lines": 82
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "function": "_search_backups",
+      "lines": 111
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "function": "_log_file_save",
+      "lines": 86
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "function": "_handle_api",
+      "lines": 98
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "function": "_handle_trim_session",
+      "lines": 106
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "function": "_handle_decrypt",
+      "lines": 84
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "class": "Handler",
+      "method": "_handle_api",
+      "lines": 98
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "class": "Handler",
+      "method": "_handle_trim_session",
+      "lines": 106
+    },
+    {
+      "file": "revisions/20260613_v2_zuixin.py",
+      "class": "Handler",
+      "method": "_handle_decrypt",
+      "lines": 84
+    },
+    {
+      "file": "revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "function": "_digestion_skill_status",
+      "lines": 82
+    },
+    {
+      "file": "revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "function": "_search_backups",
+      "lines": 111
+    },
+    {
+      "file": "revisions/v4.1_20260626_inject-fix/edit-web.py",
+      "function": "_log_file_save",
+      "lines": 86
+    },
+    {
+      "file": "revisions/v4.2_20260628_version-fix/edit-web.py",
+      "function": "_digestion_skill_status",
+      "lines": 82
+    },
+    {
+      "file": "revisions/v4.2_20260628_version-fix/edit-web.py",
+      "function": "_search_backups",
+      "lines": 111
+    },
+    {
+      "file": "revisions/v4.2_20260628_version-fix/edit-web.py",
+      "function": "_log_file_save",
+      "lines": 86
+    },
+    {
+      "file": "revisions/v4.2_20260628_version-fix/router.py",
+      "function": "get",
+      "lines": 105
+    },
+    {
+      "file": "think_patterns.py",
+      "function": "_link_chain",
+      "lines": 90
+    },
+    {
+      "file": "think_patterns.py",
+      "function": "detect_paradox",
+      "lines": 231
+    },
+    {
+      "file": "think_patterns.py",
+      "class": "ReasoningChain",
+      "method": "detect_paradox",
+      "lines": 231
+    },
+    {
+      "file": "utils/momo.py",
+      "function": "momo_pack",
+      "lines": 97
+    }
+  ],
+  "empty_module_files": []
+}

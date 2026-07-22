@@ -1,0 +1,4 @@
+Running: "C:\Users\dandan\.workbuddy\binaries\python\versions\3.13.12\python.exe" -m pip install pdfplumber
+rc = 0
+pdfplumber: IMPORT OK
+pypdf: IMPORT OK

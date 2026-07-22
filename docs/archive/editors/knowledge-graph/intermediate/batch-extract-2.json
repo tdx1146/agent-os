@@ -1,0 +1,240 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "revisions/fix-delivery-bug-20260626.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 176,
+      "nonEmptyLines": 135,
+      "sections": [
+        {
+          "heading": "变更记录：编辑器消息送达故障修复",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "问题链条回顾",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "修改概览",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "修改详情",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "修复 1：后端 — `subprocess.Popen` → `subprocess.run`（带 10s 超时）",
+          "level": 3,
+          "line": 31
+        },
+        {
+          "heading": "修复 2 + 3：前端 — 超时后显示重试 + 清除乐观消息",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "修复 4：前端 — `saveEditWithApproval` 在 inject 返回前不做乐观更新",
+          "level": 3,
+          "line": 96
+        },
+        {
+          "heading": "验证方法",
+          "level": 2,
+          "line": 122
+        },
+        {
+          "heading": "语法验证 ✅",
+          "level": 3,
+          "line": 124
+        },
+        {
+          "heading": "功能验证（需手动执行）",
+          "level": 3,
+          "line": 134
+        },
+        {
+          "heading": "回滚方法",
+          "level": 2,
+          "line": 155
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "revisions/fix-watchdog-20260626.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 121,
+      "nonEmptyLines": 85,
+      "sections": [
+        {
+          "heading": "编辑器守护脚本故障分析与修复记录",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 故障概述",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "2. 根因分析",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "2.1 多套守护脚本互相干扰",
+          "level": 3,
+          "line": 14
+        },
+        {
+          "heading": "2.2 总结",
+          "level": 3,
+          "line": 35
+        },
+        {
+          "heading": "3. 修复了什么",
+          "level": 2,
+          "line": 41
+        },
+        {
+          "heading": "3.1 停止了所有守护脚本",
+          "level": 3,
+          "line": 43
+        },
+        {
+          "heading": "3.2 确认了编辑器版本",
+          "level": 3,
+          "line": 56
+        },
+        {
+          "heading": "3.3 恢复了编辑器服务",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "4. 启动命令",
+          "level": 2,
+          "line": 72
+        },
+        {
+          "heading": "标准启动（手动）",
+          "level": 3,
+          "line": 74
+        },
+        {
+          "heading": "使用启动脚本（推荐）",
+          "level": 3,
+          "line": 80
+        },
+        {
+          "heading": "查看日志",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "5. 回滚方法",
+          "level": 2,
+          "line": 92
+        },
+        {
+          "heading": "恢复到 Popen 原版（如试错版仍有问题）",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "重新启用守护脚本（如需要）",
+          "level": 3,
+          "line": 100
+        },
+        {
+          "heading": "注意事项",
+          "level": 3,
+          "line": 107
+        },
+        {
+          "heading": "6. 后续建议",
+          "level": 2,
+          "line": 116
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 18
+      }
+    },
+    {
+      "path": "revisions/revert-guide.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 41,
+      "nonEmptyLines": 35,
+      "sections": [
+        {
+          "heading": "轻如烟编辑器 版本回滚指南",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "版本索引",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "回滚到 v1",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "回滚到 v2",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "回滚到 v4 / v4.2",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "方式一：从 revisions 备份恢复",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "方式二：从 编辑器所有版本 目录恢复",
+          "level": 3,
+          "line": 31
+        },
+        {
+          "heading": "当前版本状态",
+          "level": 2,
+          "line": 36
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+[
+  {
+    "order": 1,
+    "title": "Project Overview",
+    "description": "轻如烟（Light as Smoke）对话编辑器 — 一个基于 Python + JavaScript 的对话式编辑器系统，使用 Gateway WebSocket 进行消息注入，支持多会话管理、编辑/截断、文件浏览、加密和摸摸(Momo)协议打包搜索。",
+    "nodeIds": [
+      "document:README.md",
+      "document:AUDIT_REPORT.md"
+    ]
+  },
+  {
+    "order": 2,
+    "title": "Backend Entry Point",
+    "description": "edit-web.py 是主后端入口 — HTTP/HTTPS 服务器（端口 18888/18889），负责路由分发、会话管理、消息注入和系统监控。自动发现 Gateway 端口并连接 WebSocket。",
+    "nodeIds": [
+      "file:edit-web.py"
+    ]
+  },
+  {
+    "order": 3,
+    "title": "API Request Routing",
+    "description": "handlers/router.py 统一分发所有 API 请求到各个 handler 模块。每个 handler 负责一个功能领域：session（会话）、inject（注入）、momo（打包搜索）、crypto（加密）、file（浏览）、system（状态）、awake（唤醒）、helper（辅助）。",
+    "nodeIds": [
+      "file:handlers/router.py",
+      "file:handlers/session_handler.py",
+      "file:handlers/inject_handler.py",
+      "file:handlers/momo_handler.py",
+      "file:handlers/crypto_handler.py",
+      "file:handlers/file_handler.py",
+      "file:handlers/system_handler.py",
+      "file:handlers/awake_handler.py",
+      "file:handlers/helper_handler.py"
+    ]
+  },
+  {
+    "order": 4,
+    "title": "Backend Utilities",
+    "description": "utils/ 目录提供核心工具函数：utils/config.py 配置管理，utils/session.py 会话 JSONL 文件读写，utils/inject.py WebSocket 消息注入封装，utils/crypto.py Ed25519 加密，utils/momo.py 摸摸协议打包/存档/搜索，utils/secretary.py 文件变更追踪，utils/tb_handler.py 文件浏览器后端。",
+    "nodeIds": [
+      "file:utils/config.py",
+      "file:utils/session.py",
+      "file:utils/inject.py",
+      "file:utils/crypto.py",
+      "file:utils/momo.py",
+      "file:utils/secretary.py",
+      "file:utils/tb_handler.py",
+      "file:utils/version.py"
+    ]
+  },
+  {
+    "order": 5,
+    "title": "WebSocket Injection Infrastructure",
+    "description": "inject-helper.mjs 是 Node.js 子进程，通过 WebSocket 连接 OpenClaw Gateway 实现消息注入。embed-server.mjs 提供嵌入服务器接口。这是前端和 AI 模型通信的关键通道。",
+    "nodeIds": [
+      "file:inject-helper.mjs",
+      "file:embed-server.mjs"
+    ]
+  },
+  {
+    "order": 6,
+    "title": "Frontend State Layer (Core)",
+    "description": "static/js/core.js 是整个前端的状态层（Store）和 API 层，管理会话状态、消息列表、轮询和全局配置。是所有前端组件的数据来源。static/js/app.js 提供组件注册框架（CL.register）。",
+    "nodeIds": [
+      "file:static/js/core.js",
+      "file:static/js/app.js"
+    ]
+  },
+  {
+    "order": 7,
+    "title": "Frontend UI Components",
+    "description": "static/js/components.js 提供 UI 组件（会话选择器、消化栏、系统健康等）。static/js/render.js 负责渲染层（消息渲染、分页、全部显示模式）。static/js/editor.js 管理编辑/截断面板逻辑。",
+    "nodeIds": [
+      "file:static/js/components.js",
+      "file:static/js/render.js",
+      "file:static/js/editor.js"
+    ]
+  },
+  {
+    "order": 8,
+    "title": "Frontend Feature Modules",
+    "description": "static/js/awake.js 消息发送/题库/唤醒功能。static/js/momo.js 摸摸协议前端实现。static/js/dashboard.js 仪表盘。static/js/file-browser.js 文件浏览器前端。static/js/subagent.js 子代理管理。static/js/cache-monitor.js 缓存监控。",
+    "nodeIds": [
+      "file:static/js/awake.js",
+      "file:static/js/momo.js",
+      "file:static/js/dashboard.js",
+      "file:static/js/file-browser.js",
+      "file:static/js/subagent.js",
+      "file:static/js/cache-monitor.js"
+    ]
+  },
+  {
+    "order": 9,
+    "title": "HTML/CSS Entry Points",
+    "description": "static/index.html 是前端入口 HTML，加载所有 JS 组件。static/css/styles.css 提供全局样式表（336 行）。",
+    "nodeIds": [
+      "file:static/index.html",
+      "file:static/css/styles.css"
+    ]
+  },
+  {
+    "order": 10,
+    "title": "System Tools and Reflection",
+    "description": "反射与系统工具：reflection_unified.py 统一反射分析，think_patterns.py/think_test.py/think_type_check.py 思考模式测试，task_dispatcher.py 任务调度，session_safety.py 会话安全检查，cache_monitor.py 缓存监控，sandglass_log_wrapper.py 日志包装。",
+    "nodeIds": [
+      "file:reflection_unified.py",
+      "file:think_patterns.py",
+      "file:think_test.py",
+      "file:think_type_check.py",
+      "file:task_dispatcher.py",
+      "file:session_safety.py",
+      "file:cache_monitor.py",
+      "file:sandglass_log_wrapper.py"
+    ]
+  },
+  {
+    "order": 11,
+    "title": "Code Quality & Audit Reports",
+    "description": "deploy-notes/ 目录包含系统架构图、代码审查报告、版本审计、嵌入缓存分析、故障诊断等关键文档。FRONTEND_AUDIT.md 和 VERSION_COMPARISON.md 是前端审计和版本对比。",
+    "nodeIds": [
+      "document:deploy-notes/SYSTEM_ARCHITECTURE_MAP.md",
+      "document:deploy-notes/CODE_REVIEW_FROM_GRAPH.md",
+      "document:deploy-notes/VERSION_AUDIT_20260628.md",
+      "document:FRONTEND_AUDIT.md",
+      "document:VERSION_COMPARISON.md"
+    ]
+  }
+]

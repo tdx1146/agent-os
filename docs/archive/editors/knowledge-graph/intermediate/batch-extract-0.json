@@ -1,0 +1,832 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 10,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "AUDIT_REPORT.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 603,
+      "nonEmptyLines": 537,
+      "sections": [
+        {
+          "heading": "轻如烟 Edit-Web 架构审计报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 架构总览图（ASCII）",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "2. 问题清单（按严重程度分级）",
+          "level": 2,
+          "line": 129
+        },
+        {
+          "heading": "🔴 P0 — 会导致服务器 crash 或数据丢失",
+          "level": 3,
+          "line": 131
+        },
+        {
+          "heading": "P0-1: `_handle_restart_http` 中的 `os.kill(os.getpid())` 直接杀死进程",
+          "level": 4,
+          "line": 133
+        },
+        {
+          "heading": "P0-2: `inject_via_websocket` 在 `bypass_lock=True` 时仍调用 `_cleanup_lock()`，存在竞态",
+          "level": 4,
+          "line": 140
+        },
+        {
+          "heading": "P0-3: `edit_message` 备份后在 `session_file` 上直接写 `\"w\"` 模式截断",
+          "level": 4,
+          "line": 146
+        },
+        {
+          "heading": "P0-4: `edit_message` 保险线检查存在逻辑缺陷可被绕过",
+          "level": 4,
+          "line": 152
+        },
+        {
+          "heading": "P0-5: `INJECT_LOCK_FILE` 文件锁机制在 `subprocess.Popen` 异步释放后存在时序竞争",
+          "level": 4,
+          "line": 158
+        },
+        {
+          "heading": "P0-6: `_handle_restart_http` 最后一个 `try` 子句中 `self.wfile.flush()` 接 `os.kill`，且该子句前面匹配到 `self._handle_thinking_toggle` 后缺少 `return`，导致控制流向下穿透",
+          "level": 4,
+          "line": 163
+        },
+        {
+          "heading": "🟠 P1 — 导致功能不可用或用户可见错误",
+          "level": 3,
+          "line": 170
+        },
+        {
+          "heading": "P1-1: CORS/OPTIONS 预检完全缺失",
+          "level": 4,
+          "line": 172
+        },
+        {
+          "heading": "P1-2: 前端 API 层不区分「网络错误」「HTTP 错误」「业务错误」",
+          "level": 4,
+          "line": 178
+        },
+        {
+          "heading": "P1-3: `/api/ping` 硬编码在 do_POST 中而非路由层",
+          "level": 4,
+          "line": 194
+        },
+        {
+          "heading": "P1-4: `_handle_tb_read_file` 对 .docx 文件解密只返回 `[docx 读取失败: ...]` 字符串而非错误标志",
+          "level": 4,
+          "line": 199
+        },
+        {
+          "heading": "P1-5: `_handle_api` 的 `action=edit` 中错误地给前端传递 old session_key",
+          "level": 4,
+          "line": 204
+        },
+        {
+          "heading": "P1-6: 前端自动轮询（3秒间隔）与截断编辑流程存在竞态",
+          "level": 4,
+          "line": 208
+        },
+        {
+          "heading": "🟡 P2 — 架构不合理但当前可用",
+          "level": 3,
+          "line": 215
+        },
+        {
+          "heading": "P2-1: 双轨过渡模式长期未清理，edit-web.py 仍然膨胀到 3925 行",
+          "level": 4,
+          "line": 217
+        },
+        {
+          "heading": "P2-2: `handlers/` 目录中大部分文件是空的骨架",
+          "level": 4,
+          "line": 229
+        },
+        {
+          "heading": "P2-3: 硬编码路径散落各处（10+处）",
+          "level": 4,
+          "line": 235
+        },
+        {
+          "heading": "P2-4: `/api/session` 和 `/api/session-rpc` 存在两个不同的会话读取路径",
+          "level": 4,
+          "line": 248
+        },
+        {
+          "heading": "P2-5: 前端 store (全局变量) 缺乏统一状态管理",
+          "level": 4,
+          "line": 254
+        },
+        {
+          "heading": "P2-6: 子进程模型存在文件描述符泄露风险",
+          "level": 4,
+          "line": 260
+        },
+        {
+          "heading": "🔵 P3 — 代码风格、可维护性",
+          "level": 3,
+          "line": 267
+        },
+        {
+          "heading": "P3-1: `_momo_index_report` 中的 `estimated_user_messages` 估值逻辑有缺陷",
+          "level": 4,
+          "line": 269
+        },
+        {
+          "heading": "P3-2: 重复导入和局部 import 散乱",
+          "level": 4,
+          "line": 274
+        },
+        {
+          "heading": "P3-3: `_digestion_skill_status` 中的注释编号重复",
+          "level": 4,
+          "line": 279
+        },
+        {
+          "heading": "P3-4: `edit_message` 函数中 `for p in pairs:` 的 `userIndex` 赋值反转",
+          "level": 4,
+          "line": 287
+        },
+        {
+          "heading": "P3-5: `_handle_restart_http` 方法后的裸 try 块格式异常",
+          "level": 4,
+          "line": 298
+        },
+        {
+          "heading": "P3-6: `_backup_stale_status` 中 `os.path` 被当作模块名使用",
+          "level": 4,
+          "line": 307
+        },
+        {
+          "heading": "3. 模块依赖图",
+          "level": 2,
+          "line": 314
+        },
+        {
+          "heading": "4. 错误传播路径",
+          "level": 2,
+          "line": 399
+        },
+        {
+          "heading": "完整路径：浏览器 → edit-web → subprocess → Gateway → 返回",
+          "level": 3,
+          "line": 401
+        },
+        {
+          "heading": "错误传播总结表",
+          "level": 3,
+          "line": 512
+        },
+        {
+          "heading": "5. 其他重要发现",
+          "level": 2,
+          "line": 530
+        },
+        {
+          "heading": "5.1 备份策略",
+          "level": 3,
+          "line": 532
+        },
+        {
+          "heading": "5.2 CORS/OPTIONS",
+          "level": 3,
+          "line": 539
+        },
+        {
+          "heading": "5.3 配置优先级链",
+          "level": 3,
+          "line": 545
+        },
+        {
+          "heading": "5.4 线程安全",
+          "level": 3,
+          "line": 557
+        },
+        {
+          "heading": "5.5 前端JS文件独立性",
+          "level": 3,
+          "line": 564
+        },
+        {
+          "heading": "6. 各维度评分",
+          "level": 2,
+          "line": 582
+        },
+        {
+          "heading": "附录：审计方法",
+          "level": 2,
+          "line": 597
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 43
+      }
+    },
+    {
+      "path": "FRONTEND_AUDIT.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 315,
+      "nonEmptyLines": 257,
+      "sections": [
+        {
+          "heading": "🏗️ 前端审计报告 — 轻如烟 Editor",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "一、各文件职责摘要",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "二、fetch 错误传播路径图",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "完整链路：用户点击 → 直到看到错误提示",
+          "level": 3,
+          "line": 31
+        },
+        {
+          "heading": "核心问题",
+          "level": 3,
+          "line": 98
+        },
+        {
+          "heading": "三、问题清单",
+          "level": 2,
+          "line": 118
+        },
+        {
+          "heading": "🔴 P0 — 严重缺陷",
+          "level": 3,
+          "line": 120
+        },
+        {
+          "heading": "🟠 P1 — 中等严重",
+          "level": 3,
+          "line": 131
+        },
+        {
+          "heading": "🟡 P2 — 警告",
+          "level": 3,
+          "line": 142
+        },
+        {
+          "heading": "🔵 P3 — 建议",
+          "level": 3,
+          "line": 153
+        },
+        {
+          "heading": "四、\"Failed to fetch\" 前端根因分析",
+          "level": 2,
+          "line": 167
+        },
+        {
+          "heading": "实际表现",
+          "level": 3,
+          "line": 169
+        },
+        {
+          "heading": "前端侧根因",
+          "level": 3,
+          "line": 173
+        },
+        {
+          "heading": "1. 🌳 主因：无超时机制（P0-1）",
+          "level": 4,
+          "line": 175
+        },
+        {
+          "heading": "2. 🌳 批量请求并发（P1-1）",
+          "level": 4,
+          "line": 193
+        },
+        {
+          "heading": "3. 🌳 重试缺失（P0-6）",
+          "level": 4,
+          "line": 212
+        },
+        {
+          "heading": "4. 🌳 错误被静默吞掉（P0-2, P0-3）",
+          "level": 4,
+          "line": 216
+        },
+        {
+          "heading": "5. 嗅探请求导致连接焦虑",
+          "level": 4,
+          "line": 220
+        },
+        {
+          "heading": "\"Failed to fetch\" 传播流程",
+          "level": 3,
+          "line": 224
+        },
+        {
+          "heading": "五、架构评价",
+          "level": 2,
+          "line": 257
+        },
+        {
+          "heading": "评分表 (满分 10)",
+          "level": 3,
+          "line": 259
+        },
+        {
+          "heading": "综合评价：**5.25/10** ⭐⭐⭐",
+          "level": 3,
+          "line": 272
+        },
+        {
+          "heading": "架构改进路线图（按优先级）",
+          "level": 3,
+          "line": 278
+        },
+        {
+          "heading": "附录: 请求函数对比",
+          "level": 2,
+          "line": 302
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 24
+      }
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 168,
+      "nonEmptyLines": 137,
+      "sections": [
+        {
+          "heading": "轻如烟 对话编辑器 — 系统说明书",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "一、架构全景",
+          "level": 2,
+          "line": 6
+        },
+        {
+          "heading": "二、部署方式",
+          "level": 2,
+          "line": 50
+        },
+        {
+          "heading": "三、核心流程",
+          "level": 2,
+          "line": 61
+        },
+        {
+          "heading": "消息发送（注入）",
+          "level": 3,
+          "line": 63
+        },
+        {
+          "heading": "截断（已重写，2026-06-13）",
+          "level": 3,
+          "line": 68
+        },
+        {
+          "heading": "会话切换",
+          "level": 3,
+          "line": 84
+        },
+        {
+          "heading": "四、数据格式",
+          "level": 2,
+          "line": 90
+        },
+        {
+          "heading": "sessions.json（Gateway 维护）",
+          "level": 3,
+          "line": 92
+        },
+        {
+          "heading": "JSONL 轮次文件（每行一条 JSON）",
+          "level": 3,
+          "line": 103
+        },
+        {
+          "heading": "五、踩坑记录",
+          "level": 2,
+          "line": 109
+        },
+        {
+          "heading": "1. 截断代码安全性（2026-06-13）",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "2. session 列表不显示（2026-06-13）",
+          "level": 3,
+          "line": 115
+        },
+        {
+          "heading": "3. 会话选择器下拉为空（2026-06-13）",
+          "level": 3,
+          "line": 119
+        },
+        {
+          "heading": "4. 空 assistant 消息显示（2026-06-13）",
+          "level": 3,
+          "line": 123
+        },
+        {
+          "heading": "5. 小秘书插件断连（2026-06-12）",
+          "level": 3,
+          "line": 127
+        },
+        {
+          "heading": "6. Gateway WS 认证（2026-05-18）",
+          "level": 3,
+          "line": 131
+        },
+        {
+          "heading": "7. memory/ 软链接逃逸（2026-06-03）",
+          "level": 3,
+          "line": 135
+        },
+        {
+          "heading": "8. 注入锁单向阀（2026-05-18）",
+          "level": 3,
+          "line": 139
+        },
+        {
+          "heading": "9. 过度安全检查导致截断失败（2026-06-13）",
+          "level": 3,
+          "line": 143
+        },
+        {
+          "heading": "六、环境依赖",
+          "level": 2,
+          "line": 147
+        },
+        {
+          "heading": "七、启动后验证",
+          "level": 2,
+          "line": 154
+        },
+        {
+          "heading": "八、相关文件",
+          "level": 2,
+          "line": 162
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 23
+      }
+    },
+    {
+      "path": "VERSION_COMPARISON.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 307,
+      "nonEmptyLines": 222,
+      "sections": [
+        {
+          "heading": "轻如烟版本对比分析报告",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. 版本对比表",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "关键发现",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "2. 当前版本的\"伪单体\"架构真相",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "当前版本的实际架构",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "已分离的部分",
+          "level": 3,
+          "line": 52
+        },
+        {
+          "heading": "未分离的部分",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "3. 分离缺陷分析 — 为什么分离版本没跑起来",
+          "level": 2,
+          "line": 79
+        },
+        {
+          "heading": "致命缺陷 #1：`edit_web_merged` 不存在",
+          "level": 3,
+          "line": 81
+        },
+        {
+          "heading": "致命缺陷 #2：Handler 骨架全是空的",
+          "level": 3,
+          "line": 91
+        },
+        {
+          "heading": "致命缺陷 #3：router.py 依赖魔术引用",
+          "level": 3,
+          "line": 105
+        },
+        {
+          "heading": "缺陷 #4：Handler 类的 80+ 方法未拆分",
+          "level": 3,
+          "line": 117
+        },
+        {
+          "heading": "缺陷 #5：配置模块线差异（版本A vs 当前）",
+          "level": 3,
+          "line": 124
+        },
+        {
+          "heading": "版本B vs 当前版本差异",
+          "level": 3,
+          "line": 136
+        },
+        {
+          "heading": "4. 如果让版本C跑起来，需要修复什么",
+          "level": 2,
+          "line": 147
+        },
+        {
+          "heading": "步骤1：填充 handler 文件（最关键）",
+          "level": 3,
+          "line": 151
+        },
+        {
+          "heading": "步骤2：修复 `edit_web_merged` 引用",
+          "level": 3,
+          "line": 171
+        },
+        {
+          "heading": "步骤3：让 router.py 分发到 handler 文件",
+          "level": 3,
+          "line": 189
+        },
+        {
+          "heading": "步骤4：统一配置文件路径",
+          "level": 3,
+          "line": 205
+        },
+        {
+          "heading": "步骤5：去除重复的 static/js/",
+          "level": 3,
+          "line": 209
+        },
+        {
+          "heading": "5. 备份机制评估 — 为什么\"保存工作\"失败了",
+          "level": 2,
+          "line": 215
+        },
+        {
+          "heading": "5.1 文件路径混乱",
+          "level": 3,
+          "line": 217
+        },
+        {
+          "heading": "5.2 没有版本标记",
+          "level": 3,
+          "line": 240
+        },
+        {
+          "heading": "5.3 缺少切换/回滚机制",
+          "level": 3,
+          "line": 253
+        },
+        {
+          "heading": "5.4 版本C的静态JS与当前版本完全相同",
+          "level": 3,
+          "line": 259
+        },
+        {
+          "heading": "5.5 推荐的备份机制",
+          "level": 3,
+          "line": 268
+        },
+        {
+          "heading": "6. 总结",
+          "level": 2,
+          "line": 284
+        },
+        {
+          "heading": "核心结论",
+          "level": 3,
+          "line": 286
+        },
+        {
+          "heading": "推荐行动",
+          "level": 3,
+          "line": 298
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 29
+      }
+    },
+    {
+      "path": "editor-config.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 19,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "_说明",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "LIGHT_SMOKE_DIR",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "ALL_AUTO_DIR",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "BROWSE_ROOT",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "DATA_DIR",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "EDITOR_PORT",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "HTTPS_PORT",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "HTTPS_CERT",
+          "level": 1,
+          "line": 9
+        },
+        {
+          "heading": "HTTPS_KEY",
+          "level": 1,
+          "line": 10
+        },
+        {
+          "heading": "GATEWAY_HOST",
+          "level": 1,
+          "line": 11
+        },
+        {
+          "heading": "GATEWAY_TOKEN",
+          "level": 1,
+          "line": 12
+        },
+        {
+          "heading": "OPENCLAW_HOME",
+          "level": 1,
+          "line": 13
+        },
+        {
+          "heading": "IDENTITY_PATH",
+          "level": 1,
+          "line": 14
+        },
+        {
+          "heading": "WORKSPACE",
+          "level": 1,
+          "line": 15
+        },
+        {
+          "heading": "INJECT_LOCK_DIR",
+          "level": 1,
+          "line": 16
+        },
+        {
+          "heading": "BACKUP_DIR",
+          "level": 1,
+          "line": 17
+        },
+        {
+          "heading": "MOMO_DIR",
+          "level": 1,
+          "line": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    },
+    {
+      "path": "health-check.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 17,
+      "nonEmptyLines": 15,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "health-loop.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 21,
+      "nonEmptyLines": 18,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "start-clean.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 38,
+      "nonEmptyLines": 31,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "start-health-loop.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 4,
+      "nonEmptyLines": 4,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "watchdog.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 10,
+      "nonEmptyLines": 10,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

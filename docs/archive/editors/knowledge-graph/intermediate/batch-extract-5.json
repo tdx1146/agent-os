@@ -1,0 +1,5268 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 15,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "static/js/subagent.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 150,
+      "nonEmptyLines": 138,
+      "functions": [
+        {
+          "name": "loadSubagents",
+          "startLine": 2,
+          "endLine": 90,
+          "params": []
+        },
+        {
+          "name": "startSubagentPolling",
+          "startLine": 92,
+          "endLine": 99,
+          "params": []
+        },
+        {
+          "name": "toggleSubagentPanel",
+          "startLine": 101,
+          "endLine": 112,
+          "params": []
+        },
+        {
+          "name": "spawnSubagent",
+          "startLine": 114,
+          "endLine": 133,
+          "params": [
+            "e"
+          ]
+        },
+        {
+          "name": "authSubagent",
+          "startLine": 135,
+          "endLine": 150,
+          "params": [
+            "e"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "loadSubagents",
+          "callee": "document.getElementById",
+          "lineNumber": 4
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "api.subagentsList",
+          "lineNumber": 8
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "api.subagentHist",
+          "lineNumber": 13
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "a.model.includes",
+          "lineNumber": 22
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "a.model.includes",
+          "lineNumber": 22
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 27
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 31
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "(a.task || '').slice",
+          "lineNumber": 31
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "recent.slice(-5).reverse",
+          "lineNumber": 39
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "recent.slice",
+          "lineNumber": 39
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "a.model.includes",
+          "lineNumber": 40
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "a.model.includes",
+          "lineNumber": 40
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 45
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 48
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "(a.task || '').slice",
+          "lineNumber": 48
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 50
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "a.result.slice",
+          "lineNumber": 50
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "entries.slice(-8).reverse",
+          "lineNumber": 59
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "entries.slice",
+          "lineNumber": 59
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "e.model.includes",
+          "lineNumber": 61
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "e.time.slice",
+          "lineNumber": 66
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 67
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 71
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "(e.task || '').slice",
+          "lineNumber": 71
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 73
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "e.result.slice",
+          "lineNumber": 73
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "document.getElementById",
+          "lineNumber": 86
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "document.getElementById",
+          "lineNumber": 88
+        },
+        {
+          "caller": "loadSubagents",
+          "callee": "escapeHtml",
+          "lineNumber": 88
+        },
+        {
+          "caller": "startSubagentPolling",
+          "callee": "clearInterval",
+          "lineNumber": 93
+        },
+        {
+          "caller": "startSubagentPolling",
+          "callee": "setInterval",
+          "lineNumber": 94
+        },
+        {
+          "caller": "startSubagentPolling",
+          "callee": "document.getElementById",
+          "lineNumber": 95
+        },
+        {
+          "caller": "startSubagentPolling",
+          "callee": "loadSubagents",
+          "lineNumber": 96
+        },
+        {
+          "caller": "toggleSubagentPanel",
+          "callee": "document.getElementById",
+          "lineNumber": 103
+        },
+        {
+          "caller": "toggleSubagentPanel",
+          "callee": "document.getElementById",
+          "lineNumber": 105
+        },
+        {
+          "caller": "toggleSubagentPanel",
+          "callee": "loadSubagents",
+          "lineNumber": 107
+        },
+        {
+          "caller": "toggleSubagentPanel",
+          "callee": "startSubagentPolling",
+          "lineNumber": 108
+        },
+        {
+          "caller": "toggleSubagentPanel",
+          "callee": "clearInterval",
+          "lineNumber": 110
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "e.stopPropagation",
+          "lineNumber": 115
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "prompt",
+          "lineNumber": 116
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "prompt",
+          "lineNumber": 119
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "api.execSubagent",
+          "lineNumber": 122
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "toast",
+          "lineNumber": 124
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "loadSubagents",
+          "lineNumber": 125
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "toast",
+          "lineNumber": 127
+        },
+        {
+          "caller": "spawnSubagent",
+          "callee": "toast",
+          "lineNumber": 130
+        },
+        {
+          "caller": "authSubagent",
+          "callee": "e.stopPropagation",
+          "lineNumber": 136
+        },
+        {
+          "caller": "authSubagent",
+          "callee": "api.authSubagent",
+          "lineNumber": 140
+        },
+        {
+          "caller": "authSubagent",
+          "callee": "toast",
+          "lineNumber": 142
+        },
+        {
+          "caller": "authSubagent",
+          "callee": "toast",
+          "lineNumber": 144
+        },
+        {
+          "caller": "authSubagent",
+          "callee": "toast",
+          "lineNumber": 147
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "task_dispatcher.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 150,
+      "nonEmptyLines": 127,
+      "functions": [
+        {
+          "name": "dispatch",
+          "startLine": 41,
+          "endLine": 101,
+          "params": [
+            "task",
+            "context"
+          ]
+        },
+        {
+          "name": "_suggest_roles",
+          "startLine": 104,
+          "endLine": 142,
+          "params": [
+            "task",
+            "count"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "dispatch",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "_suggest_roles",
+          "line": 104,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "dispatch",
+          "callee": "task.lower",
+          "lineNumber": 55
+        },
+        {
+          "caller": "dispatch",
+          "callee": "re.search",
+          "lineNumber": 59
+        },
+        {
+          "caller": "dispatch",
+          "callee": "re.search",
+          "lineNumber": 70
+        },
+        {
+          "caller": "dispatch",
+          "callee": "spawn_matches.append",
+          "lineNumber": 72
+        },
+        {
+          "caller": "dispatch",
+          "callee": "m.group",
+          "lineNumber": 72
+        },
+        {
+          "caller": "dispatch",
+          "callee": "min",
+          "lineNumber": 76
+        },
+        {
+          "caller": "dispatch",
+          "callee": "len",
+          "lineNumber": 76
+        },
+        {
+          "caller": "dispatch",
+          "callee": "_suggest_roles",
+          "lineNumber": 77
+        },
+        {
+          "caller": "dispatch",
+          "callee": "', '.join",
+          "lineNumber": 80
+        },
+        {
+          "caller": "dispatch",
+          "callee": "re.search",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "task.lower",
+          "lineNumber": 117
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "any",
+          "lineNumber": 120
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched.append",
+          "lineNumber": 121
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "any",
+          "lineNumber": 122
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched.append",
+          "lineNumber": 123
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "any",
+          "lineNumber": 124
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched.append",
+          "lineNumber": 125
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "any",
+          "lineNumber": 126
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched.append",
+          "lineNumber": 127
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "any",
+          "lineNumber": 128
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched.append",
+          "lineNumber": 129
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "any",
+          "lineNumber": 130
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched.append",
+          "lineNumber": 131
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "len",
+          "lineNumber": 136
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched.append",
+          "lineNumber": 139
+        },
+        {
+          "caller": "_suggest_roles",
+          "callee": "matched_names.add",
+          "lineNumber": 140
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "think_patches.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 136,
+      "nonEmptyLines": 120,
+      "functions": [
+        {
+          "name": "generate_patches",
+          "startLine": 9,
+          "endLine": 42,
+          "params": [
+            "issues",
+            "task"
+          ]
+        },
+        {
+          "name": "_patch_jump",
+          "startLine": 45,
+          "endLine": 59,
+          "params": [
+            "task",
+            "evidence"
+          ]
+        },
+        {
+          "name": "_patch_circle",
+          "startLine": 62,
+          "endLine": 76,
+          "params": [
+            "task",
+            "evidence"
+          ]
+        },
+        {
+          "name": "_patch_unverified",
+          "startLine": 79,
+          "endLine": 94,
+          "params": [
+            "task",
+            "evidence"
+          ]
+        },
+        {
+          "name": "_patch_contradiction",
+          "startLine": 97,
+          "endLine": 105,
+          "params": [
+            "task",
+            "evidence"
+          ]
+        },
+        {
+          "name": "_patch_framework",
+          "startLine": 108,
+          "endLine": 116,
+          "params": [
+            "task",
+            "evidence"
+          ]
+        },
+        {
+          "name": "_patch_generic",
+          "startLine": 119,
+          "endLine": 124,
+          "params": [
+            "task",
+            "evidence"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "generate_patches",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "_patch_jump",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "_patch_circle",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "_patch_unverified",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "_patch_contradiction",
+          "line": 97,
+          "isDefault": false
+        },
+        {
+          "name": "_patch_framework",
+          "line": 108,
+          "isDefault": false
+        },
+        {
+          "name": "_patch_generic",
+          "line": 119,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generate_patches",
+          "callee": "issue.get",
+          "lineNumber": 12
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "issue.get",
+          "lineNumber": 13
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "issue.get",
+          "lineNumber": 14
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "issue.get",
+          "lineNumber": 15
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "_TYPE_MAP_V2_TO_V1.get",
+          "lineNumber": 17
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "_patch_jump",
+          "lineNumber": 25
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "_patch_circle",
+          "lineNumber": 27
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "_patch_unverified",
+          "lineNumber": 29
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "_patch_contradiction",
+          "lineNumber": 31
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "_patch_framework",
+          "lineNumber": 33
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "_patch_generic",
+          "lineNumber": 35
+        },
+        {
+          "caller": "generate_patches",
+          "callee": "patches.append",
+          "lineNumber": 41
+        },
+        {
+          "caller": "_patch_jump",
+          "callee": "re.search",
+          "lineNumber": 46
+        },
+        {
+          "caller": "_patch_jump",
+          "callee": "m.group(2).strip",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_patch_jump",
+          "callee": "m.group",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_patch_circle",
+          "callee": "re.search",
+          "lineNumber": 63
+        },
+        {
+          "caller": "_patch_circle",
+          "callee": "m.group",
+          "lineNumber": 65
+        },
+        {
+          "caller": "_patch_unverified",
+          "callee": "re.search",
+          "lineNumber": 80
+        },
+        {
+          "caller": "_patch_unverified",
+          "callee": "m.group(0).strip",
+          "lineNumber": 82
+        },
+        {
+          "caller": "_patch_unverified",
+          "callee": "m.group",
+          "lineNumber": 82
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "think_patterns.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 664,
+      "nonEmptyLines": 586,
+      "functions": [
+        {
+          "name": "parse_to_chain",
+          "startLine": 396,
+          "endLine": 419,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_classify_sentence",
+          "startLine": 422,
+          "endLine": 446,
+          "params": [
+            "sent"
+          ]
+        },
+        {
+          "name": "_link_chain",
+          "startLine": 449,
+          "endLine": 539,
+          "params": [
+            "chain"
+          ]
+        },
+        {
+          "name": "_char_set_similarity",
+          "startLine": 546,
+          "endLine": 556,
+          "params": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "name": "check_thinking",
+          "startLine": 563,
+          "endLine": 619,
+          "params": [
+            "task",
+            "history"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ReasoningNode",
+          "startLine": 26,
+          "endLine": 39,
+          "methods": [
+            "__init__",
+            "__repr__"
+          ],
+          "properties": []
+        },
+        {
+          "name": "ReasoningChain",
+          "startLine": 42,
+          "endLine": 389,
+          "methods": [
+            "__init__",
+            "add_node",
+            "link",
+            "detect_gaps",
+            "detect_orphan_premises",
+            "detect_paradox",
+            "detect_all"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ReasoningNode",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "ReasoningChain",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "parse_to_chain",
+          "line": 396,
+          "isDefault": false
+        },
+        {
+          "name": "_classify_sentence",
+          "line": 422,
+          "isDefault": false
+        },
+        {
+          "name": "_link_chain",
+          "line": 449,
+          "isDefault": false
+        },
+        {
+          "name": "_char_set_similarity",
+          "line": 546,
+          "isDefault": false
+        },
+        {
+          "name": "check_thinking",
+          "line": 563,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "add_node",
+          "callee": "len",
+          "lineNumber": 59
+        },
+        {
+          "caller": "add_node",
+          "callee": "self.nodes.append",
+          "lineNumber": 60
+        },
+        {
+          "caller": "link",
+          "callee": "len",
+          "lineNumber": 64
+        },
+        {
+          "caller": "link",
+          "callee": "len",
+          "lineNumber": 64
+        },
+        {
+          "caller": "link",
+          "callee": "self.nodes[to_idx].depends_on.append",
+          "lineNumber": 65
+        },
+        {
+          "caller": "link",
+          "callee": "self.nodes[from_idx].inferences_to.append",
+          "lineNumber": 66
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "gaps.append",
+          "lineNumber": 82
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "set",
+          "lineNumber": 92
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "range",
+          "lineNumber": 94
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "len",
+          "lineNumber": 94
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "set",
+          "lineNumber": 100
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "set",
+          "lineNumber": 100
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "any",
+          "lineNumber": 104
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "_char_set_similarity",
+          "lineNumber": 107
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "any",
+          "lineNumber": 111
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "_char_set_similarity",
+          "lineNumber": 112
+        },
+        {
+          "caller": "detect_gaps",
+          "callee": "gaps.append",
+          "lineNumber": 114
+        },
+        {
+          "caller": "detect_orphan_premises",
+          "callee": "any",
+          "lineNumber": 133
+        },
+        {
+          "caller": "detect_orphan_premises",
+          "callee": "n.text.endswith",
+          "lineNumber": 135
+        },
+        {
+          "caller": "detect_orphan_premises",
+          "callee": "n.text.endswith",
+          "lineNumber": 135
+        },
+        {
+          "caller": "detect_orphan_premises",
+          "callee": "orphans.append",
+          "lineNumber": 138
+        },
+        {
+          "caller": "_texts_are_mutex",
+          "callee": "any",
+          "lineNumber": 220
+        },
+        {
+          "caller": "_texts_are_mutex",
+          "callee": "any",
+          "lineNumber": 221
+        },
+        {
+          "caller": "_texts_are_mutex",
+          "callee": "any",
+          "lineNumber": 222
+        },
+        {
+          "caller": "_texts_are_mutex",
+          "callee": "any",
+          "lineNumber": 223
+        },
+        {
+          "caller": "_texts_are_mutex",
+          "callee": "re.findall",
+          "lineNumber": 248
+        },
+        {
+          "caller": "_texts_are_mutex",
+          "callee": "re.findall",
+          "lineNumber": 253
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "range",
+          "lineNumber": 260
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 260
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "range",
+          "lineNumber": 261
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 261
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "set",
+          "lineNumber": 267
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "set",
+          "lineNumber": 267
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "_texts_are_mutex",
+          "lineNumber": 273
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "list",
+          "lineNumber": 277
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "paradoxes.append",
+          "lineNumber": 279
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "' '.join",
+          "lineNumber": 297
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "any",
+          "lineNumber": 299
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "full_text.find",
+          "lineNumber": 301
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "max",
+          "lineNumber": 304
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "pretext.split",
+          "lineNumber": 306
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 307
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "parts[-2].strip",
+          "lineNumber": 308
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 308
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "parts[-2].strip",
+          "lineNumber": 308
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "parts[-1].strip",
+          "lineNumber": 309
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 309
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "parts[-1].strip",
+          "lineNumber": 309
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "paradoxes.append",
+          "lineNumber": 310
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "' '.join",
+          "lineNumber": 326
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "re.finditer",
+          "lineNumber": 335
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "m.group(1).strip",
+          "lineNumber": 337
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "m.group",
+          "lineNumber": 337
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "m.group(0).strip",
+          "lineNumber": 338
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "m.group",
+          "lineNumber": 338
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "predicates.append",
+          "lineNumber": 339
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "defaultdict",
+          "lineNumber": 342
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "subj_preds[subj].append",
+          "lineNumber": 344
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "subj_preds.items",
+          "lineNumber": 346
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 347
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "range",
+          "lineNumber": 348
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 348
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "range",
+          "lineNumber": 349
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "len",
+          "lineNumber": 349
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "paradoxes.append",
+          "lineNumber": 352
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "' '.join",
+          "lineNumber": 368
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "re.search",
+          "lineNumber": 369
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "paradoxes.append",
+          "lineNumber": 371
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "reductio.group",
+          "lineNumber": 374
+        },
+        {
+          "caller": "detect_paradox",
+          "callee": "reductio.group",
+          "lineNumber": 375
+        },
+        {
+          "caller": "detect_all",
+          "callee": "results.extend",
+          "lineNumber": 386
+        },
+        {
+          "caller": "detect_all",
+          "callee": "self.detect_gaps",
+          "lineNumber": 386
+        },
+        {
+          "caller": "detect_all",
+          "callee": "results.extend",
+          "lineNumber": 387
+        },
+        {
+          "caller": "detect_all",
+          "callee": "self.detect_orphan_premises",
+          "lineNumber": 387
+        },
+        {
+          "caller": "detect_all",
+          "callee": "results.extend",
+          "lineNumber": 388
+        },
+        {
+          "caller": "detect_all",
+          "callee": "self.detect_paradox",
+          "lineNumber": 388
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "ReasoningChain",
+          "lineNumber": 405
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "re.split",
+          "lineNumber": 408
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "s.strip",
+          "lineNumber": 409
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "len",
+          "lineNumber": 409
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "s.strip",
+          "lineNumber": 409
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "enumerate",
+          "lineNumber": 411
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "_classify_sentence",
+          "lineNumber": 412
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "ReasoningNode",
+          "lineNumber": 413
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "chain.add_node",
+          "lineNumber": 414
+        },
+        {
+          "caller": "parse_to_chain",
+          "callee": "_link_chain",
+          "lineNumber": 417
+        },
+        {
+          "caller": "_classify_sentence",
+          "callee": "any",
+          "lineNumber": 425
+        },
+        {
+          "caller": "_classify_sentence",
+          "callee": "any",
+          "lineNumber": 430
+        },
+        {
+          "caller": "_classify_sentence",
+          "callee": "any",
+          "lineNumber": 435
+        },
+        {
+          "caller": "_classify_sentence",
+          "callee": "any",
+          "lineNumber": 442
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "enumerate",
+          "lineNumber": 452
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "range",
+          "lineNumber": 454
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 456
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "enumerate",
+          "lineNumber": 459
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 461
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "enumerate",
+          "lineNumber": 464
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "re.search",
+          "lineNumber": 467
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "ref_match.group(1).strip",
+          "lineNumber": 469
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "ref_match.group",
+          "lineNumber": 469
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "range",
+          "lineNumber": 471
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "_char_set_similarity",
+          "lineNumber": 473
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 474
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "enumerate",
+          "lineNumber": 478
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "len",
+          "lineNumber": 482
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 484
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "enumerate",
+          "lineNumber": 487
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "any",
+          "lineNumber": 488
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "range",
+          "lineNumber": 490
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 492
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "enumerate",
+          "lineNumber": 496
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "re.findall",
+          "lineNumber": 499
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "re.findall",
+          "lineNumber": 501
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "range",
+          "lineNumber": 505
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "len",
+          "lineNumber": 511
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 512
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "len",
+          "lineNumber": 518
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 519
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "set",
+          "lineNumber": 525
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "range",
+          "lineNumber": 527
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "len",
+          "lineNumber": 527
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "two_char_parts.add",
+          "lineNumber": 528
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 531
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "_char_set_similarity",
+          "lineNumber": 536
+        },
+        {
+          "caller": "_link_chain",
+          "callee": "chain.link",
+          "lineNumber": 538
+        },
+        {
+          "caller": "_char_set_similarity",
+          "callee": "set",
+          "lineNumber": 551
+        },
+        {
+          "caller": "_char_set_similarity",
+          "callee": "set",
+          "lineNumber": 552
+        },
+        {
+          "caller": "_char_set_similarity",
+          "callee": "len",
+          "lineNumber": 555
+        },
+        {
+          "caller": "_char_set_similarity",
+          "callee": "max",
+          "lineNumber": 556
+        },
+        {
+          "caller": "_char_set_similarity",
+          "callee": "len",
+          "lineNumber": 556
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "parse_to_chain",
+          "lineNumber": 579
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "chain.detect_all",
+          "lineNumber": 580
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issues.append",
+          "lineNumber": 584
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issue.get",
+          "lineNumber": 585
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issue.get",
+          "lineNumber": 586
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issue.get",
+          "lineNumber": 586
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issue.get",
+          "lineNumber": 587
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issue.get",
+          "lineNumber": 588
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issue.get",
+          "lineNumber": 589
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "len",
+          "lineNumber": 593
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "set",
+          "lineNumber": 594
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "re.findall",
+          "lineNumber": 594
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "str",
+          "lineNumber": 596
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "h.get",
+          "lineNumber": 596
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "isinstance",
+          "lineNumber": 596
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "str",
+          "lineNumber": 596
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "set",
+          "lineNumber": 597
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "re.findall",
+          "lineNumber": 597
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "len",
+          "lineNumber": 599
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "len",
+          "lineNumber": 599
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issues.append",
+          "lineNumber": 602
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "len",
+          "lineNumber": 610
+        },
+        {
+          "caller": "check_thinking",
+          "callee": "issues.append",
+          "lineNumber": 612
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 5,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "think_test.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 462,
+      "nonEmptyLines": 401,
+      "functions": [
+        {
+          "name": "_replace_antonyms",
+          "startLine": 126,
+          "endLine": 140,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_negate_sentence",
+          "startLine": 143,
+          "endLine": 157,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_extract_claims",
+          "startLine": 160,
+          "endLine": 167,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_has_conditional",
+          "startLine": 170,
+          "endLine": 178,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_replace_relation",
+          "startLine": 181,
+          "endLine": 191,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_extract_entities",
+          "startLine": 194,
+          "endLine": 221,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_test_premise_inversion",
+          "startLine": 228,
+          "endLine": 277,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_test_context_migration",
+          "startLine": 280,
+          "endLine": 330,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_test_conflict_detection",
+          "startLine": 333,
+          "endLine": 393,
+          "params": [
+            "text",
+            "history"
+          ]
+        },
+        {
+          "name": "test_assertion",
+          "startLine": 400,
+          "endLine": 429,
+          "params": [
+            "text",
+            "history"
+          ]
+        },
+        {
+          "name": "main",
+          "startLine": 436,
+          "endLine": 458,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "_replace_antonyms",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "_negate_sentence",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "_extract_claims",
+          "line": 160,
+          "isDefault": false
+        },
+        {
+          "name": "_has_conditional",
+          "line": 170,
+          "isDefault": false
+        },
+        {
+          "name": "_replace_relation",
+          "line": 181,
+          "isDefault": false
+        },
+        {
+          "name": "_extract_entities",
+          "line": 194,
+          "isDefault": false
+        },
+        {
+          "name": "_test_premise_inversion",
+          "line": 228,
+          "isDefault": false
+        },
+        {
+          "name": "_test_context_migration",
+          "line": 280,
+          "isDefault": false
+        },
+        {
+          "name": "_test_conflict_detection",
+          "line": 333,
+          "isDefault": false
+        },
+        {
+          "name": "test_assertion",
+          "line": 400,
+          "isDefault": false
+        },
+        {
+          "name": "main",
+          "line": 436,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_replace_antonyms",
+          "callee": "sorted",
+          "lineNumber": 130
+        },
+        {
+          "caller": "_replace_antonyms",
+          "callee": "isinstance",
+          "lineNumber": 132
+        },
+        {
+          "caller": "_replace_antonyms",
+          "callee": "result.replace",
+          "lineNumber": 138
+        },
+        {
+          "caller": "_negate_sentence",
+          "callee": "_replace_antonyms",
+          "lineNumber": 146
+        },
+        {
+          "caller": "_negate_sentence",
+          "callee": "negated.replace",
+          "lineNumber": 154
+        },
+        {
+          "caller": "_extract_claims",
+          "callee": "re.split",
+          "lineNumber": 163
+        },
+        {
+          "caller": "_extract_claims",
+          "callee": "p.strip",
+          "lineNumber": 164
+        },
+        {
+          "caller": "_extract_claims",
+          "callee": "len",
+          "lineNumber": 164
+        },
+        {
+          "caller": "_extract_claims",
+          "callee": "p.strip",
+          "lineNumber": 164
+        },
+        {
+          "caller": "_extract_claims",
+          "callee": "text.strip",
+          "lineNumber": 166
+        },
+        {
+          "caller": "_has_conditional",
+          "callee": "pat.search",
+          "lineNumber": 173
+        },
+        {
+          "caller": "_replace_relation",
+          "callee": "result.replace",
+          "lineNumber": 186
+        },
+        {
+          "caller": "_replace_relation",
+          "callee": "result.replace",
+          "lineNumber": 189
+        },
+        {
+          "caller": "_extract_entities",
+          "callee": "re.findall",
+          "lineNumber": 199
+        },
+        {
+          "caller": "_extract_entities",
+          "callee": "re.findall",
+          "lineNumber": 219
+        },
+        {
+          "caller": "_extract_entities",
+          "callee": "list",
+          "lineNumber": 221
+        },
+        {
+          "caller": "_extract_entities",
+          "callee": "set",
+          "lineNumber": 221
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "_extract_claims",
+          "lineNumber": 230
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "_has_conditional",
+          "lineNumber": 232
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "pat.search",
+          "lineNumber": 236
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "m.group",
+          "lineNumber": 238
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "m.group",
+          "lineNumber": 239
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "_negate_sentence",
+          "lineNumber": 240
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "text.replace",
+          "lineNumber": 242
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "inverted_claims.append",
+          "lineNumber": 259
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "_negate_sentence",
+          "lineNumber": 259
+        },
+        {
+          "caller": "_test_premise_inversion",
+          "callee": "\"；\".join",
+          "lineNumber": 260
+        },
+        {
+          "caller": "_test_context_migration",
+          "callee": "_extract_entities",
+          "lineNumber": 282
+        },
+        {
+          "caller": "_test_context_migration",
+          "callee": "entities.sort",
+          "lineNumber": 292
+        },
+        {
+          "caller": "_test_context_migration",
+          "callee": "migration_pairs.get",
+          "lineNumber": 315
+        },
+        {
+          "caller": "_test_context_migration",
+          "callee": "text.replace",
+          "lineNumber": 317
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "set",
+          "lineNumber": 343
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "_extract_entities",
+          "lineNumber": 343
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "set",
+          "lineNumber": 345
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "re.findall",
+          "lineNumber": 345
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "enumerate",
+          "lineNumber": 349
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "set",
+          "lineNumber": 351
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "re.findall",
+          "lineNumber": 351
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "set",
+          "lineNumber": 357
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "ANTONYMS.get",
+          "lineNumber": 359
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "isinstance",
+          "lineNumber": 361
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "current_ant.update",
+          "lineNumber": 362
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "current_ant.add",
+          "lineNumber": 364
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "'、'.join",
+          "lineNumber": 373
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "list",
+          "lineNumber": 373
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "conflicts.append",
+          "lineNumber": 380
+        },
+        {
+          "caller": "_test_conflict_detection",
+          "callee": "len",
+          "lineNumber": 392
+        },
+        {
+          "caller": "test_assertion",
+          "callee": "_test_premise_inversion",
+          "lineNumber": 421
+        },
+        {
+          "caller": "test_assertion",
+          "callee": "_test_context_migration",
+          "lineNumber": 422
+        },
+        {
+          "caller": "test_assertion",
+          "callee": "_test_conflict_detection",
+          "lineNumber": 423
+        },
+        {
+          "caller": "main",
+          "callee": "len",
+          "lineNumber": 440
+        },
+        {
+          "caller": "main",
+          "callee": "print",
+          "lineNumber": 441
+        },
+        {
+          "caller": "main",
+          "callee": "print",
+          "lineNumber": 442
+        },
+        {
+          "caller": "main",
+          "callee": "sys.exit",
+          "lineNumber": 443
+        },
+        {
+          "caller": "main",
+          "callee": "l.strip",
+          "lineNumber": 446
+        },
+        {
+          "caller": "main",
+          "callee": "l.strip",
+          "lineNumber": 446
+        },
+        {
+          "caller": "main",
+          "callee": "len",
+          "lineNumber": 447
+        },
+        {
+          "caller": "main",
+          "callee": "print",
+          "lineNumber": 448
+        },
+        {
+          "caller": "main",
+          "callee": "sys.exit",
+          "lineNumber": 449
+        },
+        {
+          "caller": "main",
+          "callee": "\" \".join",
+          "lineNumber": 453
+        },
+        {
+          "caller": "main",
+          "callee": "test_assertion",
+          "lineNumber": 457
+        },
+        {
+          "caller": "main",
+          "callee": "print",
+          "lineNumber": 458
+        },
+        {
+          "caller": "main",
+          "callee": "json.dumps",
+          "lineNumber": 458
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 11,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "think_type_check.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 266,
+      "nonEmptyLines": 218,
+      "functions": [
+        {
+          "name": "_compile",
+          "startLine": 75,
+          "endLine": 76,
+          "params": [
+            "patterns"
+          ]
+        },
+        {
+          "name": "_split_assertions",
+          "startLine": 90,
+          "endLine": 106,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "_classify_assertion",
+          "startLine": 113,
+          "endLine": 144,
+          "params": [
+            "assertion"
+          ]
+        },
+        {
+          "name": "_detect_mismatch",
+          "startLine": 151,
+          "endLine": 203,
+          "params": [
+            "assertions_info"
+          ]
+        },
+        {
+          "name": "check_types",
+          "startLine": 210,
+          "endLine": 241,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "pretty_print",
+          "startLine": 248,
+          "endLine": 250,
+          "params": [
+            "result"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_compile",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "_split_assertions",
+          "line": 90,
+          "isDefault": false
+        },
+        {
+          "name": "_classify_assertion",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "_detect_mismatch",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "check_types",
+          "line": 210,
+          "isDefault": false
+        },
+        {
+          "name": "pretty_print",
+          "line": 248,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_compile",
+          "callee": "re.compile",
+          "lineNumber": 76
+        },
+        {
+          "caller": "_split_assertions",
+          "callee": "re.split",
+          "lineNumber": 96
+        },
+        {
+          "caller": "_split_assertions",
+          "callee": "range",
+          "lineNumber": 98
+        },
+        {
+          "caller": "_split_assertions",
+          "callee": "len",
+          "lineNumber": 98
+        },
+        {
+          "caller": "_split_assertions",
+          "callee": "len",
+          "lineNumber": 101
+        },
+        {
+          "caller": "_split_assertions",
+          "callee": "segment.strip",
+          "lineNumber": 103
+        },
+        {
+          "caller": "_split_assertions",
+          "callee": "assertions.append",
+          "lineNumber": 105
+        },
+        {
+          "caller": "_classify_assertion",
+          "callee": "re_obj.search",
+          "lineNumber": 132
+        },
+        {
+          "caller": "_classify_assertion",
+          "callee": "max",
+          "lineNumber": 136
+        },
+        {
+          "caller": "_classify_assertion",
+          "callee": "min",
+          "lineNumber": 143
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "enumerate",
+          "lineNumber": 162
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "any",
+          "lineNumber": 169
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "re_obj.search",
+          "lineNumber": 169
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "range",
+          "lineNumber": 172
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "all",
+          "lineNumber": 173
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "'结论标注为「{}」，但所有前提仅为「猜测」或「举例」，缺乏可靠支撑'.format",
+          "lineNumber": 175
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "any",
+          "lineNumber": 181
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "range",
+          "lineNumber": 181
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "any",
+          "lineNumber": 190
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "re_obj.search",
+          "lineNumber": 190
+        },
+        {
+          "caller": "_detect_mismatch",
+          "callee": "results.append",
+          "lineNumber": 195
+        },
+        {
+          "caller": "check_types",
+          "callee": "text.strip",
+          "lineNumber": 225
+        },
+        {
+          "caller": "check_types",
+          "callee": "_split_assertions",
+          "lineNumber": 228
+        },
+        {
+          "caller": "check_types",
+          "callee": "_classify_assertion",
+          "lineNumber": 233
+        },
+        {
+          "caller": "check_types",
+          "callee": "assertions_info.append",
+          "lineNumber": 234
+        },
+        {
+          "caller": "check_types",
+          "callee": "_detect_mismatch",
+          "lineNumber": 241
+        },
+        {
+          "caller": "pretty_print",
+          "callee": "print",
+          "lineNumber": 250
+        },
+        {
+          "caller": "pretty_print",
+          "callee": "json.dumps",
+          "lineNumber": 250
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/config.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 185,
+      "nonEmptyLines": 141,
+      "functions": [
+        {
+          "name": "find_openclaw_home",
+          "startLine": 18,
+          "endLine": 34,
+          "params": []
+        },
+        {
+          "name": "read_openclaw_config",
+          "startLine": 37,
+          "endLine": 48,
+          "params": [
+            "openclaw_home"
+          ]
+        },
+        {
+          "name": "config_get",
+          "startLine": 51,
+          "endLine": 61,
+          "params": [
+            "obj",
+            "path_str",
+            "default"
+          ]
+        },
+        {
+          "name": "discover_session_dir",
+          "startLine": 64,
+          "endLine": 79,
+          "params": [
+            "openclaw_home"
+          ]
+        },
+        {
+          "name": "init_paths",
+          "startLine": 84,
+          "endLine": 140,
+          "params": [
+            "openclaw_home",
+            "overrides"
+          ]
+        },
+        {
+          "name": "init_light_smoke_paths",
+          "startLine": 143,
+          "endLine": 175,
+          "params": [
+            "light_smoke_dir",
+            "all_auto_dir",
+            "browse_root"
+          ]
+        },
+        {
+          "name": "path",
+          "startLine": 178,
+          "endLine": 180,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "set_path",
+          "startLine": 183,
+          "endLine": 185,
+          "params": [
+            "key",
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "find_openclaw_home",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "read_openclaw_config",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "config_get",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "discover_session_dir",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "init_paths",
+          "line": 84,
+          "isDefault": false
+        },
+        {
+          "name": "init_light_smoke_paths",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "path",
+          "line": 178,
+          "isDefault": false
+        },
+        {
+          "name": "set_path",
+          "line": 183,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.environ.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.path.expanduser",
+          "lineNumber": 24
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.path.join",
+          "lineNumber": 27
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.path.join",
+          "lineNumber": 28
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.path.join",
+          "lineNumber": 29
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.environ.get",
+          "lineNumber": 29
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.path.join",
+          "lineNumber": 29
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.path.exists",
+          "lineNumber": 32
+        },
+        {
+          "caller": "find_openclaw_home",
+          "callee": "os.path.join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "read_openclaw_config",
+          "callee": "os.path.join",
+          "lineNumber": 39
+        },
+        {
+          "caller": "read_openclaw_config",
+          "callee": "os.path.exists",
+          "lineNumber": 40
+        },
+        {
+          "caller": "read_openclaw_config",
+          "callee": "open",
+          "lineNumber": 41
+        },
+        {
+          "caller": "read_openclaw_config",
+          "callee": "json.load",
+          "lineNumber": 42
+        },
+        {
+          "caller": "read_openclaw_config",
+          "callee": "os.path.join",
+          "lineNumber": 44
+        },
+        {
+          "caller": "read_openclaw_config",
+          "callee": "os.path.exists",
+          "lineNumber": 45
+        },
+        {
+          "caller": "read_openclaw_config",
+          "callee": "print",
+          "lineNumber": 46
+        },
+        {
+          "caller": "config_get",
+          "callee": "path_str.split",
+          "lineNumber": 53
+        },
+        {
+          "caller": "config_get",
+          "callee": "isinstance",
+          "lineNumber": 56
+        },
+        {
+          "caller": "config_get",
+          "callee": "cur.get",
+          "lineNumber": 58
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.join",
+          "lineNumber": 66
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.exists",
+          "lineNumber": 67
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.listdir",
+          "lineNumber": 70
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.join",
+          "lineNumber": 71
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.isdir",
+          "lineNumber": 72
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.join",
+          "lineNumber": 75
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.isdir",
+          "lineNumber": 76
+        },
+        {
+          "caller": "init_paths",
+          "callee": "find_openclaw_home",
+          "lineNumber": 90
+        },
+        {
+          "caller": "init_paths",
+          "callee": "read_openclaw_config",
+          "lineNumber": 91
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.join",
+          "lineNumber": 96
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.join",
+          "lineNumber": 97
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.join",
+          "lineNumber": 98
+        },
+        {
+          "caller": "init_paths",
+          "callee": "ov.get",
+          "lineNumber": 101
+        },
+        {
+          "caller": "init_paths",
+          "callee": "discover_session_dir",
+          "lineNumber": 101
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.join",
+          "lineNumber": 103
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.dirname",
+          "lineNumber": 118
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.abspath",
+          "lineNumber": 118
+        },
+        {
+          "caller": "init_paths",
+          "callee": "ov.get",
+          "lineNumber": 119
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.dirname",
+          "lineNumber": 119
+        },
+        {
+          "caller": "init_paths",
+          "callee": "ov.get",
+          "lineNumber": 122
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.dirname",
+          "lineNumber": 122
+        },
+        {
+          "caller": "init_paths",
+          "callee": "ov.get",
+          "lineNumber": 125
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.dirname",
+          "lineNumber": 125
+        },
+        {
+          "caller": "init_paths",
+          "callee": "ov.get",
+          "lineNumber": 128
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.join",
+          "lineNumber": 128
+        },
+        {
+          "caller": "init_paths",
+          "callee": "ov.get",
+          "lineNumber": 131
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.join",
+          "lineNumber": 131
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.dirname",
+          "lineNumber": 137
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.dirname",
+          "lineNumber": 137
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.abspath",
+          "lineNumber": 137
+        },
+        {
+          "caller": "init_paths",
+          "callee": "os.path.dirname",
+          "lineNumber": 137
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 150
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 151
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 154
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 157
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 158
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 161
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 165
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 166
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 170
+        },
+        {
+          "caller": "init_light_smoke_paths",
+          "callee": "os.path.join",
+          "lineNumber": 173
+        },
+        {
+          "caller": "path",
+          "callee": "PATHS.get",
+          "lineNumber": 180
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 8,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/crypto.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 55,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "xor_crypt",
+          "startLine": 7,
+          "endLine": 11,
+          "params": [
+            "text",
+            "password"
+          ]
+        },
+        {
+          "name": "xor_decrypt",
+          "startLine": 13,
+          "endLine": 23,
+          "params": [
+            "hex_str",
+            "password",
+            "check_magic"
+          ]
+        },
+        {
+          "name": "is_hex_encrypted",
+          "startLine": 25,
+          "endLine": 27,
+          "params": [
+            "content"
+          ]
+        },
+        {
+          "name": "encrypt_file",
+          "startLine": 29,
+          "endLine": 36,
+          "params": [
+            "path",
+            "password"
+          ]
+        },
+        {
+          "name": "decrypt_file_text",
+          "startLine": 38,
+          "endLine": 41,
+          "params": [
+            "path",
+            "password"
+          ]
+        },
+        {
+          "name": "get_encrypt_folder",
+          "startLine": 43,
+          "endLine": 46,
+          "params": [
+            "base_dir",
+            "folder_name"
+          ]
+        },
+        {
+          "name": "is_folder_encrypted",
+          "startLine": 48,
+          "endLine": 55,
+          "params": [
+            "folder",
+            "password"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "xor_crypt",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "xor_decrypt",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "is_hex_encrypted",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "encrypt_file",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "decrypt_file_text",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "get_encrypt_folder",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "is_folder_encrypted",
+          "line": 48,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "xor_crypt",
+          "callee": "enumerate",
+          "lineNumber": 9
+        },
+        {
+          "caller": "xor_crypt",
+          "callee": "result.append",
+          "lineNumber": 10
+        },
+        {
+          "caller": "xor_crypt",
+          "callee": "chr",
+          "lineNumber": 10
+        },
+        {
+          "caller": "xor_crypt",
+          "callee": "ord",
+          "lineNumber": 10
+        },
+        {
+          "caller": "xor_crypt",
+          "callee": "ord",
+          "lineNumber": 10
+        },
+        {
+          "caller": "xor_crypt",
+          "callee": "len",
+          "lineNumber": 10
+        },
+        {
+          "caller": "xor_crypt",
+          "callee": "\"\".join",
+          "lineNumber": 11
+        },
+        {
+          "caller": "xor_decrypt",
+          "callee": "bytes.fromhex(hex_str).decode",
+          "lineNumber": 15
+        },
+        {
+          "caller": "xor_decrypt",
+          "callee": "bytes.fromhex",
+          "lineNumber": 15
+        },
+        {
+          "caller": "xor_decrypt",
+          "callee": "xor_crypt",
+          "lineNumber": 16
+        },
+        {
+          "caller": "xor_decrypt",
+          "callee": "decrypted.startswith",
+          "lineNumber": 18
+        },
+        {
+          "caller": "xor_decrypt",
+          "callee": "len",
+          "lineNumber": 20
+        },
+        {
+          "caller": "is_hex_encrypted",
+          "callee": "bool",
+          "lineNumber": 27
+        },
+        {
+          "caller": "is_hex_encrypted",
+          "callee": "re.match",
+          "lineNumber": 27
+        },
+        {
+          "caller": "is_hex_encrypted",
+          "callee": "content.strip",
+          "lineNumber": 27
+        },
+        {
+          "caller": "is_hex_encrypted",
+          "callee": "len",
+          "lineNumber": 27
+        },
+        {
+          "caller": "is_hex_encrypted",
+          "callee": "content.strip",
+          "lineNumber": 27
+        },
+        {
+          "caller": "encrypt_file",
+          "callee": "open",
+          "lineNumber": 30
+        },
+        {
+          "caller": "encrypt_file",
+          "callee": "f.read",
+          "lineNumber": 31
+        },
+        {
+          "caller": "encrypt_file",
+          "callee": "xor_crypt",
+          "lineNumber": 33
+        },
+        {
+          "caller": "encrypt_file",
+          "callee": "xored.encode(\"utf-8\").hex",
+          "lineNumber": 34
+        },
+        {
+          "caller": "encrypt_file",
+          "callee": "xored.encode",
+          "lineNumber": 34
+        },
+        {
+          "caller": "encrypt_file",
+          "callee": "open",
+          "lineNumber": 35
+        },
+        {
+          "caller": "encrypt_file",
+          "callee": "f.write",
+          "lineNumber": 36
+        },
+        {
+          "caller": "decrypt_file_text",
+          "callee": "open",
+          "lineNumber": 39
+        },
+        {
+          "caller": "decrypt_file_text",
+          "callee": "f.read",
+          "lineNumber": 40
+        },
+        {
+          "caller": "decrypt_file_text",
+          "callee": "xor_decrypt",
+          "lineNumber": 41
+        },
+        {
+          "caller": "get_encrypt_folder",
+          "callee": "os.path.join",
+          "lineNumber": 44
+        },
+        {
+          "caller": "get_encrypt_folder",
+          "callee": "os.makedirs",
+          "lineNumber": 45
+        },
+        {
+          "caller": "is_folder_encrypted",
+          "callee": "os.path.join",
+          "lineNumber": 49
+        },
+        {
+          "caller": "is_folder_encrypted",
+          "callee": "os.path.exists",
+          "lineNumber": 50
+        },
+        {
+          "caller": "is_folder_encrypted",
+          "callee": "xor_decrypt",
+          "lineNumber": 53
+        },
+        {
+          "caller": "is_folder_encrypted",
+          "callee": "open(test_file).read().strip",
+          "lineNumber": 53
+        },
+        {
+          "caller": "is_folder_encrypted",
+          "callee": "open(test_file).read",
+          "lineNumber": 53
+        },
+        {
+          "caller": "is_folder_encrypted",
+          "callee": "open",
+          "lineNumber": 53
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/inject.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 36,
+      "nonEmptyLines": 31,
+      "functions": [
+        {
+          "name": "inject_via_websocket",
+          "startLine": 13,
+          "endLine": 27,
+          "params": [
+            "session_key",
+            "message",
+            "bypass_lock"
+          ]
+        },
+        {
+          "name": "cleanup_lock",
+          "startLine": 29,
+          "endLine": 33,
+          "params": []
+        },
+        {
+          "name": "get_lock",
+          "startLine": 35,
+          "endLine": 36,
+          "params": [
+            "session_key"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "inject_via_websocket",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "cleanup_lock",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "get_lock",
+          "line": 35,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "inject_via_websocket",
+          "callee": "time.time",
+          "lineNumber": 14
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "_locks.get",
+          "lineNumber": 16
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "Exception",
+          "lineNumber": 18
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "os.path.join",
+          "lineNumber": 20
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "subprocess.run",
+          "lineNumber": 21
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "Exception",
+          "lineNumber": 26
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "result.stderr.strip",
+          "lineNumber": 26
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "result.stdout.strip",
+          "lineNumber": 26
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "json.loads",
+          "lineNumber": 27
+        },
+        {
+          "caller": "inject_via_websocket",
+          "callee": "result.stdout.strip",
+          "lineNumber": 27
+        },
+        {
+          "caller": "cleanup_lock",
+          "callee": "time.time",
+          "lineNumber": 30
+        },
+        {
+          "caller": "cleanup_lock",
+          "callee": "_locks.items",
+          "lineNumber": 31
+        },
+        {
+          "caller": "cleanup_lock",
+          "callee": "_locks.pop",
+          "lineNumber": 33
+        },
+        {
+          "caller": "get_lock",
+          "callee": "_locks.get",
+          "lineNumber": 36
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/momo.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 222,
+      "nonEmptyLines": 188,
+      "functions": [
+        {
+          "name": "momo_pack",
+          "startLine": 19,
+          "endLine": 116,
+          "params": [
+            "momo_dir",
+            "light_smoke_dir",
+            "all_auto_dir"
+          ]
+        },
+        {
+          "name": "momo_status",
+          "startLine": 121,
+          "endLine": 152,
+          "params": [
+            "momo_dir",
+            "light_smoke_dir"
+          ]
+        },
+        {
+          "name": "momo_index_report",
+          "startLine": 157,
+          "endLine": 193,
+          "params": [
+            "momo_dir",
+            "light_smoke_dir",
+            "all_auto_dir",
+            "backup_dir"
+          ]
+        },
+        {
+          "name": "start_momo_auto_save",
+          "startLine": 198,
+          "endLine": 222,
+          "params": [
+            "momo_dir",
+            "light_smoke_dir",
+            "all_auto_dir",
+            "interval"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "momo_pack",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "momo_status",
+          "line": 121,
+          "isDefault": false
+        },
+        {
+          "name": "momo_index_report",
+          "line": 157,
+          "isDefault": false
+        },
+        {
+          "name": "start_momo_auto_save",
+          "line": 198,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "momo_pack",
+          "callee": "os.makedirs",
+          "lineNumber": 21
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.makedirs",
+          "lineNumber": 22
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 22
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "_dt.datetime.now",
+          "lineNumber": 27
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "now.strftime",
+          "lineNumber": 28
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 32
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 33
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 35
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 36
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 37
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 40
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "shutil.copyfile",
+          "lineNumber": 41
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 41
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 42
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "errors.append",
+          "lineNumber": 44
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 47
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 48
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 49
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.listdir",
+          "lineNumber": 50
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.endswith",
+          "lineNumber": 51
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "shutil.copyfile",
+          "lineNumber": 52
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 53
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 54
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 56
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 59
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 60
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "shutil.copyfile",
+          "lineNumber": 61
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 61
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 62
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 65
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.dirname",
+          "lineNumber": 65
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 66
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "shutil.copyfile",
+          "lineNumber": 67
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 67
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 68
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 70
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.dirname",
+          "lineNumber": 70
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 71
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "shutil.copyfile",
+          "lineNumber": 72
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 72
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 73
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 76
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 77
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "open",
+          "lineNumber": 78
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 79
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 82
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.makedirs",
+          "lineNumber": 83
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 84
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.dirname",
+          "lineNumber": 84
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 85
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "shutil.copyfile",
+          "lineNumber": 86
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 86
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 87
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 88
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.dirname",
+          "lineNumber": 88
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.exists",
+          "lineNumber": 89
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "shutil.copyfile",
+          "lineNumber": 90
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 90
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 91
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "os.path.join",
+          "lineNumber": 94
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "open",
+          "lineNumber": 95
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 96
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 97
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 98
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 99
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 100
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 101
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "sorted",
+          "lineNumber": 102
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 103
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 105
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "f.write",
+          "lineNumber": 107
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "packed.append",
+          "lineNumber": 108
+        },
+        {
+          "caller": "momo_pack",
+          "callee": "len",
+          "lineNumber": 114
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.path.join",
+          "lineNumber": 123
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.path.exists",
+          "lineNumber": 124
+        },
+        {
+          "caller": "momo_status",
+          "callee": "len",
+          "lineNumber": 126
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.listdir",
+          "lineNumber": 127
+        },
+        {
+          "caller": "momo_status",
+          "callee": "f.endswith",
+          "lineNumber": 128
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.path.exists",
+          "lineNumber": 129
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.path.join",
+          "lineNumber": 131
+        },
+        {
+          "caller": "momo_status",
+          "callee": "len",
+          "lineNumber": 132
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.listdir",
+          "lineNumber": 132
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.path.exists",
+          "lineNumber": 132
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.path.join",
+          "lineNumber": 135
+        },
+        {
+          "caller": "momo_status",
+          "callee": "os.path.exists",
+          "lineNumber": 137
+        },
+        {
+          "caller": "momo_status",
+          "callee": "open",
+          "lineNumber": 138
+        },
+        {
+          "caller": "momo_status",
+          "callee": "line.strip().replace(\"# \", \"\").replace",
+          "lineNumber": 141
+        },
+        {
+          "caller": "momo_status",
+          "callee": "line.strip().replace",
+          "lineNumber": 141
+        },
+        {
+          "caller": "momo_status",
+          "callee": "line.strip",
+          "lineNumber": 141
+        },
+        {
+          "caller": "momo_status",
+          "callee": "time.time",
+          "lineNumber": 151
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.exists",
+          "lineNumber": 162
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.listdir",
+          "lineNumber": 163
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.join",
+          "lineNumber": 164
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.isfile",
+          "lineNumber": 165
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.getsize",
+          "lineNumber": 167
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.exists",
+          "lineNumber": 171
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.listdir",
+          "lineNumber": 172
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.join",
+          "lineNumber": 173
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.isfile",
+          "lineNumber": 174
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "momo_files.append",
+          "lineNumber": 175
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.getsize",
+          "lineNumber": 177
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.getmtime",
+          "lineNumber": 178
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.join",
+          "lineNumber": 182
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "os.path.exists",
+          "lineNumber": 183
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "round",
+          "lineNumber": 188
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "len",
+          "lineNumber": 190
+        },
+        {
+          "caller": "momo_index_report",
+          "callee": "time.time",
+          "lineNumber": 192
+        },
+        {
+          "caller": "loop",
+          "callee": "momo_pack",
+          "lineNumber": 203
+        },
+        {
+          "caller": "loop",
+          "callee": "len",
+          "lineNumber": 204
+        },
+        {
+          "caller": "loop",
+          "callee": "result.get",
+          "lineNumber": 204
+        },
+        {
+          "caller": "loop",
+          "callee": "print",
+          "lineNumber": 205
+        },
+        {
+          "caller": "loop",
+          "callee": "_dt.datetime.now().strftime",
+          "lineNumber": 205
+        },
+        {
+          "caller": "loop",
+          "callee": "_dt.datetime.now",
+          "lineNumber": 205
+        },
+        {
+          "caller": "loop",
+          "callee": "__import__",
+          "lineNumber": 206
+        },
+        {
+          "caller": "loop",
+          "callee": "print",
+          "lineNumber": 208
+        },
+        {
+          "caller": "loop",
+          "callee": "__import__",
+          "lineNumber": 208
+        },
+        {
+          "caller": "loop",
+          "callee": "time.sleep",
+          "lineNumber": 211
+        },
+        {
+          "caller": "loop",
+          "callee": "momo_pack",
+          "lineNumber": 213
+        },
+        {
+          "caller": "loop",
+          "callee": "len",
+          "lineNumber": 214
+        },
+        {
+          "caller": "loop",
+          "callee": "result.get",
+          "lineNumber": 214
+        },
+        {
+          "caller": "loop",
+          "callee": "print",
+          "lineNumber": 215
+        },
+        {
+          "caller": "loop",
+          "callee": "_dt.datetime.now().strftime",
+          "lineNumber": 215
+        },
+        {
+          "caller": "loop",
+          "callee": "_dt.datetime.now",
+          "lineNumber": 215
+        },
+        {
+          "caller": "loop",
+          "callee": "__import__",
+          "lineNumber": 216
+        },
+        {
+          "caller": "loop",
+          "callee": "print",
+          "lineNumber": 218
+        },
+        {
+          "caller": "loop",
+          "callee": "__import__",
+          "lineNumber": 218
+        },
+        {
+          "caller": "start_momo_auto_save",
+          "callee": "threading.Thread",
+          "lineNumber": 220
+        },
+        {
+          "caller": "start_momo_auto_save",
+          "callee": "t.start",
+          "lineNumber": 221
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/secretary.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 87,
+      "nonEmptyLines": 69,
+      "functions": [
+        {
+          "name": "reminders_file",
+          "startLine": 16,
+          "endLine": 17,
+          "params": [
+            "light_smoke_dir"
+          ]
+        },
+        {
+          "name": "load_reminders",
+          "startLine": 20,
+          "endLine": 27,
+          "params": [
+            "light_smoke_dir"
+          ]
+        },
+        {
+          "name": "save_reminders",
+          "startLine": 30,
+          "endLine": 38,
+          "params": [
+            "reminders",
+            "light_smoke_dir"
+          ]
+        },
+        {
+          "name": "add_reminder",
+          "startLine": 41,
+          "endLine": 53,
+          "params": [
+            "text",
+            "light_smoke_dir",
+            "assignee",
+            "trigger_hint"
+          ]
+        },
+        {
+          "name": "secretary_remind",
+          "startLine": 56,
+          "endLine": 59,
+          "params": [
+            "light_smoke_dir"
+          ]
+        },
+        {
+          "name": "secretary_analyze_save",
+          "startLine": 64,
+          "endLine": 87,
+          "params": [
+            "path",
+            "new_content",
+            "old_content",
+            "light_smoke_dir"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "reminders_file",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "load_reminders",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "save_reminders",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "add_reminder",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "secretary_remind",
+          "line": 56,
+          "isDefault": false
+        },
+        {
+          "name": "secretary_analyze_save",
+          "line": 64,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "reminders_file",
+          "callee": "os.path.join",
+          "lineNumber": 17
+        },
+        {
+          "caller": "load_reminders",
+          "callee": "reminders_file",
+          "lineNumber": 22
+        },
+        {
+          "caller": "load_reminders",
+          "callee": "open",
+          "lineNumber": 24
+        },
+        {
+          "caller": "load_reminders",
+          "callee": "json.load",
+          "lineNumber": 25
+        },
+        {
+          "caller": "save_reminders",
+          "callee": "reminders_file",
+          "lineNumber": 32
+        },
+        {
+          "caller": "save_reminders",
+          "callee": "os.makedirs",
+          "lineNumber": 34
+        },
+        {
+          "caller": "save_reminders",
+          "callee": "os.path.dirname",
+          "lineNumber": 34
+        },
+        {
+          "caller": "save_reminders",
+          "callee": "open",
+          "lineNumber": 35
+        },
+        {
+          "caller": "save_reminders",
+          "callee": "json.dump",
+          "lineNumber": 36
+        },
+        {
+          "caller": "add_reminder",
+          "callee": "load_reminders",
+          "lineNumber": 43
+        },
+        {
+          "caller": "add_reminder",
+          "callee": "reminders.append",
+          "lineNumber": 44
+        },
+        {
+          "caller": "add_reminder",
+          "callee": "len",
+          "lineNumber": 45
+        },
+        {
+          "caller": "add_reminder",
+          "callee": "datetime.datetime.now().strftime",
+          "lineNumber": 50
+        },
+        {
+          "caller": "add_reminder",
+          "callee": "datetime.datetime.now",
+          "lineNumber": 50
+        },
+        {
+          "caller": "add_reminder",
+          "callee": "save_reminders",
+          "lineNumber": 52
+        },
+        {
+          "caller": "secretary_remind",
+          "callee": "load_reminders",
+          "lineNumber": 58
+        },
+        {
+          "caller": "secretary_remind",
+          "callee": "r.get",
+          "lineNumber": 59
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "path.endswith",
+          "lineNumber": 67
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "old_content.split",
+          "lineNumber": 71
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "new_content.split",
+          "lineNumber": 72
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "abs",
+          "lineNumber": 73
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "len",
+          "lineNumber": 73
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "len",
+          "lineNumber": 73
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "new_content.strip",
+          "lineNumber": 73
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "old_content.strip",
+          "lineNumber": 73
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "datetime.datetime.now().strftime",
+          "lineNumber": 77
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "datetime.datetime.now",
+          "lineNumber": 77
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "os.path.basename",
+          "lineNumber": 78
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "len",
+          "lineNumber": 79
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "len",
+          "lineNumber": 79
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "os.path.join",
+          "lineNumber": 80
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "os.path.join",
+          "lineNumber": 81
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "os.makedirs",
+          "lineNumber": 83
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "open",
+          "lineNumber": 84
+        },
+        {
+          "caller": "secretary_analyze_save",
+          "callee": "f.write",
+          "lineNumber": 85
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/session.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 138,
+      "nonEmptyLines": 133,
+      "functions": [
+        {
+          "name": "discover_session_dir",
+          "startLine": 7,
+          "endLine": 15,
+          "params": [
+            "openclaw_home"
+          ]
+        },
+        {
+          "name": "get_session_info",
+          "startLine": 17,
+          "endLine": 39,
+          "params": [
+            "data_dir"
+          ]
+        },
+        {
+          "name": "read_session",
+          "startLine": 41,
+          "endLine": 93,
+          "params": [
+            "session_file",
+            "max_messages"
+          ]
+        },
+        {
+          "name": "group_into_pairs",
+          "startLine": 95,
+          "endLine": 110,
+          "params": [
+            "messages"
+          ]
+        },
+        {
+          "name": "edit_message",
+          "startLine": 112,
+          "endLine": 138,
+          "params": [
+            "session_file",
+            "user_index",
+            "new_text",
+            "backup_dir"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "discover_session_dir",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "get_session_info",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "read_session",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "group_into_pairs",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "edit_message",
+          "line": 112,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.exists",
+          "lineNumber": 9
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.listdir",
+          "lineNumber": 11
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.join",
+          "lineNumber": 12
+        },
+        {
+          "caller": "discover_session_dir",
+          "callee": "os.path.isdir",
+          "lineNumber": 13
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "os.path.join",
+          "lineNumber": 19
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "os.path.exists",
+          "lineNumber": 20
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "open",
+          "lineNumber": 22
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "json.load",
+          "lineNumber": 23
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "store.get",
+          "lineNumber": 24
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "main.get",
+          "lineNumber": 26
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "isinstance",
+          "lineNumber": 26
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "isinstance",
+          "lineNumber": 27
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "os.path.join",
+          "lineNumber": 28
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "os.path.exists",
+          "lineNumber": 31
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "str",
+          "lineNumber": 33
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "store.items",
+          "lineNumber": 34
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "v.get",
+          "lineNumber": 36
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "isinstance",
+          "lineNumber": 36
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "os.path.join",
+          "lineNumber": 37
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "isinstance",
+          "lineNumber": 37
+        },
+        {
+          "caller": "get_session_info",
+          "callee": "str",
+          "lineNumber": 38
+        },
+        {
+          "caller": "read_session",
+          "callee": "os.path.exists",
+          "lineNumber": 43
+        },
+        {
+          "caller": "read_session",
+          "callee": "open",
+          "lineNumber": 46
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.seek",
+          "lineNumber": 47
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.tell",
+          "lineNumber": 48
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.seek",
+          "lineNumber": 51
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.read().decode",
+          "lineNumber": 52
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.read",
+          "lineNumber": 52
+        },
+        {
+          "caller": "read_session",
+          "callee": "raw.split",
+          "lineNumber": 53
+        },
+        {
+          "caller": "read_session",
+          "callee": "l.strip",
+          "lineNumber": 53
+        },
+        {
+          "caller": "read_session",
+          "callee": "int",
+          "lineNumber": 58
+        },
+        {
+          "caller": "read_session",
+          "callee": "len",
+          "lineNumber": 64
+        },
+        {
+          "caller": "read_session",
+          "callee": "min",
+          "lineNumber": 65
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.seek",
+          "lineNumber": 67
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.read",
+          "lineNumber": 68
+        },
+        {
+          "caller": "read_session",
+          "callee": "buf.decode(\"utf-8\", errors=\"replace\").split",
+          "lineNumber": 70
+        },
+        {
+          "caller": "read_session",
+          "callee": "buf.decode",
+          "lineNumber": 70
+        },
+        {
+          "caller": "read_session",
+          "callee": "len",
+          "lineNumber": 77
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.seek",
+          "lineNumber": 81
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.read().decode",
+          "lineNumber": 82
+        },
+        {
+          "caller": "read_session",
+          "callee": "f.read",
+          "lineNumber": 82
+        },
+        {
+          "caller": "read_session",
+          "callee": "raw.split",
+          "lineNumber": 83
+        },
+        {
+          "caller": "read_session",
+          "callee": "l.strip",
+          "lineNumber": 83
+        },
+        {
+          "caller": "read_session",
+          "callee": "json.loads",
+          "lineNumber": 86
+        },
+        {
+          "caller": "read_session",
+          "callee": "entry.get",
+          "lineNumber": 89
+        },
+        {
+          "caller": "read_session",
+          "callee": "msg.get",
+          "lineNumber": 90
+        },
+        {
+          "caller": "read_session",
+          "callee": "msg.get",
+          "lineNumber": 90
+        },
+        {
+          "caller": "read_session",
+          "callee": "messages.append",
+          "lineNumber": 92
+        },
+        {
+          "caller": "group_into_pairs",
+          "callee": "msg.get",
+          "lineNumber": 100
+        },
+        {
+          "caller": "group_into_pairs",
+          "callee": "pairs.append",
+          "lineNumber": 103
+        },
+        {
+          "caller": "group_into_pairs",
+          "callee": "current_assistants.append",
+          "lineNumber": 107
+        },
+        {
+          "caller": "group_into_pairs",
+          "callee": "pairs.append",
+          "lineNumber": 109
+        },
+        {
+          "caller": "edit_message",
+          "callee": "os.makedirs",
+          "lineNumber": 115
+        },
+        {
+          "caller": "edit_message",
+          "callee": "time.strftime",
+          "lineNumber": 116
+        },
+        {
+          "caller": "edit_message",
+          "callee": "os.path.join",
+          "lineNumber": 117
+        },
+        {
+          "caller": "edit_message",
+          "callee": "shutil.copy2",
+          "lineNumber": 118
+        },
+        {
+          "caller": "edit_message",
+          "callee": "open",
+          "lineNumber": 121
+        },
+        {
+          "caller": "edit_message",
+          "callee": "f.readlines",
+          "lineNumber": 122
+        },
+        {
+          "caller": "edit_message",
+          "callee": "enumerate",
+          "lineNumber": 124
+        },
+        {
+          "caller": "edit_message",
+          "callee": "json.loads",
+          "lineNumber": 126
+        },
+        {
+          "caller": "edit_message",
+          "callee": "entry.get",
+          "lineNumber": 129
+        },
+        {
+          "caller": "edit_message",
+          "callee": "msg.get",
+          "lineNumber": 130
+        },
+        {
+          "caller": "edit_message",
+          "callee": "json.dumps",
+          "lineNumber": 134
+        },
+        {
+          "caller": "edit_message",
+          "callee": "open",
+          "lineNumber": 135
+        },
+        {
+          "caller": "edit_message",
+          "callee": "f.writelines",
+          "lineNumber": 136
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/tb_handler.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 216,
+      "nonEmptyLines": 186,
+      "functions": [
+        {
+          "name": "list_folder_files",
+          "startLine": 19,
+          "endLine": 41,
+          "params": [
+            "folder_path",
+            "extensions"
+          ]
+        },
+        {
+          "name": "list_subdirs",
+          "startLine": 44,
+          "endLine": 61,
+          "params": [
+            "folder_path",
+            "md_ext"
+          ]
+        },
+        {
+          "name": "browse_root_dirs",
+          "startLine": 64,
+          "endLine": 77,
+          "params": [
+            "root_path"
+          ]
+        },
+        {
+          "name": "read_text_file",
+          "startLine": 82,
+          "endLine": 96,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "read_docx_text",
+          "startLine": 99,
+          "endLine": 112,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "save_file",
+          "startLine": 117,
+          "endLine": 129,
+          "params": [
+            "path",
+            "content"
+          ]
+        },
+        {
+          "name": "log_save_event",
+          "startLine": 132,
+          "endLine": 141,
+          "params": [
+            "path",
+            "content",
+            "save_monitor_dir"
+          ]
+        },
+        {
+          "name": "is_novel_path",
+          "startLine": 144,
+          "endLine": 151,
+          "params": [
+            "path",
+            "novel_paths"
+          ]
+        },
+        {
+          "name": "log_file_change",
+          "startLine": 154,
+          "endLine": 176,
+          "params": [
+            "path",
+            "new_content",
+            "is_novel",
+            "file_change_dir",
+            "old_content"
+          ]
+        },
+        {
+          "name": "create_file_entry",
+          "startLine": 181,
+          "endLine": 191,
+          "params": [
+            "folder",
+            "name",
+            "is_dir"
+          ]
+        },
+        {
+          "name": "delete_file_entry",
+          "startLine": 194,
+          "endLine": 202,
+          "params": [
+            "path"
+          ]
+        },
+        {
+          "name": "rename_file_entry",
+          "startLine": 205,
+          "endLine": 216,
+          "params": [
+            "old_path",
+            "new_name",
+            "new_folder"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "list_folder_files",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "list_subdirs",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "browse_root_dirs",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "read_text_file",
+          "line": 82,
+          "isDefault": false
+        },
+        {
+          "name": "read_docx_text",
+          "line": 99,
+          "isDefault": false
+        },
+        {
+          "name": "save_file",
+          "line": 117,
+          "isDefault": false
+        },
+        {
+          "name": "log_save_event",
+          "line": 132,
+          "isDefault": false
+        },
+        {
+          "name": "is_novel_path",
+          "line": 144,
+          "isDefault": false
+        },
+        {
+          "name": "log_file_change",
+          "line": 154,
+          "isDefault": false
+        },
+        {
+          "name": "create_file_entry",
+          "line": 181,
+          "isDefault": false
+        },
+        {
+          "name": "delete_file_entry",
+          "line": 194,
+          "isDefault": false
+        },
+        {
+          "name": "rename_file_entry",
+          "line": 205,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "list_folder_files",
+          "callee": "os.path.isdir",
+          "lineNumber": 21
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "os.listdir",
+          "lineNumber": 24
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "str",
+          "lineNumber": 28
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "sorted",
+          "lineNumber": 29
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "os.listdir",
+          "lineNumber": 30
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "f.endswith",
+          "lineNumber": 31
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "os.path.join",
+          "lineNumber": 35
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "os.path.getsize",
+          "lineNumber": 37
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "file_info.append",
+          "lineNumber": 38
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "round",
+          "lineNumber": 38
+        },
+        {
+          "caller": "list_folder_files",
+          "callee": "file_info.append",
+          "lineNumber": 40
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "os.path.isdir",
+          "lineNumber": 46
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "sorted",
+          "lineNumber": 49
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "os.listdir",
+          "lineNumber": 49
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "os.path.join",
+          "lineNumber": 54
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "os.path.isdir",
+          "lineNumber": 55
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "d.startswith",
+          "lineNumber": 55
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "len",
+          "lineNumber": 57
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "os.listdir",
+          "lineNumber": 57
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "f.endswith",
+          "lineNumber": 57
+        },
+        {
+          "caller": "list_subdirs",
+          "callee": "subdirs.append",
+          "lineNumber": 60
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "os.path.isdir",
+          "lineNumber": 66
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "sorted",
+          "lineNumber": 69
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "os.listdir",
+          "lineNumber": 69
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "os.path.join",
+          "lineNumber": 70
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "os.path.isdir",
+          "lineNumber": 71
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "len",
+          "lineNumber": 73
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "os.listdir",
+          "lineNumber": 73
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "f.endswith",
+          "lineNumber": 73
+        },
+        {
+          "caller": "browse_root_dirs",
+          "callee": "items.append",
+          "lineNumber": 76
+        },
+        {
+          "caller": "read_text_file",
+          "callee": "os.path.exists",
+          "lineNumber": 84
+        },
+        {
+          "caller": "read_text_file",
+          "callee": "open",
+          "lineNumber": 87
+        },
+        {
+          "caller": "read_text_file",
+          "callee": "f.read",
+          "lineNumber": 88
+        },
+        {
+          "caller": "read_text_file",
+          "callee": "open",
+          "lineNumber": 91
+        },
+        {
+          "caller": "read_text_file",
+          "callee": "f.read",
+          "lineNumber": 92
+        },
+        {
+          "caller": "read_text_file",
+          "callee": "str",
+          "lineNumber": 94
+        },
+        {
+          "caller": "read_text_file",
+          "callee": "str",
+          "lineNumber": 96
+        },
+        {
+          "caller": "read_docx_text",
+          "callee": "zipfile.ZipFile",
+          "lineNumber": 102
+        },
+        {
+          "caller": "read_docx_text",
+          "callee": "z.read",
+          "lineNumber": 103
+        },
+        {
+          "caller": "read_docx_text",
+          "callee": "ET.fromstring",
+          "lineNumber": 104
+        },
+        {
+          "caller": "read_docx_text",
+          "callee": "root.iter",
+          "lineNumber": 107
+        },
+        {
+          "caller": "read_docx_text",
+          "callee": "texts.append",
+          "lineNumber": 109
+        },
+        {
+          "caller": "read_docx_text",
+          "callee": "'\\n'.join",
+          "lineNumber": 110
+        },
+        {
+          "caller": "read_docx_text",
+          "callee": "str",
+          "lineNumber": 112
+        },
+        {
+          "caller": "save_file",
+          "callee": "os.path.exists",
+          "lineNumber": 120
+        },
+        {
+          "caller": "save_file",
+          "callee": "open",
+          "lineNumber": 122
+        },
+        {
+          "caller": "save_file",
+          "callee": "f.read",
+          "lineNumber": 123
+        },
+        {
+          "caller": "save_file",
+          "callee": "os.makedirs",
+          "lineNumber": 126
+        },
+        {
+          "caller": "save_file",
+          "callee": "os.path.dirname",
+          "lineNumber": 126
+        },
+        {
+          "caller": "save_file",
+          "callee": "open",
+          "lineNumber": 127
+        },
+        {
+          "caller": "save_file",
+          "callee": "f.write",
+          "lineNumber": 128
+        },
+        {
+          "caller": "log_save_event",
+          "callee": "time.strftime",
+          "lineNumber": 135
+        },
+        {
+          "caller": "log_save_event",
+          "callee": "len",
+          "lineNumber": 135
+        },
+        {
+          "caller": "log_save_event",
+          "callee": "os.path.join",
+          "lineNumber": 136
+        },
+        {
+          "caller": "log_save_event",
+          "callee": "os.makedirs",
+          "lineNumber": 137
+        },
+        {
+          "caller": "log_save_event",
+          "callee": "os.path.dirname",
+          "lineNumber": 137
+        },
+        {
+          "caller": "log_save_event",
+          "callee": "open",
+          "lineNumber": 138
+        },
+        {
+          "caller": "log_save_event",
+          "callee": "lf.write",
+          "lineNumber": 139
+        },
+        {
+          "caller": "is_novel_path",
+          "callee": "os.path.abspath",
+          "lineNumber": 146
+        },
+        {
+          "caller": "is_novel_path",
+          "callee": "os.path.abspath",
+          "lineNumber": 148
+        },
+        {
+          "caller": "is_novel_path",
+          "callee": "ap.startswith",
+          "lineNumber": 149
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "time.strftime",
+          "lineNumber": 157
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "time.strftime",
+          "lineNumber": 158
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.path.join",
+          "lineNumber": 159
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.makedirs",
+          "lineNumber": 160
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.path.basename(path).replace('/', '_').replace",
+          "lineNumber": 161
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.path.basename(path).replace",
+          "lineNumber": 161
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.path.basename",
+          "lineNumber": 161
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.path.join",
+          "lineNumber": 162
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "list",
+          "lineNumber": 165
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "difflib.unified_diff",
+          "lineNumber": 165
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "old.splitlines",
+          "lineNumber": 166
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "new_content.splitlines",
+          "lineNumber": 167
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.path.basename",
+          "lineNumber": 168
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "os.path.basename",
+          "lineNumber": 169
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "open",
+          "lineNumber": 171
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "f.write",
+          "lineNumber": 172
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "len",
+          "lineNumber": 172
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "len",
+          "lineNumber": 172
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "f.write",
+          "lineNumber": 174
+        },
+        {
+          "caller": "log_file_change",
+          "callee": "''.join",
+          "lineNumber": 174
+        },
+        {
+          "caller": "create_file_entry",
+          "callee": "os.path.join",
+          "lineNumber": 183
+        },
+        {
+          "caller": "create_file_entry",
+          "callee": "os.makedirs",
+          "lineNumber": 185
+        },
+        {
+          "caller": "create_file_entry",
+          "callee": "os.makedirs",
+          "lineNumber": 188
+        },
+        {
+          "caller": "create_file_entry",
+          "callee": "os.path.dirname",
+          "lineNumber": 188
+        },
+        {
+          "caller": "create_file_entry",
+          "callee": "open",
+          "lineNumber": 189
+        },
+        {
+          "caller": "create_file_entry",
+          "callee": "f.write",
+          "lineNumber": 190
+        },
+        {
+          "caller": "delete_file_entry",
+          "callee": "os.path.exists",
+          "lineNumber": 196
+        },
+        {
+          "caller": "delete_file_entry",
+          "callee": "os.path.isdir",
+          "lineNumber": 198
+        },
+        {
+          "caller": "delete_file_entry",
+          "callee": "shutil.rmtree",
+          "lineNumber": 199
+        },
+        {
+          "caller": "delete_file_entry",
+          "callee": "os.remove",
+          "lineNumber": 201
+        },
+        {
+          "caller": "rename_file_entry",
+          "callee": "os.path.dirname",
+          "lineNumber": 211
+        },
+        {
+          "caller": "rename_file_entry",
+          "callee": "os.path.join",
+          "lineNumber": 212
+        },
+        {
+          "caller": "rename_file_entry",
+          "callee": "os.path.exists",
+          "lineNumber": 213
+        },
+        {
+          "caller": "rename_file_entry",
+          "callee": "os.rename",
+          "lineNumber": 215
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 12,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "utils/version.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 7,
+      "nonEmptyLines": 6,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}
