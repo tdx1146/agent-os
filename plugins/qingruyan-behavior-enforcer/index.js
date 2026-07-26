@@ -26,16 +26,28 @@ const SEARCH_TRIGGERS = [
     hint: "prompt提到丰碑系统，建议先搜索相关记忆再回答"
   },
   {
-    patterns: [/之前|上次|刚刚|前面|以前|之前说/i],
-    tool: "sandglass__sandglass_search",
-    query: null,
-    hint: "prompt提到过去的事件，建议搜索历史记忆"
-  },
-  {
-    patterns: [/为什么|根因|原因|导致|因为|怎么回/i],
+    patterns: [/为什么|根因|原因|导致/i],
     tool: "sandglass__sandglass_thread",
     query: null,
     hint: "prompt涉及因果分析，建议查询知识图谱"
+  },
+  {
+    patterns: [/回忆|记得|今天几号|发生了什么|什么时候/i],
+    tool: "sandglass__sandglass_search",
+    query: null,
+    hint: "prompt涉及记忆查询，建议搜索历史记忆"
+  },
+  {
+    patterns: [/配置|openclaw|plugin|cron|插件/i],
+    tool: "sandglass__sandglass_search",
+    query: "配置 系统 历史",
+    hint: "prompt涉及系统配置，建议搜索相关历史"
+  },
+  {
+    patterns: [/报错|错误|失败|崩溃|挂了/i],
+    tool: "sandglass__sandglass_search",
+    query: "错误 失败",
+    hint: "prompt提到错误/失败，建议搜索历史记忆"
   },
   {
     patterns: [/继续|接着|然后|再说$/],
@@ -106,20 +118,36 @@ function extractKeywords(text) {
   return [...new Set(words)];
 }
 
-function matchFactsFromTail(prompt, lines) {
+function matchFactsFromAll(prompt, lines) {
   const promptLower = prompt.toLowerCase();
   const matched = [];
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const m = lines[i].match(/^\|\s*(\w+\d+)\s*\|\s*(.+?)\s*\|\s*✅/);
-    if (!m) continue;
+  const seen = new Set();
+
+  function tryMatch(line) {
+    const m = line.match(/^\|\s*(\w+\d+)\s*\|\s*(.+?)\s*\|\s*✅/);
+    if (!m) return;
     const id = m[1];
+    if (seen.has(id)) return;
     const text = m[2].trim();
     const keywords = extractKeywords(text);
     if (keywords.some(kw => promptLower.includes(kw))) {
+      seen.add(id);
       matched.push({ id, text });
-      if (matched.length >= MAX_MATCHED) break;
     }
   }
+
+  // 头部断言 (H/W系列 — 核心知识)
+  for (let i = 0; i < Math.min(80, lines.length); i++) {
+    tryMatch(lines[i]);
+    if (matched.length >= MAX_MATCHED) return matched;
+  }
+
+  // 尾部断言 (F/META系列 — 最近记忆)
+  for (let i = lines.length - 1; i >= Math.max(80, lines.length - 200); i--) {
+    tryMatch(lines[i]);
+    if (matched.length >= MAX_MATCHED) return matched;
+  }
+
   return matched;
 }
 
@@ -180,7 +208,7 @@ module.exports = {
           // === Part 2: 断言匹配 ===
           try {
             const content = fs.readFileSync(FACTS_PATH, 'utf-8');
-            matched = matchFactsFromTail(prompt, content.split('\n'));
+            matched = matchFactsFromAll(prompt, content.split('\n'));
           } catch(e) {}
 
           // === Part 3: 搜索触发 ===
