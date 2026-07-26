@@ -1,66 +1,27 @@
-// 轻如烟 · 行为强制插件 v4
-// 2026-07-26：v3 + 沙漏四层自动注入
+// 轻如烟 · 沙漏注入插件 v6
+// 2026-07-26：消费侧闭环——沙漏成为唯一注入源
 //
 // 工作机制：
-// 1. 调用沙漏 system_prompt_cli.py 获取四层自动注入（你是谁/往哪走/怎么变/没做完）
-// 2. 从 facts.dict.md 尾部自动匹配断言
-// 3. 检测 prompt 关键词 → 注入搜索触发指令
+// 1. system_prompt_block() — 会话启动时四层注入（你是谁/往哪走/怎么变/没做完）
+// 2. prefetch(query) — 每轮注入三块式（搜索引导/记忆候选/当前状态）
+// 3. 降级检测——CLI失败时写报警文件
 //
-// 核心改变：沙漏的自动注入替代了手动触发词，AI每轮都能看到动态蒸馏的画像/偏移/因果链
+// OpenClaw contextInjection=never，workspace文件不自动注入
+// AI要任何信息必须通过沙漏工具
 
-const { spawn } = require("child_process");
+const { spawn, execSync } = require("child_process");
 const fs = require("fs");
 
-const FACTS_PATH = "/vol1/@apphome/trim.openclaw/data/workspace/facts.dict.md";
 const SANDGLASS_CLI = "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source/system_prompt_cli.py";
 const SANDBASE_HOME = "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass";
-const MAX_MATCHED = 5;
-const CLI_TIMEOUT = 10000; // 10秒超时
+const CLI_TIMEOUT = 10000;
+const PREFETCH_TIMEOUT = 8000;
+const ALERT_FILE = "/tmp/sandglass-injection-alert.txt";
+const DEBUG_DIR = "/tmp";
 
-// 搜索触发规则（保留，作为沙漏注入的补充）
-const SEARCH_TRIGGERS = [
-  {
-    patterns: [/丰碑|monument|元丰碑|yfb/i],
-    tool: "sandglass__sandglass_search",
-    query: "丰碑 monument 进展",
-    hint: "prompt提到丰碑系统，建议先搜索相关记忆再回答"
-  },
-  {
-    patterns: [/为什么|根因|原因|导致/i],
-    tool: "sandglass__sandglass_thread",
-    query: null,
-    hint: "prompt涉及因果分析，建议查询知识图谱"
-  },
-  {
-    patterns: [/回忆|记得|今天几号|发生了什么|什么时候/i],
-    tool: "sandglass__sandglass_search",
-    query: null,
-    hint: "prompt涉及记忆查询，建议搜索历史记忆"
-  },
-  {
-    patterns: [/配置|openclaw|plugin|cron|插件/i],
-    tool: "sandglass__sandglass_search",
-    query: "配置 系统 历史",
-    hint: "prompt涉及系统配置，建议搜索相关历史"
-  },
-  {
-    patterns: [/报错|错误|失败|崩溃|挂了/i],
-    tool: "sandglass__sandglass_search",
-    query: "错误 失败",
-    hint: "prompt提到错误/失败，建议搜索历史记忆"
-  },
-  {
-    patterns: [/继续|接着|然后|再说$/],
-    shortPromptOnly: true,
-    tool: "sandglass__sandglass_search",
-    query: "最近 任务 讨论",
-    hint: "短指令，建议搜索最近上下文恢复对话连续性"
-  }
-];
+// ═══════ 四层注入（system_prompt_block） ═══════
 
-// ═══════ 沙漏四层注入 ═══════
-
-function getSandglassBlock() {
+function getSystemPromptBlock() {
   return new Promise((resolve) => {
     const py = spawn("python3", [SANDGLASS_CLI], {
       env: { ...process.env, NEXSANDBASE_HOME: SANDBASE_HOME },
@@ -70,11 +31,10 @@ function getSandglassBlock() {
     let stderr = "";
     let timedOut = false;
 
-    // 手动超时保护（spawn不支持timeout选项）
     const timer = setTimeout(() => {
       timedOut = true;
       py.kill("SIGTERM");
-      try { fs.writeFileSync("/tmp/sandglass-cli-error.txt", `${new Date().toISOString()} timeout=${CLI_TIMEOUT}ms`); } catch(e) {}
+      writeAlert("system_prompt_block timeout");
       resolve("");
     }, CLI_TIMEOUT);
 
@@ -84,102 +44,170 @@ function getSandglassBlock() {
     py.on("close", (code) => {
       clearTimeout(timer);
       if (timedOut) return;
-      try { fs.writeFileSync("/tmp/sandglass-cli-debug.txt", `${new Date().toISOString()} code=${code} stdout_len=${stdout.length} stderr_len=${stderr.length} stdout=${stdout.substring(0,300)} stderr=${stderr.substring(0,300)}`); } catch(e) {}
       if (code === 0 && stdout.trim()) {
         resolve(stdout.trim());
       } else {
-        try { fs.writeFileSync("/tmp/sandglass-cli-error.txt", `${new Date().toISOString()} code=${code} stderr=${stderr.substring(0, 200)}`); } catch(e) {}
+        writeAlert(`system_prompt_block failed: code=${code} stderr=${stderr.substring(0, 100)}`);
         resolve("");
       }
     });
 
     py.on("error", (err) => {
       clearTimeout(timer);
-      try { fs.writeFileSync("/tmp/sandglass-cli-error.txt", `${new Date().toISOString()} error=${err.message}`); } catch(e) {}
+      writeAlert(`system_prompt_block error: ${err.message}`);
       resolve("");
     });
 
-    // 关闭stdin，避免子进程等待输入
     py.stdin.end();
   });
 }
 
-// ═══════ 断言匹配 ═══════
+// ═══════ 每轮注入（prefetch） ═══════
+// 按沙漏官方turn_injection_plan.md的三块式设计
+// 块1: 搜索引导（关键词扩展+影子沙标签）
+// 块2: 记忆候选（预搜TOP3）
+// 块3: 当前状态+决策
 
-function extractKeywords(text) {
-  const head = text.slice(0, 80).toLowerCase();
-  const words = [];
-  const cn = head.match(/[\u4e00-\u9fff]{2,4}/g);
-  if (cn) words.push(...cn);
-  const en = head.match(/[a-z][a-z0-9]+/g);
-  if (en) words.push(...en);
-  const num = head.match(/\d{2,}/g);
-  if (num) words.push(...num);
-  return [...new Set(words)];
+function getPrefetchBlock(query) {
+  try {
+    const escapedQuery = query.replace(/'/g, "\\'").replace(/"/g, '\\"').substring(0, 200);
+    const cmd = `cd /vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source && NEXSANDBASE_HOME="${SANDBASE_HOME}" python3 -u -c "
+import sys, os
+sys.path.insert(0, '.')
+os.environ['NEXSANDBASE_HOME'] = '${SANDBASE_HOME}'
+
+blocks = []
+
+# ═══════ 块1: 搜索引导 ═══════
+try:
+    from sandglass_think import search_filter, _infer_expand_with_context
+    sf = search_filter('${escapedQuery}')
+    ctx = sf or {}
+    expanded = _infer_expand_with_context(
+        '${escapedQuery}',
+        ctx.get('persona_context', ''),
+        ctx.get('scene_context', ''),
+        ctx.get('stage_context', ''),
+        ctx.get('dp_context', ''),
+        ctx.get('decision_bias', '')
+    )
+    guide_parts = []
+    if expanded and len(expanded) > 1:
+        guide_parts.append('搜索: ' + ' / '.join(expanded[1:4]))
+    
+    # 影子沙标签
+    try:
+        from shadow_sand import shadow_search
+        import sqlite3
+        sh = shadow_search('${escapedQuery}', 3)
+        if sh:
+            db = sqlite3.connect(os.path.join('${SANDBASE_HOME}', 'shadow_sand.db'))
+            tags_set = set()
+            for _, ln in sh[:3]:
+                row = db.execute('SELECT category, tags FROM fact_tags WHERE line_num=?', (ln,)).fetchone()
+                if row:
+                    if row[0] and row[0] != 'general': tags_set.add(row[0][:15])
+                    if row[1]:
+                        for t in row[1].split(',')[:2]:
+                            t = t.strip()
+                            if len(t) > 1: tags_set.add(t[:15])
+            db.close()
+            if tags_set:
+                guide_parts.append('标签: ' + ', '.join(list(tags_set)[:4]))
+    except: pass
+    
+    if guide_parts:
+        blocks.append('🔍 ' + ' | '.join(guide_parts))
+except: pass
+
+# ═══════ 块2: 记忆候选（预搜TOP3） ═══════
+try:
+    from sandglass_vault import search
+    results = search('${escapedQuery}', limit=3)
+    if results:
+        mem_lines = ['📋 相关记忆:']
+        for ln, ts, txt, *_ in results[:3]:
+            short_ts = ts[:10] if len(ts) >= 10 else ts
+            short_text = txt[:80].replace(chr(10), ' ')
+            mem_lines.append(f'  [{short_ts}] {short_text}')
+        blocks.append(chr(10).join(mem_lines))
+except: pass
+
+# ═══════ 块3: 当前状态+决策 ═══════
+status_parts = []
+try:
+    from sandglass_think import comprehensive_offset, _emotional_entropy
+    off = comprehensive_offset()
+    ent = _emotional_entropy()
+    mood = '平稳' if ent < 0.5 else ('波动' if ent < 1.0 else '高熵')
+    dirs = {'frugal': '省钱', 'spend': '愿投', 'drift': '放弃'}
+    off_d = dirs.get(off.get('direction', ''), '平稳')
+    status_parts.append(f'状态: {off_d}({off.get(\"offset\",0):+d}%) | 🎭{mood}')
+except: pass
+
+try:
+    from scene_l3 import scene_current
+    scenes = scene_current()
+    if scenes: status_parts.append('场景: ' + '·'.join(scenes[:3]))
+except: pass
+
+try:
+    from discipline import iron_rules_with_counts
+    rules = iron_rules_with_counts(3)
+    if rules:
+        rule_strs = [f'⚠{r[:40]}' for r, c in rules if c > 0]
+        if not rule_strs: rule_strs = [f'⚠{r[:40]}' for r, _ in rules[:2]]
+        if rule_strs: status_parts.append(' | '.join(rule_strs[:2]))
+except: pass
+
+if status_parts:
+    blocks.append(chr(10).join(status_parts))
+
+result = chr(10).join(blocks)
+if len(result) > 600: result = result[:597] + '...'
+print(result)
+"`;
+
+    const output = execSync(cmd, {
+      timeout: PREFETCH_TIMEOUT,
+      encoding: "utf-8",
+      env: { ...process.env, NEXSANDBASE_HOME: SANDBASE_HOME },
+    }).trim();
+
+    return output;
+  } catch (e) {
+    writeAlert(`prefetch failed: ${e.message}`);
+    return "";
+  }
 }
 
-function matchFactsFromAll(prompt, lines) {
-  const promptLower = prompt.toLowerCase();
-  const matched = [];
-  const seen = new Set();
+// ═══════ 报警 ═══════
 
-  function tryMatch(line) {
-    const m = line.match(/^\|\s*(\w+\d+)\s*\|\s*(.+?)\s*\|\s*✅/);
-    if (!m) return;
-    const id = m[1];
-    if (seen.has(id)) return;
-    const text = m[2].trim();
-    const keywords = extractKeywords(text);
-    if (keywords.some(kw => promptLower.includes(kw))) {
-      seen.add(id);
-      matched.push({ id, text });
+function writeAlert(msg) {
+  try {
+    fs.writeFileSync(ALERT_FILE, `${new Date().toISOString()} ${msg}`);
+  } catch (e) {}
+}
+
+function checkAlert() {
+  try {
+    if (fs.existsSync(ALERT_FILE)) {
+      const content = fs.readFileSync(ALERT_FILE, "utf-8").trim();
+      // 5分钟内的报警才报
+      const alertTime = new Date(content.split(" ")[0]).getTime();
+      if (Date.now() - alertTime < 5 * 60 * 1000) {
+        return content;
+      }
     }
-  }
-
-  // 头部断言 (H/W系列 — 核心知识)
-  for (let i = 0; i < Math.min(80, lines.length); i++) {
-    tryMatch(lines[i]);
-    if (matched.length >= MAX_MATCHED) return matched;
-  }
-
-  // 尾部断言 (F/META系列 — 最近记忆)
-  for (let i = lines.length - 1; i >= Math.max(80, lines.length - 200); i--) {
-    tryMatch(lines[i]);
-    if (matched.length >= MAX_MATCHED) return matched;
-  }
-
-  return matched;
-}
-
-// ═══════ 搜索触发 ═══════
-
-function extractPromptNouns(prompt) {
-  const cn = prompt.match(/[\u4e00-\u9fff]{2,4}/g);
-  if (cn && cn.length >= 2) return cn.slice(-2).join(" ");
-  if (cn && cn.length === 1) return cn[0];
-  const en = prompt.match(/[a-z][a-z0-9]{2,}/gi);
-  if (en && en.length >= 1) return en.slice(-1)[0];
-  return "最近记忆";
-}
-
-function detectSearchTriggers(prompt) {
-  const triggers = [];
-  const isShort = prompt.trim().length < 30;
-  for (const t of SEARCH_TRIGGERS) {
-    if (t.shortPromptOnly && !isShort) continue;
-    if (t.patterns.some(p => p.test(prompt))) {
-      const query = t.query || extractPromptNouns(prompt);
-      triggers.push({ tool: t.tool, query, hint: t.hint });
-    }
-  }
-  return triggers;
+  } catch (e) {}
+  return null;
 }
 
 // ═══════ 主逻辑 ═══════
 
 module.exports = {
   id: "qingruyan-behavior-enforcer",
-  name: "轻如烟行为强制",
+  name: "轻如烟沙漏注入",
   register(api) {
     api.on(
       "before_prompt_build",
@@ -189,68 +217,58 @@ module.exports = {
         const prompt = event.prompt || "";
         const isSilentPeriod = prompt.includes('轮感检查') && prompt.includes('静默期');
 
-        let injectionContent = "";
-        let matched = [];
-        let triggers = [];
-        let sandglassBlock = "";
-
         if (isSilentPeriod) {
-          try { fs.writeFileSync("/tmp/last-processing.txt", "静默期 " + new Date().toISOString()); } catch(e) {}
-          injectionContent = "## 🌙 静默期\n\n不需要输出。不需要汇报。想问题。\n\n想想最近几条断言间有没有矛盾，知识树有没有需要重新挂枝的。如果想到什么值得记的，写一条 N 系列笔记。如果没想通——安静待着就行。不要为了交差而写东西。";
-        } else {
-          // === Part 1: 沙漏四层注入（核心新增） ===
-          try {
-            sandglassBlock = await getSandglassBlock();
-          } catch(e) {
-            try { fs.writeFileSync("/tmp/sandglass-cli-error.txt", `${new Date().toISOString()} await_error=${e.message}`); } catch(e2) {}
-          }
-
-          // === Part 2: 断言匹配 ===
-          try {
-            const content = fs.readFileSync(FACTS_PATH, 'utf-8');
-            matched = matchFactsFromAll(prompt, content.split('\n'));
-          } catch(e) {}
-
-          // === Part 3: 搜索触发 ===
-          triggers = detectSearchTriggers(prompt);
-
-          // === 组装注入内容 ===
-          let parts = [];
-
-          // 沙漏四层注入
-          if (sandglassBlock) {
-            parts.push("## 🌫️ 沙漏脉冲\n\n" + sandglassBlock);
-          }
-
-          // 断言匹配
-          if (matched.length > 0) {
-            let factsSection = "## 📖 相关断言\n\n以下断言从 facts.dict.md 尾部自动匹配，与你当前话题相关：\n\n";
-            factsSection += matched.map(f => "- **" + f.id + "**：" + f.text).join("\n");
-            parts.push(factsSection);
-          }
-
-          // 搜索触发
-          if (triggers.length > 0) {
-            let searchSection = "## 🔍 搜索触发\n\n系统检测到你的prompt包含特定关键词，**请先调用以下工具获取上下文再回答**：\n\n";
-            for (const t of triggers) {
-              searchSection += "- 调用 `" + t.tool + "(query=\"" + t.query + "\")` — " + t.hint + "\n";
-            }
-            searchSection += "\n搜索结果应作为你回答的约束条件，不只是展示给用户。";
-            parts.push(searchSection);
-          }
-
-          injectionContent = parts.join("\n\n");
+          try { fs.writeFileSync("/tmp/last-injection-body.txt", "静默期"); } catch(e) {}
+          return { prependSystemContext: "## 🌙 静默期\n\n不需要输出。安静待着。" };
         }
 
-        // 标记注入完成
-        try { fs.writeFileSync("/tmp/plugin-injected.txt", new Date().toISOString()); } catch(e) {}
+        // === Part 1: 四层注入（system_prompt_block） ===
+        let systemBlock = "";
         try {
-          const detail = "沙漏: " + (sandglassBlock ? "✅" : "❌")
-            + " | 匹配断言: " + (matched.length > 0 ? matched.map(f => f.id).join(", ") : "无")
-            + " | 搜索触发: " + triggers.length;
-          fs.writeFileSync("/tmp/last-injection.txt", new Date().toISOString() + " | " + detail);
+          systemBlock = await getSystemPromptBlock();
+        } catch(e) {
+          writeAlert(`system_block await error: ${e.message}`);
+        }
+
+        // === Part 2: 每轮注入（prefetch） ===
+        let prefetchBlock = "";
+        try {
+          prefetchBlock = getPrefetchBlock(prompt);
+        } catch(e) {
+          writeAlert(`prefetch error: ${e.message}`);
+        }
+
+        // === 组装 ===
+        let parts = [];
+
+        if (systemBlock) {
+          parts.push("## 🌫️ 沙漏脉冲\n\n" + systemBlock);
+        }
+
+        if (prefetchBlock) {
+          parts.push("## ⏳ 沙漏召回\n\n" + prefetchBlock);
+        }
+
+        // 降级报警
+        const alert = checkAlert();
+        if (alert) {
+          parts.push("## ⚠️ 沙漏注入异常\n\n" + alert + "\n\n请通知dandan检查沙漏系统。");
+        }
+
+        // 如果沙漏完全失败，给最低限度的身份锚点
+        if (!systemBlock && !prefetchBlock) {
+          parts.push("## 🆘 沙漏系统离线\n\n你是轻如烟，dandan的AI。沙漏记忆系统当前不可用，请通知dandan。");
+        }
+
+        const injectionContent = parts.join("\n\n");
+
+        // 调试日志
+        try {
+          fs.writeFileSync("/tmp/plugin-injected.txt", new Date().toISOString());
+          const detail = `系统块: ${systemBlock ? "✅" : "❌"} | 预搜块: ${prefetchBlock ? "✅" : "❌"} | 报警: ${alert ? "⚠️" : "无"}`;
+          fs.writeFileSync("/tmp/last-injection.txt", `${new Date().toISOString()} | ${detail}`);
+          fs.writeFileSync("/tmp/last-injection-body.txt", injectionContent.substring(0, 2000));
         } catch(e) {}
-        try { fs.writeFileSync("/tmp/last-injection-body.txt", injectionContent.substring(0, 1200)); } catch(e) {}
 
         return {
           prependSystemContext: injectionContent,
