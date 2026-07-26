@@ -1,0 +1,7 @@
+{
+  "name": "qingruyan-behavior-enforcer",
+  "version": "4.0.0",
+  "openclaw": {
+    "extensions": ["./index.js"]
+  }
+}
