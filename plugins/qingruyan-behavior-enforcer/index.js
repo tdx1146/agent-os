@@ -1,13 +1,6 @@
-// 轻如烟 · 沙漏注入插件 v6
-// 2026-07-26：消费侧闭环——沙漏成为唯一注入源
-//
-// 工作机制：
-// 1. system_prompt_block() — 会话启动时四层注入（你是谁/往哪走/怎么变/没做完）
-// 2. prefetch(query) — 每轮注入三块式（搜索引导/记忆候选/当前状态）
-// 3. 降级检测——CLI失败时写报警文件
-//
-// OpenClaw contextInjection=never，workspace文件不自动注入
-// AI要任何信息必须通过沙漏工具
+// 轻如烟 · 沙漏注入插件 v6.1
+// 2026-07-26：修复prefetch多行prompt导致Python语法错误
+// 核心改变：query清理换行+截断100字符，块1简化为画像/场景上下文
 
 const { spawn, execSync } = require("child_process");
 const fs = require("fs");
@@ -17,7 +10,6 @@ const SANDBASE_HOME = "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass";
 const CLI_TIMEOUT = 10000;
 const PREFETCH_TIMEOUT = 8000;
 const ALERT_FILE = "/tmp/sandglass-injection-alert.txt";
-const DEBUG_DIR = "/tmp";
 
 // ═══════ 四层注入（system_prompt_block） ═══════
 
@@ -63,14 +55,14 @@ function getSystemPromptBlock() {
 }
 
 // ═══════ 每轮注入（prefetch） ═══════
-// 按沙漏官方turn_injection_plan.md的三块式设计
-// 块1: 搜索引导（关键词扩展+影子沙标签）
-// 块2: 记忆候选（预搜TOP3）
-// 块3: 当前状态+决策
+// 三块式：搜索引导 / 记忆候选 / 当前状态
+// query必须清理换行+截断，避免Python字符串字面量断裂
 
 function getPrefetchBlock(query) {
   try {
-    const escapedQuery = query.replace(/'/g, "\\'").replace(/"/g, '\\"').substring(0, 200);
+    // 清理query：去掉换行、截断100字符、转义单引号
+    const cleanQuery = query.replace(/[\r\n]/g, " ").replace(/'/g, "\\'").substring(0, 100);
+
     const cmd = `cd /vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source && NEXSANDBASE_HOME="${SANDBASE_HOME}" python3 -u -c "
 import sys, os
 sys.path.insert(0, '.')
@@ -78,52 +70,24 @@ os.environ['NEXSANDBASE_HOME'] = '${SANDBASE_HOME}'
 
 blocks = []
 
-# ═══════ 块1: 搜索引导 ═══════
+# 块1: 搜索引导
 try:
-    from sandglass_think import search_filter, _infer_expand_with_context
-    sf = search_filter('${escapedQuery}')
+    from sandglass_think import search_filter
+    sf = search_filter('${cleanQuery}')
     ctx = sf or {}
-    expanded = _infer_expand_with_context(
-        '${escapedQuery}',
-        ctx.get('persona_context', ''),
-        ctx.get('scene_context', ''),
-        ctx.get('stage_context', ''),
-        ctx.get('dp_context', ''),
-        ctx.get('decision_bias', '')
-    )
     guide_parts = []
-    if expanded and len(expanded) > 1:
-        guide_parts.append('搜索: ' + ' / '.join(expanded[1:4]))
-    
-    # 影子沙标签
-    try:
-        from shadow_sand import shadow_search
-        import sqlite3
-        sh = shadow_search('${escapedQuery}', 3)
-        if sh:
-            db = sqlite3.connect(os.path.join('${SANDBASE_HOME}', 'shadow_sand.db'))
-            tags_set = set()
-            for _, ln in sh[:3]:
-                row = db.execute('SELECT category, tags FROM fact_tags WHERE line_num=?', (ln,)).fetchone()
-                if row:
-                    if row[0] and row[0] != 'general': tags_set.add(row[0][:15])
-                    if row[1]:
-                        for t in row[1].split(',')[:2]:
-                            t = t.strip()
-                            if len(t) > 1: tags_set.add(t[:15])
-            db.close()
-            if tags_set:
-                guide_parts.append('标签: ' + ', '.join(list(tags_set)[:4]))
-    except: pass
-    
+    if ctx.get('persona_context'):
+        guide_parts.append('画像: ' + ctx['persona_context'][:30])
+    if ctx.get('scene_context'):
+        guide_parts.append('场景: ' + ctx['scene_context'][:30])
     if guide_parts:
         blocks.append('🔍 ' + ' | '.join(guide_parts))
 except: pass
 
-# ═══════ 块2: 记忆候选（预搜TOP3） ═══════
+# 块2: 记忆候选
 try:
     from sandglass_vault import search
-    results = search('${escapedQuery}', limit=3)
+    results = search('${cleanQuery}', limit=3)
     if results:
         mem_lines = ['📋 相关记忆:']
         for ln, ts, txt, *_ in results[:3]:
@@ -133,7 +97,7 @@ try:
         blocks.append(chr(10).join(mem_lines))
 except: pass
 
-# ═══════ 块3: 当前状态+决策 ═══════
+# 块3: 当前状态+决策
 status_parts = []
 try:
     from sandglass_think import comprehensive_offset, _emotional_entropy
@@ -193,7 +157,6 @@ function checkAlert() {
   try {
     if (fs.existsSync(ALERT_FILE)) {
       const content = fs.readFileSync(ALERT_FILE, "utf-8").trim();
-      // 5分钟内的报警才报
       const alertTime = new Date(content.split(" ")[0]).getTime();
       if (Date.now() - alertTime < 5 * 60 * 1000) {
         return content;
@@ -222,7 +185,7 @@ module.exports = {
           return { prependSystemContext: "## 🌙 静默期\n\n不需要输出。安静待着。" };
         }
 
-        // === Part 1: 四层注入（system_prompt_block） ===
+        // === Part 1: 四层注入 ===
         let systemBlock = "";
         try {
           systemBlock = await getSystemPromptBlock();
@@ -230,7 +193,7 @@ module.exports = {
           writeAlert(`system_block await error: ${e.message}`);
         }
 
-        // === Part 2: 每轮注入（prefetch） ===
+        // === Part 2: prefetch ===
         let prefetchBlock = "";
         try {
           prefetchBlock = getPrefetchBlock(prompt);
@@ -255,7 +218,7 @@ module.exports = {
           parts.push("## ⚠️ 沙漏注入异常\n\n" + alert + "\n\n请通知dandan检查沙漏系统。");
         }
 
-        // 如果沙漏完全失败，给最低限度的身份锚点
+        // 完全失败时的身份锚点
         if (!systemBlock && !prefetchBlock) {
           parts.push("## 🆘 沙漏系统离线\n\n你是轻如烟，dandan的AI。沙漏记忆系统当前不可用，请通知dandan。");
         }
