@@ -149,12 +149,21 @@ def get_system_prompt_block():
         try:
             from weavethread import wthread_stats, wthread_weave
             stats = wthread_stats()
-            if stats["total_triples"] >= 20:
+            total_triples = stats.get("total_triples", 0)
+            if total_triples >= 5:
                 thread = wthread_weave(limit=3)
                 if thread and thread != "织线因果:":
                     l3_text = f"【你怎么变成这样】\n{thread[:200]}"
                     blocks.append(l3_text)
                     layers["layer3_cause"] = l3_text
+                elif total_triples >= 5:
+                    # weave空但有三元组，展示统计摘要
+                    top_relations = stats.get("relations", [])[:3]
+                    rel_summary = "；".join(f"{r[0]}({r[1]})" for r in top_relations if r[1] > 0)
+                    if rel_summary:
+                        l3_text = f"【你怎么变成这样】\n织线{total_triples}条，主要关系：{rel_summary}"
+                        blocks.append(l3_text)
+                        layers["layer3_cause"] = l3_text
         except Exception:
             pass
 
