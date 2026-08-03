@@ -1,4 +1,4 @@
-// 轻如烟 · 沙漏注入插件 v6.2
+// 轻如烟 · 沙漏注入插件 v6.4
 // 2026-07-26：修复prefetch多行prompt导致Python语法错误
 // 核心改变：query清理换行+截断100字符，块1简化为画像/场景上下文
 // 2026-08-03（P1.1）：L0 怀疑灯——5类免费信号（矛盾/利害/FOK/惊讶/纠错）检测，
@@ -11,6 +11,14 @@
 //   feature flag QINGRUYAN_GHOST_DECISION=off 关闭；失败静默降级
 // 2026-08-03（P2.4）：topic_risk.json——风险分维护（失败+2/夜巡+3/审查-1/日衰减0.5，≥4升级 ≥8强制）+
 //   高风险注入提示；feature flag QINGRUYAN_TOPIC_RISK=off 关闭；原子写+串行锁
+// 2026-08-03（P3.1）：L3 子代理审查——高风险检测（不可逆操作/金额承诺/topic_risk≥4/连续否定2次）→
+//   注入 🚨 建议审查 + 原子写 /tmp/l3-review-request.json（主AI/夜巡消费）；同一主题1h去重；
+//   feature flag QINGRUYAN_L3_REVIEW=off 关闭；插件无 sessions_spawn 权限，只提需求不自动 spawn
+// 2026-08-03（P3.2）：记忆信任度注入加权——prefetch 候选排序改 relatedness × freshness_weight；
+//   数据层 /tmp/memory-trust.json 就绪用真实公式 1/(1+age)×(1-反驳率)，否则年龄分桶降级+doubt.db 反驳近似；
+//   被推翻≥2次权重压到 0.1（防回声室）；feature flag QINGRUYAN_MEMORY_TRUST=off；注入格式不变（📋 相关记忆 3条）
+// 2026-08-03（P3.3）：反教条提示——记忆被引用≥3次且>30天 → ⚠️ 复核提示（每天每topic≤1次，全局日≤3次兜底）；
+//   或匹配夜巡 /tmp/observer-alerts.json“可能已过时”警讯；feature flag QINGRUYAN_ANTI_DOGMA=off
 
 const { spawn, execSync } = require("child_process");
 const crypto = require("crypto");
@@ -479,6 +487,7 @@ async function getPrefetchBlock(query) {
   const cached = prefetchCacheGet(hash);
   if (cached) {
     refreshFokSidecar(cleanQuery, cached.fokSim);
+    trackInjectedFromBlock(cached.result); // P3.3: 缓存命中也是注入，引用计数照记
     return cached.result; // 24h 内二次命中 0 延迟
   }
   const [pyRes, shoujiCands] = await Promise.all([
@@ -496,7 +505,11 @@ async function getPrefetchBlock(query) {
   const { guide, status, candidates } = parsePrefetchOutput(pyRes.out);
   const fokSim = readFokSim();
   const merged = mergeCandidates(candidates, shoujiCands);
-  const top = diversifyCandidates(merged, 3);
+  // P3.2: 记忆信任度加权（relatedness × freshness_weight）——旧记忆/被推翻记忆降权
+  const weighted = await applyTrustWeighting(merged);
+  const top = diversifyCandidates(weighted, 3);
+  // P3.3: 登记本次注入引用的记忆（反教条引用计数）
+  trackInjectedMemories(top);
   const parts = [];
   if (guide) parts.push(guide);
   if (top.length) parts.push(buildMemoryBlock(top));
@@ -696,6 +709,417 @@ function highRiskLine() {
   if (!high.length) return "";
   const names = high.map(([t, s]) => `${t}(${s})`).slice(0, 3).join("、");
   return `🚨 高风险主题: ${names}`;
+}
+
+// ═══════ P3.1 L3 子代理审查（高风险触发 → 注入提示 + 审查请求文件） ═══════
+// feature flag: QINGRUYAN_L3_REVIEW=off 关闭
+// 插件无 sessions_spawn 权限，只负责“提出审查需求”：注入区提示 + 原子写 /tmp/l3-review-request.json，
+// 由主 AI 响应提示主动触发 sessions_spawn，或夜巡消费请求文件。
+// 触发源：不可逆操作 / 金额承诺 / topic_risk≥4 连续失败 / 用户连续否定2次
+// 去重：同一主题 1 小时内只写一次（原子写）
+const L3_FLAG = process.env.QINGRUYAN_L3_REVIEW !== "off";
+const L3_REVIEW_FILE = "/tmp/l3-review-request.json";
+const L3_STATE_FILE = "/tmp/l3-review-state.json";
+const L3_DEDUP_TTL = 3600 * 1000; // 同一主题 1h 去重
+const L3_IRREVERSIBLE_RE = /(删除|删掉|删了|覆盖|覆写|迁移|搬家|发布|上线|部署|格式化|清空|重置|初始化|rm\s+-[a-z]+|drop\s+table|truncate\s+table|覆盖写入)/i;
+const L3_MONEY_AMOUNT_RE = /(?:¥|￥|\$)\s*\d+|\d+(?:\.\d+)?\s*(?:元|块|万|千|美元|美金|欧元|日元|人民币)/;
+const L3_MONEY_COMMIT_RE = /(答应|承诺|保证|说好|约好|付款|转账|还款|价格|报价)/;
+const L3_NEGATION_RE = /(你错了|你说错了|你又说错了|不对|不是这样|不是这个|不是那么回事|你理解错了|理解错了|你搞错了|搞错了|你记错了|记错了|你弄错了|弄错了|说得不对|说反了|你根本没|打脸|翻车|更正|纠正)/;
+
+// 主题键：去口语前缀/语气，取前30字（L3 去重、反教条日频控共用）
+function deriveTopicKey(prompt) {
+  let p = String(prompt || "").trim();
+  p = p.replace(/^(姐姐|dandan|烟|小烟|那个|对了|还有|顺便|帮我|请|麻烦你|话说|我说|我想问|问一下|你)[，,：:\s]*/, "");
+  p = p.replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim();
+  return p.substring(0, 30) || "(未知)";
+}
+
+// 同一主题 1 小时内只写一次；通过则记录并返回 true
+function l3Dedup(topicKey) {
+  const hash = md5(String(topicKey || ""));
+  let state = { topics: {} };
+  try {
+    if (fs.existsSync(L3_STATE_FILE)) state = JSON.parse(fs.readFileSync(L3_STATE_FILE, "utf-8"));
+  } catch (e) {}
+  if (!state.topics) state.topics = {};
+  const now = Date.now();
+  if (state.topics[hash] && now - state.topics[hash] < L3_DEDUP_TTL) return false;
+  state.topics[hash] = now;
+  for (const k of Object.keys(state.topics)) {
+    if (now - state.topics[k] > 24 * 3600 * 1000) delete state.topics[k];
+  }
+  try {
+    fs.writeFileSync(L3_STATE_FILE + ".tmp", JSON.stringify(state));
+    fs.renameSync(L3_STATE_FILE + ".tmp", L3_STATE_FILE);
+  } catch (e) {}
+  return true;
+}
+
+// 原子写审查请求文件（供主 AI / 夜巡消费）
+function writeL3ReviewRequest(reason, topic, prompt) {
+  const req = {
+    time: new Date().toISOString(),
+    reason,
+    topic,
+    context_preview: String(prompt || "").replace(/[\r\n\t]+/g, " ").substring(0, 120),
+  };
+  const tmp = L3_REVIEW_FILE + ".tmp." + process.pid;
+  fs.writeFileSync(tmp, JSON.stringify(req, null, 2));
+  fs.renameSync(tmp, L3_REVIEW_FILE); // 原子替换
+  return req;
+}
+
+// 用户连续否定检测：当前 prompt + 最近一条用户消息均为否定 → ≥2 次
+function countConsecutiveNegations(prompt, messages) {
+  let n = 0;
+  try { if (L3_NEGATION_RE.test(prompt)) n = 1; } catch (e) {}
+  if (Array.isArray(messages)) {
+    for (let i = messages.length - 1; i >= 0 && n < 2; i--) {
+      const m = messages[i];
+      if (!m || m.role !== "user") continue;
+      let c = "";
+      if (typeof m.content === "string") c = m.content;
+      else if (Array.isArray(m.content)) c = m.content.map((p) => (p && p.text) || "").join(" ");
+      if (c && c === prompt) continue; // 当前消息已在上方计过
+      if (L3_NEGATION_RE.test(c)) n++;
+      else break; // 最近一条用户消息非否定 → 断链
+    }
+  }
+  return n;
+}
+
+// 高风险检测：返回 {reason, topic} 或 null
+function detectL3Review(prompt, messages) {
+  const reasons = [];
+  let topic = deriveTopicKey(prompt);
+  try { if (L3_IRREVERSIBLE_RE.test(prompt)) reasons.push("检测到不可逆操作词（删除/覆盖/迁移/发布等）"); } catch (e) {}
+  try {
+    if (L3_MONEY_AMOUNT_RE.test(prompt) && L3_MONEY_COMMIT_RE.test(prompt)) reasons.push("涉及金额承诺");
+  } catch (e) {}
+  try { if (countConsecutiveNegations(prompt, messages) >= 2) reasons.push("用户连续否定2次"); } catch (e) {}
+  try {
+    const scores = readTopicRiskScores();
+    const pTokens = tokenizeText(prompt);
+    for (const [t, s] of Object.entries(scores)) {
+      if (s < TOPIC_RISK_UPGRADE) continue;
+      // 同主题连续失败：仅当当前 prompt 与风险主题相关才触发（避免无关话题也被牵连）
+      const tTokens = tokenizeText(t);
+      let inter = 0;
+      for (const x of tTokens) if (pTokens.has(x)) inter++;
+      const overlap = tTokens.size ? inter / tTokens.size : 0;
+      if (prompt.includes(t) || overlap >= 0.34) {
+        reasons.push(`主题「${t}」风险分${s}≥${TOPIC_RISK_UPGRADE}（连续失败）`);
+        topic = t; // 去重按风险主题名
+        break;
+      }
+    }
+  } catch (e) {}
+  if (!reasons.length) return null;
+  return { reason: reasons.join("；"), topic };
+}
+
+// 返回注入行（命中且去重通过）；同时原子写请求文件
+function l3ReviewLine(prompt, messages) {
+  if (!L3_FLAG) return "";
+  try {
+    const hit = detectL3Review(prompt, messages);
+    if (!hit) return "";
+    if (!l3Dedup(hit.topic)) return ""; // 同一主题 1h 内只提示/写一次
+    writeL3ReviewRequest(hit.reason, hit.topic, prompt);
+    return `🚨 建议审查: ${hit.reason}`;
+  } catch (e) {
+    writeAlert(`l3 review error: ${e.message}`);
+    return "";
+  }
+}
+
+// ═══════ P3.2 记忆信任度注入加权（relatedness × freshness_weight） ═══════
+// feature flag: QINGRUYAN_MEMORY_TRUST=off 关闭
+// 数据层接口就绪（/tmp/memory-trust.json 含 rebuttal_count/reference_count）→ 用真实公式
+//   freshness_weight = 1/(1+age_days) × (1 - 反驳率)，反驳率 = rebuttal_count/(reference_count+1)
+// 未就绪 → 保守降级：年龄分桶（7天1.0/30天0.7/90天0.4/更久0.2）× (1 - doubt.db 反驳近似/2)
+// 被推翻 ≥2 次 → 权重压到 0.1（防回声室）；注入格式不变（📋 相关记忆 3条）
+const TRUST_FLAG = process.env.QINGRUYAN_MEMORY_TRUST !== "off";
+const TRUST_FILE = "/tmp/memory-trust.json";
+const DOUBT_DB_PATH = "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass/doubt.db";
+const TRUST_OVERTURN_MIN = 2;
+const TRUST_FLOOR = 0.1;
+const TRUST_CACHE_TTL = 3600 * 1000;
+const TRUST_FUZZY_MAX_KEYS = 300; // 模糊匹配上限，防止超大信任表拖慢注入
+let trustCache = { ts: 0, data: null, source: "none" };
+
+// 记忆日期 → 年龄（天）
+function memoryAgeDays(ts) {
+  if (!ts) return 0;
+  const t = Date.parse(String(ts).substring(0, 10));
+  if (Number.isNaN(t)) return 0;
+  return Math.max(0, (Date.now() - t) / 86400000);
+}
+
+// 降级年龄分桶权重
+function degradationWeight(ageDays) {
+  if (ageDays <= 7) return 1.0;
+  if (ageDays <= 30) return 0.7;
+  if (ageDays <= 90) return 0.4;
+  return 0.2;
+}
+
+// 候选记忆指纹（ln 优先，否则 日期+文本前缀）
+function memoryFingerprint(cand) {
+  if (cand && cand.ln && String(cand.ln).trim()) return "ln:" + String(cand.ln).trim();
+  const txt = String((cand && cand.txt) || "");
+  return "tx:" + md5(String((cand && cand.ts) || "").substring(0, 10) + "|" + txt.substring(0, 60));
+}
+
+// 真实数据层：/tmp/memory-trust.json（{memories|entries: {指纹或ln: {rebuttal_count, reference_count, ...}}}）
+function readTrustFile() {
+  try {
+    if (!fs.existsSync(TRUST_FILE)) return null;
+    const raw = JSON.parse(fs.readFileSync(TRUST_FILE, "utf-8"));
+    const mems = (raw && (raw.memories || raw.entries)) || raw;
+    if (mems && typeof mems === "object" && !Array.isArray(mems)) return { source: "file", data: mems };
+  } catch (e) {}
+  return null;
+}
+
+// 降级数据源：doubt.db answer_changed=true 按 topic 计数（异步 spawn + 1h 缓存，失败静默降级）
+function queryDoubtRebuttals() {
+  return new Promise((resolve) => {
+    if (!fs.existsSync(DOUBT_DB_PATH)) { resolve({ source: "none", data: {} }); return; }
+    const script = `import sqlite3, json
+db = '${DOUBT_DB_PATH}'
+out = {}
+try:
+    conn = sqlite3.connect(db)
+    cur = conn.cursor()
+    cur.execute("SELECT topic, COUNT(*) FROM doubt_episode WHERE answer_changed=1 GROUP BY topic")
+    for t, c in cur.fetchall():
+        if t: out[str(t)] = int(c)
+    conn.close()
+except Exception:
+    pass
+print(json.dumps(out))
+`;
+    let py;
+    try {
+      py = spawn("python3", ["-c", script], { stdio: ["ignore", "pipe", "ignore"] });
+    } catch (e) { resolve({ source: "none", data: {} }); return; }
+    let stdout = "", timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; try { py.kill("SIGTERM"); } catch (e) {} resolve({ source: "none", data: {} }); }, 3000);
+    py.stdout.on("data", (d) => { stdout += d.toString(); });
+    py.on("close", () => {
+      clearTimeout(timer);
+      if (timedOut) return;
+      try { resolve({ source: "doubtdb", data: JSON.parse(stdout.trim()) }); }
+      catch (e) { resolve({ source: "none", data: {} }); }
+    });
+    py.on("error", () => { clearTimeout(timer); resolve({ source: "none", data: {} }); });
+  });
+}
+
+// 信任数据（file 优先，doubt.db 兜底；1h 缓存）
+async function readTrustData() {
+  if (trustCache.data && Date.now() - trustCache.ts < TRUST_CACHE_TTL) return trustCache;
+  const fileData = readTrustFile();
+  if (fileData) { trustCache = { ts: Date.now(), ...fileData }; return trustCache; }
+  const dbData = await queryDoubtRebuttals();
+  trustCache = { ts: Date.now(), ...dbData };
+  return trustCache;
+}
+
+// 候选记忆 → 对应信任条目（指纹/ln 精确优先，文本模糊兜底）
+function matchTrustEntry(cand, trustData) {
+  if (!trustData || typeof trustData !== "object") return null;
+  const fp = memoryFingerprint(cand);
+  if (trustData[fp]) return trustData[fp];
+  if (cand && cand.ln && trustData[String(cand.ln)]) return trustData[String(cand.ln)];
+  const txt = String((cand && cand.txt) || "");
+  if (!txt) return null;
+  let best = null, bestSim = 0.2;
+  const keys = Object.keys(trustData);
+  if (keys.length > TRUST_FUZZY_MAX_KEYS) return null;
+  for (const k of keys) {
+    const v = trustData[k];
+    if (!v || typeof v !== "object") continue;
+    const sim = textSimilarity(txt, String(k));
+    if (sim > bestSim) { bestSim = sim; best = v; }
+  }
+  return best;
+}
+
+// 单条记忆信任权重
+function computeTrustWeight(cand, trust) {
+  const age = memoryAgeDays(cand && cand.ts);
+  const entry = matchTrustEntry(cand, trust.data);
+  const rebuttals = Math.max(0, Number((entry && (entry.rebuttal_count ?? entry.rebuttals ?? entry.overturn_count)) || 0));
+  let w;
+  if (trust.source === "file") {
+    const refs = Math.max(1, Number((entry && (entry.reference_count ?? entry.refs ?? entry.references)) || 1));
+    w = (1 / (1 + age)) * (1 - rebuttals / (refs + 1)); // 数据层公式
+  } else {
+    w = degradationWeight(age) * (1 - rebuttals / 2);   // 降级：年龄分桶 × (1-反驳率近似, refs≈1)
+  }
+  if (rebuttals >= TRUST_OVERTURN_MIN) w = Math.min(w, TRUST_FLOOR); // 被推翻≥2次 → 0.1
+  return Math.max(0, w);
+}
+
+// 加权排序：relatedness(检索位置) × freshness_weight；任何异常原序返回
+async function applyTrustWeighting(candidates) {
+  if (!TRUST_FLAG || !Array.isArray(candidates) || candidates.length < 2) return candidates;
+  let trust;
+  try { trust = await readTrustData(); } catch (e) { return candidates; }
+  const scored = candidates.map((c, idx) => ({
+    c,
+    score: (1 / (idx + 1)) * computeTrustWeight(c, trust), // 检索返回顺序即相关度
+  }));
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((s) => s.c);
+}
+
+// ═══════ P3.3 反教条提示（高引用旧记忆复核 + 夜巡 observer-alerts 匹配） ═══════
+// feature flag: QINGRUYAN_ANTI_DOGMA=off 关闭
+// 记忆在最近注入中被引用 ≥3 次 且 记忆年龄 >30 天 → ⚠️ 复核提示
+// 或夜巡 /tmp/observer-alerts.json 产出“可能已过时”警讯且 topic 匹配 → 同样提示
+// 低频：每天同一 topic 最多 1 次；全局每日 ≤3 次兜底
+const DOGMA_FLAG = process.env.QINGRUYAN_ANTI_DOGMA !== "off";
+const DOGMA_REFS_FILE = "/tmp/anti-dogma-refs.json";
+const DOGMA_OBSERVER_FILE = "/tmp/observer-alerts.json";
+const DOGMA_REF_MIN = 3;
+const DOGMA_AGE_DAYS = 30;
+const DOGMA_DAILY_MAX = 3; // 全局每日兜底（防刷屏）
+const DOGMA_STALE_KEYWORDS = ["过时", "已过时", "可能已过时", "stale"];
+
+function defaultDogmaRefs() { return { refs: {}, nudges: {}, daily: {} }; }
+
+function loadDogmaRefs() {
+  let s = defaultDogmaRefs();
+  try {
+    if (fs.existsSync(DOGMA_REFS_FILE)) s = JSON.parse(fs.readFileSync(DOGMA_REFS_FILE, "utf-8"));
+  } catch (e) {}
+  if (!s.refs || typeof s.refs !== "object") s.refs = {};
+  if (!s.nudges || typeof s.nudges !== "object") s.nudges = {};
+  if (!s.daily || typeof s.daily !== "object") s.daily = {};
+  return s;
+}
+
+function saveDogmaRefs(s) {
+  try {
+    fs.writeFileSync(DOGMA_REFS_FILE + ".tmp", JSON.stringify(s));
+    fs.renameSync(DOGMA_REFS_FILE + ".tmp", DOGMA_REFS_FILE);
+  } catch (e) {}
+}
+
+// 每次注入后登记被引用的记忆（引用计数；30天未再引用则清理）
+function trackInjectedMemories(cands) {
+  if (!DOGMA_FLAG || !Array.isArray(cands) || !cands.length) return;
+  try {
+    const s = loadDogmaRefs();
+    const now = Date.now();
+    for (const c of cands) {
+      const fp = memoryFingerprint(c);
+      const e = s.refs[fp] || {
+        count: 0,
+        firstTs: now,
+        lastTs: now,
+        memTs: String((c && c.ts) || "").substring(0, 10),
+        summary: String((c && c.txt) || "").replace(/\s+/g, " ").substring(0, 60),
+      };
+      e.count = (Number(e.count) || 0) + 1;
+      e.lastTs = now;
+      s.refs[fp] = e;
+    }
+    for (const k of Object.keys(s.refs)) {
+      if (now - s.refs[k].lastTs > 30 * 86400000) delete s.refs[k];
+    }
+    saveDogmaRefs(s);
+  } catch (e) {}
+}
+
+// TTL 缓存命中也是注入，从注入块解析记忆行登记引用
+function trackInjectedFromBlock(block) {
+  if (!DOGMA_FLAG || !block) return;
+  try {
+    const cands = [];
+    for (const line of String(block).split("\n")) {
+      const m = line.match(/^\s*\[(\d{4}-\d{2}-\d{2}[^\]]*)\]\s+(.+)$/);
+      if (m) cands.push({ ts: m[1].trim(), txt: m[2] });
+    }
+    if (cands.length) trackInjectedMemories(cands);
+  } catch (e) {}
+}
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// 夜巡 observer-alerts.json：topic 与当前 prompt 匹配 且 含“过时”类警讯
+function matchObserverStaleAlert(prompt) {
+  try {
+    if (!fs.existsSync(DOGMA_OBSERVER_FILE)) return null;
+    const arr = JSON.parse(fs.readFileSync(DOGMA_OBSERVER_FILE, "utf-8"));
+    if (!Array.isArray(arr)) return null;
+    const pTokens = tokenizeText(prompt);
+    for (const a of arr) {
+      const topic = String((a && a.topic) || "");
+      if (!topic) continue;
+      const tTokens = tokenizeText(topic);
+      let inter = 0;
+      for (const x of tTokens) if (pTokens.has(x)) inter++;
+      const overlap = tTokens.size ? inter / tTokens.size : 0;
+      const blob = String((a && (a.suggestion || a.evidence || a.tag)) || "") + " " + topic;
+      const stale = DOGMA_STALE_KEYWORDS.some((k) => blob.includes(k));
+      if (stale && (prompt.includes(topic) || overlap >= 0.34)) {
+        return { summary: topic };
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+// 返回复核提示行（低频：每天每 topic 1 次 + 全局每日 ≤3 次）
+function antiDogmaLine(prompt) {
+  if (!DOGMA_FLAG || !prompt) return "";
+  try {
+    const topicKey = deriveTopicKey(prompt);
+    const s = loadDogmaRefs();
+    const now = Date.now();
+    const today = todayKey();
+    if (s.daily[today] && s.daily[today] >= DOGMA_DAILY_MAX) return ""; // 全局兜底
+    const nudgeKey = md5(topicKey);
+    if (s.nudges[nudgeKey] === today) return ""; // 同一 topic 每天最多 1 次
+
+    let candidate = null;
+    for (const [fp, e] of Object.entries(s.refs)) {
+      if (!e) continue;
+      if (Number(e.count) >= DOGMA_REF_MIN && memoryAgeDays(e.memTs) > DOGMA_AGE_DAYS) {
+        if (!candidate || Number(e.count) > Number(candidate.count)) candidate = e;
+      }
+    }
+    const obs = matchObserverStaleAlert(prompt);
+    if (obs) candidate = { summary: obs.summary, obs: true }; // 夜巡警讯优先（证据更强）
+    if (!candidate) return "";
+
+    s.nudges[nudgeKey] = today;
+    s.daily[today] = (s.daily[today] || 0) + 1;
+    // 清理：nudges 保留 7 天，daily 保留 2 天
+    for (const k of Object.keys(s.nudges)) {
+      const d = s.nudges[k];
+      if (typeof d !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) { delete s.nudges[k]; continue; }
+      const dt = Date.parse(d);
+      if (!Number.isNaN(dt) && now - dt > 7 * 86400000) delete s.nudges[k];
+    }
+    for (const k of Object.keys(s.daily)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) { delete s.daily[k]; continue; }
+      const dt = Date.parse(k);
+      if (!Number.isNaN(dt) && now - dt > 2 * 86400000) delete s.daily[k];
+    }
+    saveDogmaRefs(s);
+    return `⚠️ 复核提示: 这条记忆已过时? ${String(candidate.summary || "").substring(0, 50)}`;
+  } catch (e) {
+    writeAlert(`anti-dogma error: ${e.message}`);
+    return "";
+  }
 }
 
 // ═══════ 四层注入（system_prompt_block） ═══════
@@ -984,6 +1408,33 @@ module.exports = {
     read: readTopicRiskScores,
     highRiskLine,
   },
+  // P3.1: L3 审查请求文件（主 AI / 夜巡消费；原子写）
+  l3Review: {
+    file: L3_REVIEW_FILE,
+    request: writeL3ReviewRequest,
+  },
+  // P3.2: 记忆信任加权（数据层就绪用真实数据，否则降级）
+  trust: {
+    file: TRUST_FILE,
+    applyWeighting: applyTrustWeighting,
+  },
+  // P3.3: 反教条引用账本文件
+  antiDogma: {
+    refsFile: DOGMA_REFS_FILE,
+  },
+  // 测试钩子：纯函数，供端到端/单元验证（不改变运行行为）
+  _test: {
+    deriveTopicKey,
+    detectL3Review,
+    l3ReviewLine,
+    countConsecutiveNegations,
+    memoryAgeDays,
+    degradationWeight,
+    computeTrustWeight,
+    applyTrustWeighting,
+    antiDogmaLine,
+    trackInjectedMemories,
+  },
   register(api) {
     api.on(
       "before_prompt_build",
@@ -1066,6 +1517,16 @@ module.exports = {
         try { ghostLine = await maybeGhostDecision(prompt); } catch(e) { writeAlert(`ghost decision error: ${e.message}`); }
         if (ghostLine) parts.push(ghostLine);
 
+        // === Part 3d: P3.1 L3 审查请求（高风险触发 → 🚨 建议审查 + /tmp/l3-review-request.json） ===
+        let l3Line = "";
+        try { l3Line = l3ReviewLine(prompt, event.messages); } catch(e) { writeAlert(`l3 review error: ${e.message}`); }
+        if (l3Line) parts.push(l3Line);
+
+        // === Part 3e: P3.3 反教条复核提示（高引用旧记忆/夜巡警讯，每天每topic≤1次） ===
+        let dogmaLine = "";
+        try { dogmaLine = antiDogmaLine(prompt); } catch(e) { writeAlert(`anti-dogma error: ${e.message}`); }
+        if (dogmaLine) parts.push(dogmaLine);
+
         // === Part 4: 纠错→三元组教训（P1.3，后台写沙漏，不阻塞主流程） ===
         try {
           maybeCaptureLesson(prompt, event.messages);
@@ -1078,7 +1539,7 @@ module.exports = {
         // 调试日志
         try {
           fs.writeFileSync("/tmp/plugin-injected.txt", new Date().toISOString());
-          const detail = `系统块: ${systemBlock ? "✅" : "❌"} | 预搜块: ${prefetchBlock ? "✅" : "❌"} | 报警: ${alert ? "⚠️" : "无"} | 怀疑灯: ${doubtLine ? "💡" : "—"} | 幽灵: ${ghostLine ? "👻" : "—"} | 风险: ${riskLine ? "🚨" : "—"}`;
+          const detail = `系统块: ${systemBlock ? "✅" : "❌"} | 预搜块: ${prefetchBlock ? "✅" : "❌"} | 报警: ${alert ? "⚠️" : "无"} | 怀疑灯: ${doubtLine ? "💡" : "—"} | 幽灵: ${ghostLine ? "👻" : "—"} | 风险: ${riskLine ? "🚨" : "—"} | 审查: ${l3Line ? "🛡️" : "—"} | 复核: ${dogmaLine ? "🔁" : "—"}`;
           fs.writeFileSync("/tmp/last-injection.txt", `${new Date().toISOString()} | ${detail}`);
           fs.writeFileSync("/tmp/plugin-doubt.txt", doubtLine || "(无信号)");
           fs.writeFileSync("/tmp/last-injection-body.txt", injectionContent.substring(0, 2000));
