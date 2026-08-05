@@ -1,0 +1,25 @@
+# tasks.yaml — 主调度器任务配置（Phase 2 / D6 接入真实任务）
+# ============================================================
+# 读取方: src/task_scheduler.py 的 _load_tasks_from_yaml()
+# 占位符: {CODE_DIR}=iso-sand根, {SRC_DIR}=iso-sand/src, {DEPLOY_DIR}=iso-sand/deploy,
+#         {DATA_DIR}=iso-sand/data, {BASE_DIR}=上层目录
+# 目标校验: command 指向的 .py 不存在 → 调度器 WARN 并跳过该任务
+#
+# ⚠️ fork tasks.yaml（丰碑 event_bus）的 4 条任务（health_check/db_maintenance/
+#    freeze_check/periodic_sync）**本次全部不接入**，原因见 PHASE2_CHANGELOG：
+#    - 它们是丰碑域任务，属于 fork 自己的调度器 + Phase 2 D5（monument_bridge）范畴
+#    - 在 iso-sand 布局下 {CODE_DIR}/core/*.py 解析为 iso-sand/core/（不存在）
+#    - db_maintenance 跑 database.py（迁移/清理），主总线重复执行有风险
+#  新子系统接入调度 = 在本文件追加任务（或注册 handler），不再改代码。
+
+scheduler:
+  tick_interval: 30
+
+tasks:
+  # 主总线健康心跳：写 sandglass.heartbeat 事件（v1.1 契约）证明调度器活着
+  # 首次启动首个 tick（30s 内）即执行一次；此后每 5 分钟一次
+  - id: bus_heartbeat
+    schedule: "*/5 * * * *"
+    command: "python3 '{DEPLOY_DIR}/heartbeat.py'"
+    timeout: 30
+    description: "主总线心跳：写 sandglass.heartbeat 事件证明调度器存活（v1.1 契约）"
