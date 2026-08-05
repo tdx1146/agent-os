@@ -36,7 +36,7 @@ CLI：
   （在 scripts/ 目录下运行，或 PYTHONPATH=scripts）
 
 环境变量：
-  NEXSANDBASE_HOME  沙漏数据目录（默认 /vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass）
+  NEXSANDBASE_HOME  沙漏数据目录（默认 /vol2/1000/AI专用/所有自动化/轻如烟/sandglass）
 """
 
 import argparse
@@ -52,11 +52,11 @@ from datetime import datetime
 # ── 路径（与 night_patrol.py / lesson_capture.py 一致）─────────
 _SANDBASE_HOME = os.environ.get(
     "NEXSANDBASE_HOME",
-    "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass",
+    "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass",
 )
 _DOUBT_DB = os.path.join(_SANDBASE_HOME, "doubt.db")
 _SANDGLASS_DB = os.path.join(_SANDBASE_HOME, "sandglass.db")
-_OP_LOG = "/vol1/@team/qh团队/QH/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
+_OP_LOG = "/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
 _TRUST_JSON = "/tmp/memory-trust.json"
 _TRUST_JSON_LOCK = "/tmp/memory-trust.lock"
 

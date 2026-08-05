@@ -21,12 +21,12 @@
 # ── 环境（cron 下 HOME/PATH 可能与交互 shell 不同，必须显式）──
 export HOME=/vol1/@apphome/trim.openclaw/data/home
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin
-export NEXSANDBASE_HOME="/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass"
+export NEXSANDBASE_HOME="/vol2/1000/AI专用/所有自动化/轻如烟/sandglass"
 
 WORKSPACE=/vol1/@apphome/trim.openclaw/data/workspace
 SCRIPTS="$WORKSPACE/scripts"
 LOG_DIR="$WORKSPACE/logs"
-OP_LOG="/vol1/@team/qh团队/QH/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
+OP_LOG="/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
 RUN_LOG="$LOG_DIR/night-patrol.log"
 MARKER="$LOG_DIR/night_patrol.last_run"
 LOCK=/tmp/night_patrol.lock
@@ -48,7 +48,7 @@ from datetime import datetime
 level, actor, action, result, detail = sys.argv[1:6]
 rec = {"t": datetime.now().isoformat(), "level": level.upper(), "actor": actor,
        "action": action, "target": "night_patrol", "result": result, "detail": detail}
-with open("/vol1/@team/qh团队/QH/AI专用/Agent OS/iso-sand/data/operation_log.jsonl",
+with open("/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl",
           "a", encoding="utf-8") as f:
     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 PYEOF

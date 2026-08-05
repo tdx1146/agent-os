@@ -25,7 +25,7 @@
   python3 night_patrol.py --output /tmp/x.json
 
 环境变量：
-  NEXSANDBASE_HOME  沙漏数据目录（默认 /vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass）
+  NEXSANDBASE_HOME  沙漏数据目录（默认 /vol2/1000/AI专用/所有自动化/轻如烟/sandglass）
 """
 
 import json
@@ -37,11 +37,11 @@ from datetime import datetime, timedelta
 # ── 路径（绝对化，规划文件清单）────────────────────────────────
 SANDBASE_HOME = os.environ.get(
     "NEXSANDBASE_HOME",
-    "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass",
+    "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass",
 )
 SANDBASE_DB = os.path.join(SANDBASE_HOME, "sandglass.db")
 DOUBT_DB = os.path.join(SANDBASE_HOME, "doubt.db")
-OP_LOG = "/vol1/@team/qh团队/QH/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
+OP_LOG = "/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
 MEMORY_DIR = "/vol1/@apphome/trim.openclaw/data/workspace/memory"
 RISK_FILE = "/tmp/topic_risk.json"
 OUTPUT = "/tmp/night_patrol_input.json"

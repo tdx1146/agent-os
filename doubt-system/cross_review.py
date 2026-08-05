@@ -43,14 +43,14 @@ import urllib.error
 from datetime import datetime, timedelta
 
 # ── 路径 ─────────────────────────────────────────────────────
-_SOURCE_DIR = "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass_source"
+_SOURCE_DIR = "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source"
 _SANDBASE_HOME = os.environ.get(
     "NEXSANDBASE_HOME",
-    "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass",
+    "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass",
 )
 os.environ.setdefault("NEXSANDBASE_HOME", _SANDBASE_HOME)
 _SANDGLASS_TXT = os.path.join(_SANDBASE_HOME, "sandglass.txt")
-_OP_LOG = "/vol1/@team/qh团队/QH/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
+_OP_LOG = "/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
 
 INJECT_URL = os.environ.get(
     "CROSS_REVIEW_URL", "http://jiali.tdx1146.com:18888/api/inject"

@@ -1,0 +1,90 @@
+# event_rules.yaml — 消费规则表
+# v0.6.0 — Phase 1 统一总线骨架（D3：从丰碑 fork 移植安全加固）
+#
+# 规则匹配：基于 event_type + result 组合，命中后执行指定动作
+# 动作格式：exec + script（安全版，v0.6.0）
+#   - exec:   仅允许 python / python3（消费者白名单校验）
+#   - script: Python 代码，事件数据经环境变量 EVENT_DATA（JSON）传入，
+#             不插入命令字符串 → 零 shell 注入面
+#   - 环境变量: EVENT_DATA / DATA_DIR / CODE_DIR / BASE_DIR
+# 旧格式 command（shell 模板）已废弃，仅消费者端保留兼容路径（不建议新规则使用）。
+
+rules:
+
+  - id: "rule-task-complete"
+    description: "任务完成后桥接下游机制（审计任务完成）"
+    match:
+      event_type: task_complete
+      result: OK
+    action:
+      type: bridge
+      target: xuanjian_audit
+      exec: "python3"
+      script: |
+        import json, os, subprocess, sys
+        event = json.loads(os.environ.get("EVENT_DATA", "{}"))
+        trace_id = str(event.get("trace_id", "unknown"))
+        # 等价于旧命令: python3 /vol2/1000/AI专用/丰碑网络/code/core/audit.py --event {trace_id}
+        # subprocess 数组传参 + shell=False，无注入面
+        audit_py = "/vol2/1000/AI专用/丰碑网络/code/core/audit.py"
+        result = subprocess.run(
+            [sys.executable, audit_py, "--event", trace_id],
+            timeout=25, capture_output=True, text=True, shell=False,
+        )
+        if result.returncode != 0:
+            raise SystemExit(f"audit.py failed: {result.stderr[:200]}")
+    max_retries: 3
+    rate_limit: 1.0  # 秒，同一规则最小间隔
+
+  - id: "rule-anomaly-escalate"
+    description: "检测到异常时升级告警"
+    match:
+      event_type: anomaly
+      result: FAIL
+    action:
+      type: escalate
+      target: alert_channel
+      exec: "python3"
+      script: |
+        import json, os, datetime
+        event = json.loads(os.environ.get("EVENT_DATA", "{}"))
+        # 等价于旧命令: echo '[ALERT] 异常事件: {detail}' >> /vol2/1000/AI专用/丰碑网络/data/alerts.log
+        alert_path = "/vol2/1000/AI专用/丰碑网络/data/alerts.log"
+        entry = {
+            "t": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).isoformat(),
+            "level": "ALERT",
+            "event_type": "anomaly",
+            "result": "FAIL",
+            "producer": str(event.get("producer", "unknown")),
+            "detail": str(event.get("detail", "")),
+            "trace_id": str(event.get("trace_id", "unknown")),
+        }
+        os.makedirs(os.path.dirname(alert_path), exist_ok=True)
+        with open(alert_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    max_retries: 2
+    rate_limit: 5.0
+
+  - id: "rule-audit-archive"
+    description: "审计完成后归档结果"
+    match:
+      event_type: audit_result
+      result: OK
+    action:
+      type: archive
+      target: log_archive
+      exec: "python3"
+      script: |
+        import json, os, subprocess, sys
+        event = json.loads(os.environ.get("EVENT_DATA", "{}"))
+        trace_id = str(event.get("trace_id", "unknown"))
+        # 等价于旧命令: python3 /vol2/1000/AI专用/丰碑网络/code/core/archive.py --event {trace_id}
+        archive_py = "/vol2/1000/AI专用/丰碑网络/code/core/archive.py"
+        result = subprocess.run(
+            [sys.executable, archive_py, "--event", trace_id],
+            timeout=25, capture_output=True, text=True, shell=False,
+        )
+        if result.returncode != 0:
+            raise SystemExit(f"archive.py failed: {result.stderr[:200]}")
+    max_retries: 3
+    rate_limit: 2.0

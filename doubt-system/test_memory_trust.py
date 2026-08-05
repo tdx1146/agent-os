@@ -6,8 +6,7 @@ memory_trust 测试（自我怀疑系统 P3.2 数据层）
 临时库验证：引用 / 反驳 / 时效加权 / 强制降权 / 账本联动 / JSON 输出 / CLI。
 
 运行：
-  /vol1/@apphome/trim.openclaw/data/home/agentos/living-memory-system/.venv/bin/python \
-      /vol1/@apphome/trim.openclaw/data/workspace/scripts/test_memory_trust.py
+  python3 test_memory_trust.py   # 或任意路径：脚本自定位同目录 memory_trust.py
 
 退出码：0=全部通过，1=有失败。
 """
@@ -24,12 +23,14 @@ import time
 from datetime import datetime, timedelta
 
 # 保证能 import 脚本目录里的 memory_trust
-_SCRIPTS = "/vol1/@apphome/trim.openclaw/data/workspace/scripts"
+# 用脚本自身位置推导（而非硬编码绝对路径）：文件移动/换机后依然可用，
+# 根治"旧路径漂移"类 bug（2026-08-05 修复：原硬编码 workspace/scripts 旧路径）。
+_SCRIPTS = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _SCRIPTS)
 
 import memory_trust as mt  # noqa: E402
 
-VENV_PY = "/vol1/@apphome/trim.openclaw/data/home/agentos/living-memory-system/.venv/bin/python"
+VENV_PY = "python3"
 
 NOW = time.time()
 # 注意：strftime 秒级截断（丢弃小数秒），与 time.time() 最多差 ~1s。

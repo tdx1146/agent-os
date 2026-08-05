@@ -1,0 +1,30 @@
+# ============================================================================
+# Agent OS Docker 化 — 沙漏 HTTP API（Phase 7）
+# ----------------------------------------------------------------------------
+# 设计说明（重要）：
+#   sandglass_http_api.py 内部硬编码了宿主绝对路径：
+#     - DB_PATH            = /vol2/1000/AI专用/所有自动化/轻如烟/sandglass/sandglass.db
+#     - facts 字典路径     = /vol1/@apphome/trim.openclaw/data/workspace/memory/facts.dict.md
+#     - sys.path / __file__ 相对路径（txt 兜底检索）
+#   红线：不修改组件核心代码。因此本镜像【不 COPY 源码】，
+#   由 docker-compose 以 bind mount 将宿主目录挂载到【相同绝对路径】
+#   （path-mirror 模式），所有硬编码路径在容器内原样生效。
+#   代码仍以只读方式来自宿主 sandglass_source/，数据卷来自宿主 sandglass/。
+# ============================================================================
+
+FROM python:3.11-slim
+
+LABEL org.opencontainers.image.title="agentos-sandglass" \
+      org.opencontainers.image.description="沙漏记忆系统 HTTP API（容器版，path-mirror 模式）" \
+      org.opencontainers.image.version="1.0.0"
+
+# curl 用于 compose healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# 入口由 docker-compose command 指定（挂载的源码路径）
+# 容器内监听 17333（代码硬编码），宿主端口映射由 compose 配置
+CMD ["python", "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source/sandglass_http_api.py"]

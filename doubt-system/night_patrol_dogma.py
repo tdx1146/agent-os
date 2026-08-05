@@ -29,7 +29,7 @@
   python3 night_patrol_dogma.py --self-test
 
 环境变量：
-  NEXSANDBASE_HOME   沙漏数据目录（默认 /vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass）
+  NEXSANDBASE_HOME   沙漏数据目录（默认 /vol2/1000/AI专用/所有自动化/轻如烟/sandglass）
   DOGMA_MAX_PER_DAY  每日写入上限（默认 3）
 """
 
@@ -44,16 +44,16 @@ import sys
 from datetime import datetime, timedelta
 
 # ── 路径（与 night_patrol_findings.py / lesson_capture.py 一致）─────────
-_SOURCE_DIR = "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass_source"
+_SOURCE_DIR = "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source"
 _SANDBASE_HOME = os.environ.get(
     "NEXSANDBASE_HOME",
-    "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass",
+    "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass",
 )
 os.environ.setdefault("NEXSANDBASE_HOME", _SANDBASE_HOME)
 _SANDGLASS_TXT = os.path.join(_SANDBASE_HOME, "sandglass.txt")
 _SANDBASE_DB = os.path.join(_SANDBASE_HOME, "sandglass.db")   # FTS5 镜像（只读，用于解析 memory_id）
 _DOUBT_DB = os.path.join(_SANDBASE_HOME, "doubt.db")
-_OP_LOG = "/vol1/@team/qh团队/QH/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
+_OP_LOG = "/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
 _ALERTS_FILE = "/tmp/observer-alerts.json"
 _ALERTS_LOCK = "/tmp/observer-alerts.lock"
 _STATE_FILE = "/vol1/@apphome/trim.openclaw/data/workspace/logs/dogma_state.json"

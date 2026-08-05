@@ -20,7 +20,7 @@
   python3 night_patrol_findings.py --self-test
 
 环境变量：
-  NEXSANDBASE_HOME  沙漏数据目录（默认 /vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass）
+  NEXSANDBASE_HOME  沙漏数据目录（默认 /vol2/1000/AI专用/所有自动化/轻如烟/sandglass）
 """
 
 import argparse
@@ -32,16 +32,16 @@ import sys
 from datetime import datetime
 
 # ── 路径（与 night_patrol.py / lesson_capture.py 一致）─────────
-_SOURCE_DIR = "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass_source"
+_SOURCE_DIR = "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source"
 _SANDBASE_HOME = os.environ.get(
     "NEXSANDBASE_HOME",
-    "/vol1/@team/qh团队/QH/AI专用/所有自动化/轻如烟/sandglass",
+    "/vol2/1000/AI专用/所有自动化/轻如烟/sandglass",
 )
 # 关键：sandglass_log/sandglass_paths 读环境变量解析 _NB。
 # 未显式设置时默认注入真实沙漏目录，防止写进 ~/.neurobase 空壳库。
 os.environ.setdefault("NEXSANDBASE_HOME", _SANDBASE_HOME)
 _SANDGLASS_TXT = os.path.join(_SANDBASE_HOME, "sandglass.txt")
-_OP_LOG = "/vol1/@team/qh团队/QH/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
+_OP_LOG = "/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
 _ALERTS_FILE = "/tmp/observer-alerts.json"
 _ALERTS_LOCK = "/tmp/observer-alerts.lock"
 _DEDUPE_SCAN_LINES = 80
