@@ -13,6 +13,10 @@ if [ -f "$AGENT_OS_HOME/env.local" ]; then
 fi
 RUN_DIR="${RUN_DIR:-$AGENT_OS_HOME/run}"
 ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
+VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+SANDGLASS_API_PORT="${SANDGLASS_API_PORT:-17333}"
+LMS_API_PORT="${LMS_API_PORT:-8190}"
+GLUE_PORT="${GLUE_PORT:-19000}"
 
 stop_by_pidfile() {
     local name="$1" pidfile="$2" port="$3"
@@ -38,7 +42,7 @@ echo "=== Agent OS 一键停止 ($(date '+%F %T')) ==="
 echo "--- [5/5→1/5] 逆序停止 ---"
 stop_by_pidfile "verify_daemon" "$RUN_DIR/verify_daemon.pid" ""
 # 玄鉴自身也有 daemon.pid（同构沙盘 data/），一并清理
-VDPID=$(cat "${VERIFY_HOME:-/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘}/data/daemon.pid" 2>/dev/null)
+VDPID=$(cat "$VERIFY_HOME/data/daemon.pid" 2>/dev/null)
 if [ -n "$VDPID" ] && kill -0 "$VDPID" 2>/dev/null; then
     kill "$VDPID" 2>/dev/null && echo "  ⏹️  verify_daemon (data/daemon.pid $VDPID)"
 fi
@@ -48,18 +52,18 @@ echo "--- iso-sand ---"
 bash "$ISO_SAND_HOME/stop_all.sh"
 
 # 3. 胶水层 glue_server (19000)
-stop_by_pidfile "glue_server" "$RUN_DIR/glue_server.pid" "19000"
+stop_by_pidfile "glue_server" "$RUN_DIR/glue_server.pid" "$GLUE_PORT"
 
 # 2. LMS API (8190)
-stop_by_pidfile "lms_api" "$RUN_DIR/lms_api.pid" "8190"
+stop_by_pidfile "lms_api" "$RUN_DIR/lms_api.pid" "$LMS_API_PORT"
 
 # 1. 沙漏 HTTP API (17333)
-stop_by_pidfile "sandglass_http_api" "$RUN_DIR/sandglass_http_api.pid" "17333"
+stop_by_pidfile "sandglass_http_api" "$RUN_DIR/sandglass_http_api.pid" "$SANDGLASS_API_PORT"
 
 sleep 2
 echo ""
 echo "=== 端口释放确认 ==="
-for PORT in 17333 8190 19000; do
+for PORT in "$SANDGLASS_API_PORT" "$LMS_API_PORT" "$GLUE_PORT"; do
     if ss -tln 2>/dev/null | grep -q ":$PORT "; then
         echo "  ❌ 端口 $PORT 仍被占用: $(ss -tlnp 2>/dev/null | grep ":$PORT " | head -1)"
     else

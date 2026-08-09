@@ -1,10 +1,19 @@
 #!/bin/bash
 # 启动事件总线消费者
 # 用法: bash start_consumer.sh
+# 2026-08-10 部署统一化：路径/日志从 Agent OS/env.local 读取，缺失时相对推导
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+AGENT_OS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
+# 加载统一配置（env.local），缺失则相对推导
+if [ -f "$AGENT_OS_HOME/env.local" ]; then
+    set -a; . "$AGENT_OS_HOME/env.local"; set +a
+fi
+LOG_DIR="${LOG_DIR:-$AGENT_OS_HOME/logs}"
+mkdir -p "$LOG_DIR"
+
 PID_FILE="$SCRIPT_DIR/data/consumer.pid"
-LOG_FILE="/tmp/agent_os_consumer.log"
+LOG_FILE="$LOG_DIR/consumer.log"
 
 cd "$SCRIPT_DIR"
 
@@ -21,17 +30,17 @@ fi
 export PYTHONUNBUFFERED=1
 export PYTHONPATH="$SCRIPT_DIR/src:$PYTHONPATH"
 
-# Write a small runner script
-cat > "$SCRIPT_DIR/.run_consumer.py" << 'PYEOF'
+# 生成运行器（路径随 SCRIPT_DIR 推导，换机器自动适配，无硬编码）
+cat > "$SCRIPT_DIR/.run_consumer.py" << PYEOF
 import sys, time
-sys.path.insert(0, '/vol2/1000/AI专用/Agent OS/iso-sand/src')
+sys.path.insert(0, '$SCRIPT_DIR/src')
 from event_consumer import EventConsumer
 c = EventConsumer(
-    event_file='/vol2/1000/AI专用/Agent OS/iso-sand/data/event_bus.jsonl',
-    seek_file='/vol2/1000/AI专用/Agent OS/iso-sand/data/event_bus.seek',
-    rules_file='/vol2/1000/AI专用/Agent OS/iso-sand/deploy/event_rules.yaml',
-    operation_log='/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl',
-    dead_letter='/vol2/1000/AI专用/Agent OS/iso-sand/data/.dead_letter_queue.jsonl',
+    event_file='$SCRIPT_DIR/data/event_bus.jsonl',
+    seek_file='$SCRIPT_DIR/data/event_bus.seek',
+    rules_file='$SCRIPT_DIR/deploy/event_rules.yaml',
+    operation_log='$SCRIPT_DIR/data/operation_log.jsonl',
+    dead_letter='$SCRIPT_DIR/data/.dead_letter_queue.jsonl',
     poll_interval=3.0
 )
 c.start()

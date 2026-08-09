@@ -1,5 +1,8 @@
 # DEPLOYMENT.md — Agent OS 部署手册（Phase 6 部署一致性工程）
 
+> ⚠️ 2026-08-10 起：全局部署统一化已重构，**新机器部署请先看 [DEPLOY-GLOBAL.md](DEPLOY-GLOBAL.md)**
+> （配置中心 env.local + stack_ctl.sh setup/doctor 一键校验）。本文保留 Phase 6 细节。
+>
 > 更新时间：2026-08-04（Phase 6）
 > 目标：从零到一可复现部署，全功能不降级。
 > 一键运维：`start_all.sh` / `stop_all.sh` / `status_all.sh`（本目录）。

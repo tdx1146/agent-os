@@ -9,20 +9,20 @@
 set -u
 
 AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
-# 加载 env.local（无则用内置默认值）
+# 加载 env.local（配置中心；缺失时用相对路径推导，绝不硬编码绝对路径）
 if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
-
-NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass}"
-SANDGLASS_SOURCE="${SANDGLASS_SOURCE:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source}"
+# 相对推导默认值（以 AGENT_OS_HOME 为锚点，标准布局下自动定位）
+NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟/sandglass}"
+SANDGLASS_SOURCE="${SANDGLASS_SOURCE:-$AGENT_OS_HOME/../所有自动化/轻如烟/sandglass_source}"
 SANDGLASS_API_PORT="${SANDGLASS_API_PORT:-17333}"
-LMS_HOME="${LMS_HOME:-/vol2/1000/AI专用/living-memory-system-cloud}"
+LMS_HOME="${LMS_HOME:-$AGENT_OS_HOME/../living-memory-system-cloud}"
 LMS_API_PORT="${LMS_API_PORT:-8190}"
-GLUE_HOME="${GLUE_HOME:-/vol2/1000/AI专用/memory-integration-layer}"
+GLUE_HOME="${GLUE_HOME:-$AGENT_OS_HOME/../memory-integration-layer}"
 GLUE_PORT="${GLUE_PORT:-19000}"
 ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
-VERIFY_HOME="${VERIFY_HOME:-/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘}"
+VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
 RUN_DIR="${RUN_DIR:-$AGENT_OS_HOME/run}"
 LOG_DIR="${LOG_DIR:-$AGENT_OS_HOME/logs}"
 

@@ -1,8 +1,15 @@
 #!/bin/bash
 # Agent OS 一键启动
 # 启动所有守护进程
+# 2026-08-10 部署统一化：VERIFY_HOME 从 env.local 读取，缺失时相对推导
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+AGENT_OS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [ -f "$AGENT_OS_HOME/env.local" ]; then
+    set -a; . "$AGENT_OS_HOME/env.local"; set +a
+fi
+VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+
 echo "=== Agent OS 启动 ==="
 echo "时间: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "目录: $SCRIPT_DIR"
@@ -21,13 +28,13 @@ echo ""
 # 3. 验证
 echo "=== 进程状态 ==="
 sleep 1
-ps aux | grep -E "(task_scheduler|event_consumer)" | grep -v grep
+ps aux | grep -E "\.run_(scheduler|consumer)" | grep -v grep || echo "（调度器/消费者进程未见，请查日志）"
 echo ""
 
 # 4. 检查玄鉴
 echo "--- 玄鉴守护进程 ---"
-if [ -f "/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘/data/daemon.pid" ]; then
-    VERIFY_PID=$(cat "/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘/data/daemon.pid")
+if [ -f "$VERIFY_HOME/data/daemon.pid" ]; then
+    VERIFY_PID=$(cat "$VERIFY_HOME/data/daemon.pid")
     if kill -0 "$VERIFY_PID" 2>/dev/null; then
         echo "[verify_daemon] ✅ 运行中 (PID: $VERIFY_PID)"
     else
