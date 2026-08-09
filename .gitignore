@@ -29,3 +29,6 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+
+# 备份文件
+*.bak-*
