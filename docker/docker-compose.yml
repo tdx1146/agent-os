@@ -12,10 +12,13 @@
 #     与宿主【相同的绝对路径】。组件代码硬编码绝对路径（红线：不改核心代码），
 #     镜像因此不含源码，仅提供运行时（python + curl/requests/pyyaml）。
 #   · LMS：复用 living-memory-system-cloud/Dockerfile（多阶段，torch CPU）。
+#     lms 数据面 :8190 + lms-control 管理面 :8191（同镜像双容器）。
 #   · iso-sand：单容器双进程（scheduler+consumer），launcher.py 监督，
 #     任一崩溃 → 容器退出 → restart 拉起。
-#   · 网络：默认 bridge。服务间用服务名互连（glue→lms-api:8190）；
-#     嵌入/向量走外网（隧道域名或 LAN，见 .env.local）。
+#   · 网络：默认 bridge。服务间用服务名互连（glue→lms-api:8190，
+#     lms-control→lms-api:8190）；嵌入/向量走外网——隧道域名
+#     https://11435.tdx1146.cc/v1/embeddings（443，实测可达；域名:11435 形式不通），
+#     或局域网直连 http://192.168.0.103:11435/v1/embeddings（见 .env.local）。
 #   · 密钥只经 .env.local（env_file）注入，不进镜像、无默认值。
 #   · 验证阶段：.env 中宿主端口改 18190/18191/18192，数据目录指向
 #     verify-data/ 沙箱，避免与裸进程冲突；正式切换恢复默认并停裸进程。
@@ -65,15 +68,50 @@ services:
     environment:
       LMS_API_HOST: "0.0.0.0"
       LMS_API_PORT: "8190"
-      LMS_SNAPSHOT_DIR: "/app/snapshots"
+      LMS_SNAPSHOT_DIR: "/app/snapshots"   # 覆盖 .env.local 中的宿主机路径
     volumes:
       - "${LMS_SNAPSHOT_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/snapshots}:/app/snapshots"
+      - "${LMS_DATA_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/data}:/app/data"
+      - "${LMS_LOGS_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/logs}:/app/logs"
       - "${LMS_CACHE_HOST:-/vol2/1000/AI专用/Agent OS/docker/data/lms-cache}:/root/.cache"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8190/health"]
       interval: 30s
       timeout: 10s
       start_period: 90s   # torch / 嵌入器初始化预热
+      retries: 3
+
+  # ─────────────────────────── 2b. LMS 管理面 lms-control ─────────────────
+  # control.py 独立 FastAPI app（:8191，热配置/快照/诊断），同镜像双容器。
+  # 管理面只绑定 127.0.0.1，不对外暴露。
+  lms-control:
+    build:
+      context: "${LMS_HOME_DIR:-/vol2/1000/AI专用/living-memory-system-cloud}"
+      dockerfile: Dockerfile
+    image: living-memory-system:latest
+    restart: unless-stopped
+    command: ["python", "scripts/run_control.py"]
+    ports:
+      - "127.0.0.1:8191:8191"
+    env_file:
+      - ./.env.local
+    environment:
+      LMS_CTRL_HOST: "0.0.0.0"
+      LMS_CTRL_PORT: "8191"
+      LMS_CTRL_API_BASE: "http://lms-api:8190"   # 容器内服务名互联
+      LMS_SNAPSHOT_DIR: "/app/snapshots"
+    volumes:
+      - "${LMS_DATA_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/data}:/app/data"
+      - "${LMS_LOGS_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/logs}:/app/logs"
+      - "${LMS_SNAPSHOT_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/snapshots}:/app/snapshots:ro"
+    depends_on:
+      lms-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8191/control/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
       retries: 3
 
   # ─────────────────────────── 3. 胶水层 glue-server ──────────────────────
