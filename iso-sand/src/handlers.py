@@ -19,6 +19,7 @@ handlers.py — 统一 handler 机制（Phase 2 / D6）
 
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -63,6 +64,38 @@ _OPERATION_LOG = os.path.join(
 # LMS 塑形喂入目标（Phase 4 D0：总线 → LMS /feed，只喂不指挥）
 _LMS_URL = os.environ.get("LMS_URL", "http://127.0.0.1:8190")
 _LMS_FEED_TIMEOUT = float(os.environ.get("LMS_FEED_TIMEOUT", "10"))
+
+# P1-4（T1.7）：总线系统事件停喂 LMS。
+# 证据：bus 脑 1212+ 轮几乎全是 "任务 bus_heartbeat 完成 (exit=0)"（每 5 分钟
+# 一条 task_complete），占满快照槽位并参与做梦写 latest.pt（见 P1-4 问题表）。
+# 处理：
+#   1) 总开关 LMS_FEED_ENABLED=0 → 完全停喂（运维逃生门，不改代码即可熔断；
+#      在 handle() 时实时读取，无需重启消费者即可生效）；
+#   2) 噪声过滤：事件生产者/类型/文本命中 heartbeat/心跳 模式 → 静默跳过，
+#      不喂入、不记操作日志（避免 operation_log 也被刷屏）。
+_LMS_FEED_NOISE_RE = re.compile(
+    r"heartbeat|心跳|HEARTBEAT_OK|bus_heartbeat", re.IGNORECASE)
+
+
+def _lms_feed_enabled() -> bool:
+    """LMS 喂入总开关（实时读 env，可热切换，默认开启）。"""
+    return os.environ.get(
+        "LMS_FEED_ENABLED", "1").strip().lower() not in ("0", "false", "no", "off")
+
+
+def _is_lms_feed_noise(event: dict, text: str) -> bool:
+    """判断事件是否为系统噪声（不应喂入 LMS）。
+
+    按生产者/事件类型/文本三重匹配（任一命中即视为噪声）：
+      - producer 含 heartbeat（如 task_scheduler/bus_heartbeat）
+      - event_type 含 heartbeat（如 sandglass.heartbeat）
+      - 文本含 心跳/HEARTBEAT_OK/bus_heartbeat（防 payload 直塞心跳内容）
+    """
+    producer = str(event.get("producer") or "")
+    event_type = str(event.get("event_type") or "")
+    if _LMS_FEED_NOISE_RE.search(producer) or _LMS_FEED_NOISE_RE.search(event_type):
+        return True
+    return bool(_LMS_FEED_NOISE_RE.search(text))
 
 
 class GlueHttpMixin:
@@ -379,7 +412,16 @@ class LmsFeedHandler(Handler):
         return text
 
     def handle(self, event: dict) -> bool:
+        # P1-4：总开关熔断（LMS_FEED_ENABLED=0 → 完全停喂，不喂不记；热切换）
+        if not _lms_feed_enabled():
+            return True
+
         text = self._extract_text(event)
+
+        # P1-4：噪声过滤（heartbeat/心跳类系统事件不进 LMS，bus 脑不再长垃圾）
+        if _is_lms_feed_noise(event, text):
+            return True
+
         # 喂塑形是软参考：截断超长文本（LMS 侧也有总量限流）
         text = text[:2000]
         trace_id = str(event.get("trace_id", "unknown"))
