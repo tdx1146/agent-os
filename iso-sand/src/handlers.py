@@ -37,6 +37,7 @@ __all__ = ["Handler", "HandlerRegistry", "build_default_registry",
            "ArchiveAuditResultHandler", "XuanjianPipePlaceholder",
            "InterfacesStoreHandler", "InterfacesRecallHandler",
            "LmsFeedHandler",
+           "DreamCompleteHandler",
            "GlueHttpMixin",
            "quick_test"]
 
@@ -470,6 +471,114 @@ class LmsFeedHandler(Handler):
             return json.loads(resp.read().decode("utf-8"))
 
 
+class DreamCompleteHandler(Handler):
+    """LMS 做梦完成聚合（梦醒回路阶段1-B：断点 A② 修复——dream_complete 首次被消费）。
+
+    订阅 lms.dream_complete → 聚合（rate_limit=60s：中位 31s 一次，绝不能每事件都动作）
+    → 原子写 ${NEXSANDBASE_HOME}/dream_state.json（方案 §4.5 红线 2 契约路径；
+    DREAM_STATE_FILE 显式覆盖仅测试）。
+
+    - 只写状态文件（最近一次 + 最近 N 条窗口），**不做任何唤醒动作**
+      （红线 1：不 import / 不调用 inject/wake——唤醒只允许在 self_pulse 的
+      attempt_wake 链内、sleep_check 通过之后触发）
+    - 写失败 raise → registry 异常隔离记死信（不拖垮总线）；读旧状态 fail-open
+      （读不到/解析失败 = 全新开始，不报错不阻塞）
+    - 梦指标缺失（旧事件 payload 只有 steps/duration/snapshot_saved）→ 字段留 null
+    """
+
+    name = "lms.dream_complete"
+    event_types = ["lms.dream_complete"]
+    results = None            # 任意 result 都收
+    rate_limit = 60.0         # ★ ≥60s 聚合间隔（中位 31s 一次，防 31s 一次太频）
+    description = "LMS 做梦完成聚合：写 dream_state.json（梦醒回路阶段1；只写文件，绝不唤醒）"
+
+    _WINDOW = int(os.environ.get("DREAM_STATE_WINDOW", "20"))  # 最近 N 条窗口
+
+    def __init__(self):
+        self._op_writer = LogWriter(_OPERATION_LOG)
+
+    @staticmethod
+    def _state_path():
+        """契约路径：DREAM_STATE_FILE 显式覆盖 > $NEXSANDBASE_HOME/dream_state.json。
+
+        禁止硬编码绝对路径（红线 2）；NEXSANDBASE_HOME 未设置且无覆盖时返回
+        None（调用方 fail-open：跳过写入，不记死信）。
+        """
+        override = os.environ.get("DREAM_STATE_FILE")
+        if override:
+            return override
+        base = os.environ.get("NEXSANDBASE_HOME")
+        if base:
+            return os.path.join(base, "dream_state.json")
+        return None
+
+    @staticmethod
+    def _load_state(path: str) -> dict:
+        """读旧状态（fail-open：读不到/解析失败 = 全新开始）。"""
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                return data
+        except Exception:
+            pass
+        return {"latest": None, "window": []}
+
+    def handle(self, event: dict) -> bool:
+        path = self._state_path()
+        if not path:
+            print(f"[handlers] ⚠️ {self.name}: NEXSANDBASE_HOME 未设置且无 "
+                  f"DREAM_STATE_FILE 覆盖，跳过写 dream_state.json（fail-open）")
+            return True
+
+        payload = event.get("payload") or {}
+        record = {
+            "t": event.get("t") or datetime.now(_BJT).isoformat(),
+            "status": payload.get("status"),
+            "mode": payload.get("mode"),
+            "steps": payload.get("steps"),
+            "duration_seconds": payload.get("duration_seconds"),
+            "snapshot_saved": payload.get("snapshot_saved"),
+            "avg_surprise": payload.get("avg_surprise"),
+            "max_surprise": payload.get("max_surprise"),
+            "avg_entropy": payload.get("avg_entropy"),
+            "collapse_count": payload.get("collapse_count"),
+            "j_change": payload.get("j_change"),
+            "buffer_size": payload.get("buffer_size"),
+            "event_id": event.get("event_id"),
+            "trace_id": event.get("trace_id"),
+        }
+
+        # 聚合：最近一次 + 最近 N 条窗口（覆盖式幂等写，原子 tmp+rename）
+        state = self._load_state(path)
+        window = list(state.get("window") or [])
+        window = (window + [record])[-self._WINDOW:]
+        state["latest"] = record
+        state["window"] = window
+        state["updated_at"] = datetime.now(_BJT).isoformat()
+        try:
+            tmp = path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(state, f, ensure_ascii=False, indent=2)
+            os.replace(tmp, path)
+        except Exception as e:
+            raise RuntimeError(
+                f"dream_state.json 写失败: {type(e).__name__}: {e}") from e
+
+        self._op_writer.write({
+            "event_type": "consumer_action",
+            "producer": "lms.dream_complete",
+            "result": "OK",
+            "detail": (f"梦聚合写入 dream_state.json: status={record['status']} "
+                       f"mode={record['mode']} avg_surprise={record['avg_surprise']} "
+                       f"j_change={record['j_change']} collapse={record['collapse_count']} "
+                       f"window={len(window)}"),
+            "trace_id": event.get("trace_id"),
+            "event_id": event.get("event_id"),
+        })
+        return True
+
+
 class HandlerRegistry:
     """
     handler 注册表：按 event_type 注册/执行 handler 链。
@@ -654,6 +763,7 @@ def build_default_registry(dead_letter_file: str = _DEFAULT_DEAD_LETTER) -> Hand
     registry.register(InterfacesStoreHandler())
     registry.register(InterfacesRecallHandler())
     registry.register(LmsFeedHandler())
+    registry.register(DreamCompleteHandler())  # 梦醒回路阶段1-B：lms.dream_complete 聚合写 dream_state.json
     return registry
 
 
