@@ -376,7 +376,9 @@ class LmsFeedHandler(Handler):
     """
 
     name = "lms.feed"
-    event_types = ["interfaces.store", "task_complete", "milestone", "doubt.episode"]
+    # P0-3（2026-08-10）：新增订阅 sandglass.entry —— 沙漏落沙流水喂 LMS 塑形
+    # （方向1接通：沙漏 → 总线 → LMS /feed；此前 0 条沙漏数据进过 LMS）
+    event_types = ["interfaces.store", "task_complete", "milestone", "doubt.episode", "sandglass.entry"]
     results = None  # 任意 result 都接收（喂塑形是软参考，失败可忽略）
     rate_limit = 1.0  # ≥1s 间隔
     description = "LMS 塑形喂入：总线事件文本摘要 → LMS /feed（只喂不指挥，软参考）"
@@ -419,17 +421,21 @@ class LmsFeedHandler(Handler):
         text = self._extract_text(event)
 
         # P1-4：噪声过滤（heartbeat/心跳类系统事件不进 LMS，bus 脑不再长垃圾）
-        if _is_lms_feed_noise(event, text):
+        # P0-3：sandglass.entry 是真实落沙流水（非心跳），直接放行喂塑形
+        if event.get("event_type") != "sandglass.entry" and _is_lms_feed_noise(event, text):
             return True
 
         # 喂塑形是软参考：截断超长文本（LMS 侧也有总量限流）
         text = text[:2000]
         trace_id = str(event.get("trace_id", "unknown"))
         try:
+            # P0-3：sandglass.entry 带来源标记 source=sandglass，供 LMS 识别
+            # （防循环：LMS 侧可据此不把该来源回灌/不回写沙漏）
+            source = "sandglass" if event.get("event_type") == "sandglass.entry" else "event_bus"
             result = self._post_feed({
                 "text": text,
                 "session_id": "bus",
-                "source": "event_bus",
+                "source": source,
             })
         except Exception as e:
             raise RuntimeError(

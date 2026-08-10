@@ -43,6 +43,9 @@ event_types:
   - name: sandglass.heartbeat
     description: "沙漏存活/告警通知（仅观测，不统合）"
     status: reserved_phase2
+  - name: sandglass.entry
+    description: "沙漏落沙流水（P0-3 接通方向1：生产者=sandglass 落沙成功；消费者=lms.feed 喂 LMS /feed 塑形；payload: text/sender/ts/source）"
+    status: active
   - name: interfaces.store
     description: "胶水层记忆写入动作（Phase 3 已启用：总线→glue_server /store 聚合写入沙漏+LMS+向量）"
     status: active
