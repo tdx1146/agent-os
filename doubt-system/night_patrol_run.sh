@@ -92,16 +92,20 @@ PROMPT=$(cat <<'EOF'
 现在是 23:30，你回看 __DATE__ 全天的运行数据，找出白天当局者（主AI）忽略的矛盾、模式与被遗漏的教训。
 
 【步骤】
-1. 用 read 工具读取 /tmp/night_patrol_input.json（夜巡数据汇总：当天对话原文/operation_log FAIL/怀疑账本/topic_risk/memory 文件）。
+1. 用 read 工具读取 /tmp/night_patrol_input.json（夜巡数据汇总：当天对话原文/operation_log 变更与异常/crontab 快照/怀疑账本/topic_risk/memory 文件）。
 2. 分析并产出 findings（发现）。每条 finding 必须满足：
    - 有 evidence：沙漏记录 id、对话原文摘录、或 operation_log 行号。无证据的发现直接丢弃（证据强制铁律）。
    - 只写"低置信假设"或"需复核信号"，禁止写死结论性教训（防回声室）。
    - 字段：t=ISO时间, actor=observer-night-patrol-__DATE_COMPACT__, form="B", tag="旁观者-警讯",
      severity(1-5整数), confidence(0-1), evidence, topic(主题词), suggestion(具体可执行动作), status="pending"
    - confidence 规则：基于用户纠正/操作失败/工具报错=0.7+；单旁观者洞察=0.5。
-3. 用 write 工具把 findings 写到 /tmp/night_patrol_findings.json，格式：
+3. 【部署怀疑重点】crontab_snapshot 与 fails 中 kind=CHANGE 的条目必须检查：
+   - crontab 关键条目是否齐全（has_pulse/has_night_patrol/has_watchdog 若为 false 是高危信号）
+   - 当天部署/重启/配置变更是否自洽（有变更但无对应验证、有 FAIL 但无人跟进）
+   - 部署类变更若无 FAIL 但影响面大（crontab/配置/路径），仍应产出低置信复核信号
+4. 用 write 工具把 findings 写到 /tmp/night_patrol_findings.json，格式：
    {"date":"__DATE__","findings":[{...}, ...]}（无发现则 findings: []）
-4. 聚焦今天数据，不编造。除写 findings JSON 文件外，不要修改任何系统文件、不写沙漏、不写 operation_log。
+5. 聚焦今天数据，不编造。除写 findings JSON 文件外，不要修改任何系统文件、不写沙漏、不写 operation_log。
 EOF
 )
 PROMPT=${PROMPT//__DATE__/$DATE}

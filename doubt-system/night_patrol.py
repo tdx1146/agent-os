@@ -118,10 +118,20 @@ def summarize_dialogue(rows: list) -> dict:
 
 
 def read_fails(d: str) -> list:
-    """operation_log 当天 FAIL 行（result=FAIL 或 level=ERROR）。"""
+    """operation_log 当天全部变更/部署/异常行（含 FAIL/ERROR + 部署类 action）。
+
+    2026-08-10 增强（dandan 指示：怀疑系统应首先怀疑部署是否正确）：
+    不再只收 FAIL——部署成功但配置错误的操作（rc=0 无 FAIL）也要进夜巡视野。
+    收录规则：
+      - result=FAIL 或 level=ERROR/WARN → 全部收（异常）
+      - action 含 start/stop/restart/deploy/config/install/backup 等变更类 → 收（变更）
+      - 其余 INFO 跳过（防噪音）
+    """
     fails = []
     if not os.path.exists(OP_LOG):
         return fails
+    _CHANGE_ACTIONS = ("start", "stop", "restart", "deploy", "config", "install",
+                       "backup", "crontab", "setup", "migrat", "update", "write")
     try:
         with open(OP_LOG, "r", encoding="utf-8", errors="replace") as f:
             for lineno, line in enumerate(f, 1):
@@ -135,20 +145,46 @@ def read_fails(d: str) -> list:
                 ts = rec.get("t") or rec.get("timestamp") or ""
                 if not str(ts).startswith(d):
                     continue
-                if rec.get("result") == "FAIL" or rec.get("level") == "ERROR":
-                    detail = str(rec.get("detail") or "")[:DETAIL_MAX]
-                    fails.append({
-                        "line": lineno,
-                        "t": ts,
-                        "level": rec.get("level"),
-                        "actor": rec.get("actor"),
-                        "action": rec.get("action"),
-                        "result": rec.get("result"),
-                        "detail": detail,
-                    })
+                result = rec.get("result")
+                level = rec.get("level")
+                action = str(rec.get("action") or "")
+                is_err = result == "FAIL" or level in ("ERROR", "WARN")
+                is_change = any(k in action.lower() for k in _CHANGE_ACTIONS)
+                if not (is_err or is_change):
+                    continue
+                detail = str(rec.get("detail") or "")[:DETAIL_MAX]
+                fails.append({
+                    "line": lineno,
+                    "t": ts,
+                    "level": level,
+                    "actor": rec.get("actor"),
+                    "action": action,
+                    "result": result,
+                    "detail": detail,
+                    "kind": "ERROR" if is_err else "CHANGE",
+                })
     except Exception:
         pass
     return fails
+
+
+def read_crontab_snapshot() -> dict | None:
+    """读取当前 crontab 快照（夜巡怀疑部署：crontab 条目是否与预期一致）。"""
+    try:
+        import subprocess
+        out = subprocess.run(["crontab", "-l"], capture_output=True, text=True, timeout=10)
+        if out.returncode != 0:
+            return {"error": out.stderr.strip()[:200] or "rc!=0"}
+        lines = [l for l in out.stdout.splitlines() if l.strip() and not l.strip().startswith("#")]
+        return {
+            "entry_count": len(lines),
+            "entries": lines[:40],  # 截断防爆
+            "has_pulse": any("pulse-cron" in l for l in lines),
+            "has_night_patrol": any("night_patrol" in l for l in lines),
+            "has_watchdog": any("watchdog" in l for l in lines),
+        }
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}"}
 
 
 def read_doubts(d: str) -> list:
@@ -242,6 +278,7 @@ def main() -> int:
     output = parse_output_arg()
 
     dialogue, sg_status = read_sandglass(d)
+    crontab_snap = read_crontab_snapshot()
     payload = {
         "date": d,
         "dialogue": dialogue,
@@ -250,6 +287,7 @@ def main() -> int:
         "doubts": read_doubts(d),
         "risks": read_risks(),
         "memory_files": read_memory_files(d),
+        "crontab_snapshot": crontab_snap,   # 2026-08-10：怀疑部署（crontab 是否被意外覆盖）
         "meta": {
             "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "sources": {
@@ -258,6 +296,7 @@ def main() -> int:
                 "doubt_db": "ok" if os.path.exists(DOUBT_DB) else "missing",
                 "memory_dir": "ok" if os.path.isdir(MEMORY_DIR) else "missing",
                 "topic_risk": "present" if os.path.exists(RISK_FILE) else "absent",
+                "crontab": "ok" if crontab_snap else "missing",
             },
         },
     }
