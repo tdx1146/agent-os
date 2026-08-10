@@ -264,3 +264,12 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 
 ---
 *事实来源：沙漏链路诊断-20260810.md（四层架构/4761 条/双写/sender/feed 计数）、NexSandglass README+ARCHITECTURE、LMS README+docs/ARCHITECTURE.md、memory-integration-layer README+interfaces/README、Agent OS TOPOLOGY/env.local/start_all.sh/status_all.sh/DEPLOY-GLOBAL/DOUBT-SYSTEM/iso-sand handlers.py+event_schema.yaml、轻如烟 SELF_PULSE_README+pulse-cron.sh+wake_client.py+salience_gate.py+sleep_pressure.py、glue-memory-injector index.js+memory-recall.js+openclaw.plugin.json、edit-web.py:209,302、sandglass_http_api.py。待核实项：双写源的具体前端路径（诊断 P0-1 未定位）、decision_particles 原调用方（P1-2）。*
+
+## 6. 设计遗产（明确不修，2026-08-10 标注）
+
+| 模块 | 状态 | 理由 |
+|------|------|------|
+| **L3 画像（persona 蒸馏）** | 🗄️ 遗产 | 职责与 LMS 目的层重叠；LMS 是 FEP 框架（有理论依据），画像维护 6/16 后停摆，无调用方。需要"人类可读自我描述"时再议 |
+| **L4 决策粒子（决策追踪/偏移率/幽灵决策）** | 🗄️ 遗产 | 全库仅 1 条、feed_all 零调用方、从未接入链路、历史上无深入讨论。决策追踪职责由 **LMS 目的层 precision 调整**承担，是旧方案的影子，修的成本>收益 |
+
+> 判定依据：《沙漏链路诊断-20260810.md》+ 沙漏搜索实证（2026-08-10 23:08 dandan 确认：画像/L4 没必要修）
