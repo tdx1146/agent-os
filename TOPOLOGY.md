@@ -39,8 +39,8 @@
 
 | # | 模块 | 远端仓库（GitHub，权威） | 本地部署路径 | 端口 / 健康端点 | 职责 |
 |---|------|--------------------------|--------------|-----------------|------|
-| 1 | **LMS 活体记忆** | `github.com/tdx1146/living-memory-system`（master，私有） | `/vol2/1000/AI专用/living-memory-system-cloud` | `:8190` /health；`:8191` 控制口 | 活体记忆：turn/熵/惊讶/目的、自动做梦、self_ref、快照 |
-| 2 | **胶水层 glue** | `github.com/tdx1146/memory-integration-layer`（master） | `/vol2/1000/AI专用/memory-integration-layer` | `:19000` /health | 记忆注入（读侧 /recall）、落沙（写侧 storeTurn）、doubt_adapter 怀疑账本、lms_client SDK |
+| 1 | **LMS 活体记忆** | `github.com/tdx1146/living-memory-system`（**main**，公开 2026-08-10） | `/vol2/1000/AI专用/living-memory-system-cloud` | `:8190` /health；`:8191` 控制口 | 活体记忆：turn/熵/惊讶/目的、自动做梦、self_ref、快照 |
+| 2 | **胶水层 glue** | `github.com/tdx1146/memory-integration-layer`（**main**，公开） | `/vol2/1000/AI专用/memory-integration-layer` | `:19000` /health | 记忆注入（读侧 /recall）、落沙（写侧 storeTurn）、doubt_adapter 怀疑账本、lms_client SDK |
 | 3 | **Agent OS 总线** | `github.com/tdx1146/agent-os`（main） | `/vol2/1000/AI专用/Agent OS` | 无端口（文件总线 + 调度器） | 事件总线 event_bus.jsonl、scheduler/consumer、stack_ctl 一键运维、**本拓扑的宿主** |
 | 4 | **doubt-system 怀疑系统** | `github.com/tdx1146/agent-os` → `doubt-system/` 子目录 | `/vol2/1000/AI专用/Agent OS/doubt-system` | 无端口（cron 23:30 夜巡） | 持续自我怀疑：memory_trust 信任度、夜巡旁观者、反教条复核、doubt_hook 部署钩子 |
 | 5 | **玄鉴 verify_daemon** | 以姐姐侧 GitHub 仓库为准（dandan 2026-08-10 确认已在 GitHub；本机目录无 git remote，不自动上传） | `/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘` | 无端口（守护进程，5min 巡检） | 对外部知识/文件变更的校验审计（keyword_v0.1） |
@@ -103,13 +103,33 @@ grep DOUBT_BUS_FILE /vol2/1000/AI专用/memory-integration-layer/.env
 
 ---
 
-## 5. 已知缺口（2026-08-10 审计）
+## 5. 仓库全景与废弃说明（2026-08-10 更新，防混乱根源）
+
+> **规则：本清单是 tdx1146 名下全部仓库的唯一权威地图。废弃 = GitHub Archived（只读）或本表标注。**
+> 之前混乱根源：分支/仓库一次次失忆时乱建，没人标注废弃。现在：**三仓统一 main，全部公开，废弃仓已 archive。**
+
+| 仓库 | 状态 | 默认分支 | 说明 |
+|------|------|---------|------|
+| `living-memory-system` | ✅ 活跃 | main | LMS 活体记忆（2026-08-10 起公开） |
+| `memory-integration-layer` | ✅ 活跃 | main | 胶水层 glue（公开） |
+| `agent-os` | ✅ 活跃 | main | **本拓扑宿主**（公开） |
+| `edit-web.py` | ✅ 活跃 | main | 轻如烟编辑器 v1~v5.1（公开） |
+| `qingruyan-scripts` | ✅ 活跃 | main | self_pulse 唤醒链脚本（公开） |
+| `glue-memory-injector` | ✅ 活跃 | main | OpenClaw 记忆注入插件（公开） |
+| `monument-network` | ⚠️ 待确认 | main | 丰碑网络（早期组件，内容已被 agent-os 吸收？未 archive） |
+| `agent-os-sandglass` | 🗄️ 已废弃 Archived | main | 早期拆分组件，已被 agent-os 吸收（2026-08-10 archive） |
+| `agent-os-iso-sand` | 🗄️ 已废弃 Archived | main | 同上 |
+| `agent-os-kernel` | 🗄️ 已废弃 Archived | main | 同上 |
+
+---
+
+## 6. 已知缺口（2026-08-10 审计）
 
 1. 轻如烟/玄鉴的远端仓库：**以姐姐侧 GitHub 版本为准**（dandan 2026-08-10：本机不自动上传）。本机目录无 git remote 属正常。
-2. living-memory-system 为私有仓库（匿名 API 404 属正常），外部部署需 token 或转公开。
+2. ~~living-memory-system 为私有仓库~~ → **2026-08-10 已公开，默认分支 main**。
 3. 本文件建立后，各模块 README 需补「系统定位」段指向本文件（已完成：见各 README 顶部）。
 4. **待重启生效**：:8190 已重启（2026-08-10 10:31），阶段 2 的 T2.3 归档检索/T2.6 审计/T2.8 算法治理已加载；T2.2 健康检查调度、:8191 控制口、codex/workbody 接入尚未落地（C 类）。
 
 ---
 
-> 维护规则：**改模块布局/端口/仓库时，必须同步改本文件**。本文件是唯一权威，各 README 只是指针。
+> 维护规则：**改模块布局/端口/仓库/分支时，必须同步改本文件**。本文件是唯一权威，各 README 只是指针。
