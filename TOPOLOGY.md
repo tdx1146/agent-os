@@ -43,8 +43,8 @@
 | 2 | **胶水层 glue** | `github.com/tdx1146/memory-integration-layer`（master） | `/vol2/1000/AI专用/memory-integration-layer` | `:19000` /health | 记忆注入（读侧 /recall）、落沙（写侧 storeTurn）、doubt_adapter 怀疑账本、lms_client SDK |
 | 3 | **Agent OS 总线** | `github.com/tdx1146/agent-os`（main） | `/vol2/1000/AI专用/Agent OS` | 无端口（文件总线 + 调度器） | 事件总线 event_bus.jsonl、scheduler/consumer、stack_ctl 一键运维、**本拓扑的宿主** |
 | 4 | **doubt-system 怀疑系统** | `github.com/tdx1146/agent-os` → `doubt-system/` 子目录 | `/vol2/1000/AI专用/Agent OS/doubt-system` | 无端口（cron 23:30 夜巡） | 持续自我怀疑：memory_trust 信任度、夜巡旁观者、反教条复核、doubt_hook 部署钩子 |
-| 5 | **玄鉴 verify_daemon** | ⚠️ **无远端仓库**（仅本地） | `/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘` | 无端口（守护进程，5min 巡检） | 对外部知识/文件变更的校验审计（keyword_v0.1） |
-| 6 | **沙漏 sandglass** | ⚠️ **无远端仓库**（仅本地） | `/vol2/1000/AI专用/所有自动化/轻如烟` | `:17333`（HTTP API）；`:18888` 编辑器 | 落沙日志 + 状态中枢（metrics.jsonl、persona、sleep_pressure、doubt.db） |
+| 5 | **玄鉴 verify_daemon** | 以姐姐侧 GitHub 仓库为准（dandan 2026-08-10 确认已在 GitHub；本机目录无 git remote，不自动上传） | `/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘` | 无端口（守护进程，5min 巡检） | 对外部知识/文件变更的校验审计（keyword_v0.1） |
+| 6 | **沙漏 sandglass** | 以姐姐侧 GitHub 仓库为准（dandan 2026-08-10 确认已在 GitHub；本机目录无 git remote，不自动上传） | `/vol2/1000/AI专用/所有自动化/轻如烟` | `:17333`（HTTP API）；`:18888` 编辑器 | 落沙日志 + 状态中枢（metrics.jsonl、persona、sleep_pressure、doubt.db） |
 | 7 | **self_pulse 自主唤醒** | ⚠️ 属沙漏（无独立远端） | `/vol2/1000/AI专用/所有自动化/轻如烟/scripts/` | cron `*/10` | 唤醒链：salience_gate → sleep_pressure（体力）→ wake_client → hooks/wake |
 | 8 | **OpenClaw Gateway** | 官方（openclaw） | `/vol1/@apphome/trim.openclaw/data` | `:10554` | 主 AI 运行时（毛毛本体） |
 
@@ -105,9 +105,10 @@ grep DOUBT_BUS_FILE /vol2/1000/AI专用/memory-integration-layer/.env
 
 ## 5. 已知缺口（2026-08-10 审计）
 
-1. **玄鉴（#5）、沙漏/轻如烟（#6、#7）无远端仓库**——不在 GitHub 上，姐姐侧无法 clone。待决策：是否建仓推送（需 dandan 授权，含密钥/隐私评估）。
+1. 轻如烟/玄鉴的远端仓库：**以姐姐侧 GitHub 版本为准**（dandan 2026-08-10：本机不自动上传）。本机目录无 git remote 属正常。
 2. living-memory-system 为私有仓库（匿名 API 404 属正常），外部部署需 token 或转公开。
 3. 本文件建立后，各模块 README 需补「系统定位」段指向本文件（已完成：见各 README 顶部）。
+4. **待重启生效**：:8190 已重启（2026-08-10 10:31），阶段 2 的 T2.3 归档检索/T2.6 审计/T2.8 算法治理已加载；T2.2 健康检查调度、:8191 控制口、codex/workbody 接入尚未落地（C 类）。
 
 ---
 
