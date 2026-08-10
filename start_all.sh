@@ -140,4 +140,15 @@ if [ "$FAILED" -eq 0 ]; then
 else
     echo "=== ⚠️ 存在失败项，请用 status_all.sh 复查 ==="
 fi
+
+# ── 怀疑钩子：部署后自动怀疑（doubt_hook.py，fail-open 不阻断）──
+# 每次全栈启动后生成一条 novelty 怀疑：本次部署是否正确？喂 LMS 塑形 + 账本留痕
+if [ -f "$AGENT_OS_HOME/doubt-system/doubt_hook.py" ]; then
+    DOUBT_MSG="start_all.sh 全栈启动 $(date '+%F %T')"
+    if [ "$FAILED" -eq 0 ]; then
+        python3 "$AGENT_OS_HOME/doubt-system/doubt_hook.py" --deploy "$DOUBT_MSG" --health "http://127.0.0.1:${LMS_API_PORT:-8190}/health" --topic deploy-start-all --quiet 2>/dev/null || true
+    else
+        python3 "$AGENT_OS_HOME/doubt-system/doubt_hook.py" --fail "start_all.sh 存在失败项: $DOUBT_MSG" --topic deploy-start-all --quiet 2>/dev/null || true
+    fi
+fi
 exit $FAILED
