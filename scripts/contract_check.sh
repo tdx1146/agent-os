@@ -317,11 +317,21 @@ def run_sqlite_gt(c):
 def run_sandglass_mirror(c):
     txt = env(c.get("txt", "")); db = env(c.get("db", ""))
     try:
+        # txt 权威源计数：去重后的有效条目（与 db 镜像语义一致）
+        # 背景：txt 有双写历史（同一 (ts,sender,text) 出现两次，2026-08-11 实测 563 行），
+        # db 镜像按失忆根因-2 修复设计去重 → 分母必须用去重条目数，否则永久假红（63.7%≠缺 484 条）。
         tcnt = 0
+        seen = set()
         with open(txt, "r", errors="replace") as f:
             for line in f:
-                if re.match(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \| ', line):
-                    tcnt += 1
+                parts = line.strip().split(" | ", 2)
+                if len(parts) < 3:
+                    continue
+                ts, sender, text = parts[0], parts[1], parts[2].strip()
+                if ts and re.match(r'^\d{4}-\d{2}-\d{2}', ts):
+                    key = (ts, sender, text)
+                    if key not in seen:
+                        seen.add(key); tcnt += 1
         con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
         dcnt = con.execute(f"SELECT COUNT(*) FROM {c['table']}").fetchone()[0]
         recent = con.execute("SELECT COUNT(*) FROM %s WHERE timestamp >= datetime('now','-1 day','localtime')" % c["table"]).fetchone()[0]
@@ -333,7 +343,7 @@ def run_sandglass_mirror(c):
     ok_min = float(c.get("ok_min", 0.95)); warn_min = float(c.get("warn_min", 0.80))
     status = "OK" if ratio >= ok_min else ("WARN" if ratio >= warn_min else "FAULT")
     add(c["id"], c.get("component", "?"), c["name"], status,
-        f"db={dcnt} txt条目={tcnt} 同步率={ratio*100:.1f}% (SLO≥{ok_min*100:.0f}%)，近24h新增={recent}")
+        f"db={dcnt} txt去重条目={tcnt} 同步率={ratio*100:.1f}% (SLO≥{ok_min*100:.0f}%)，近24h新增={recent}")
 
 def run_jsonl_level_count(c):
     log = env(c.get("log", ""))

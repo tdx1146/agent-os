@@ -256,8 +256,10 @@ checks:
     warn_min: 0.80
     notes: >
       历史陷阱 a（2026-08-11）：db 906 vs txt 4871 冻结 20 天无人发现。
-      SLI：db 行数 ≥ txt 有效条目 95%。2026-08-11 实测 db=987 / txt≈1549=64%，
-      root-fix 重建后仍在追平（近24h 新增>0），但未达 SLO → 红，必须继续盯。
+      SLI：db 行数 ≥ txt 去重后有效条目 95%。口径：txt 有双写历史（同一
+      (ts,sender,text) 重复落行，实测 563 行），db 镜像按失忆根因-2 设计去重
+      → 分母用去重条目数（2026-08-11 修正，此前按原始行数 1550 计 → 假红 63.7%）。
+      守护：scripts/sandglass_sync.sh 每 10min 增量同步，同步率 <95% 自动全量重建。
 
   - id: SG-06
     component: sandglass
