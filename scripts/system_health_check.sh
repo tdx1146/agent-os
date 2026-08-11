@@ -169,7 +169,10 @@ print('%s|%s|%s|%s' % (d.get('turn_count','?'), d.get('last_surprise','?'), d.ge
     SURP=$(echo "$LMS_META" | cut -d'|' -f2)
     ENT=$(echo "$LMS_META" | cut -d'|' -f3)
     PUR=$(echo "$LMS_META" | cut -d'|' -f4)
-    if [ "$SURP" != "?" ] && python3 -c "exit(0 if float('$SURP') >= 0 else 1)" 2>/dev/null; then
+    if [ "$SURP" = "?" ]; then
+        # last_surprise 缺席 = 重启后尚无对话轮（last_activation=None），语义正常，非降级
+        ok "LMS-API" "轮次=$TC 惊讶=无对话未产生（正常） 熵比=$ENT 目的=$PUR"
+    elif python3 -c "exit(0 if float('$SURP') >= 0 else 1)" 2>/dev/null; then
         ok "LMS-API" "轮次=$TC 惊讶=$SURP 熵比=$ENT 目的=$PUR（健康语义正常）"
     else
         warn "LMS-API" "轮次=$TC 惊讶=$SURP 异常（<0=降级/未修复语义）"
