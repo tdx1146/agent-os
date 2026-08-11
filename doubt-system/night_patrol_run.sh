@@ -24,7 +24,7 @@ export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin
 export NEXSANDBASE_HOME="/vol2/1000/AI专用/所有自动化/轻如烟/sandglass"
 
 WORKSPACE=/vol1/@apphome/trim.openclaw/data/workspace
-SCRIPTS="$WORKSPACE/scripts"
+SCRIPTS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$WORKSPACE/logs"
 OP_LOG="/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
 RUN_LOG="$LOG_DIR/night-patrol.log"

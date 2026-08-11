@@ -259,8 +259,9 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 
 - **TOPOLOGY.md** = 模块视角（组件/端口/仓库/契约表/文件地图）——"系统有哪些零件、每个零件在哪"。
 - **SYSTEM.md**（本文件） = 数据流视角（明暗双线/部署顺序/运行时旅程/坑/巡检）——"零件怎么咬合、怎么装、怎么判断活着"。
+- **SYSTEM_HEALTH.md** = 全系统健康巡检手册（自动化版）——"怎么知道它活着/坏了"：`bash scripts/system_health_check.sh` 一条命令全检，cron 每 30min 自动巡检、状态变化才告警。**日常查健康先看它。**
 - **部署前必读顺序**：SYSTEM.md → TOPOLOGY.md → 各模块 README。任何陌生 AI 按此顺序读完即可完整部署，不会漏掉沙漏。
-- 维护规则：改端口/布局/仓库 → 同步改 TOPOLOGY.md；改数据流/部署顺序/新增坑 → 同步改本文件。
+- 维护规则：改端口/布局/仓库 → 同步改 TOPOLOGY.md；改数据流/部署顺序/新增坑 → 同步改本文件；改巡检项/阈值 → 同步改 SYSTEM_HEALTH.md + scripts/system_health_check.sh。
 
 ---
 *事实来源：沙漏链路诊断-20260810.md（四层架构/4761 条/双写/sender/feed 计数）、NexSandglass README+ARCHITECTURE、LMS README+docs/ARCHITECTURE.md、memory-integration-layer README+interfaces/README、Agent OS TOPOLOGY/env.local/start_all.sh/status_all.sh/DEPLOY-GLOBAL/DOUBT-SYSTEM/iso-sand handlers.py+event_schema.yaml、轻如烟 SELF_PULSE_README+pulse-cron.sh+wake_client.py+salience_gate.py+sleep_pressure.py、glue-memory-injector index.js+memory-recall.js+openclaw.plugin.json、edit-web.py:209,302、sandglass_http_api.py。待核实项：双写源的具体前端路径（诊断 P0-1 未定位）、decision_particles 原调用方（P1-2）。*
