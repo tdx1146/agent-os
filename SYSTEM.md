@@ -2,6 +2,7 @@
 
 > 2026-08-10 建立（dandan 指示：杜绝"陌生 AI 部署时完全不知道沙漏存在"）。
 > 2026-08-11 同步体验层 A-D（/react、解读段、子代理过滤、元目的翻转、怀疑融入置信度场）与沙漏 P0-1/2/3 修复后的部署现状。
+> 2026-08-12 同步：失忆根因三件套（FTS 冻结/ts 列/搜索工具）已修复、召回 L1（query 净化）已实施、CONTRACTS.yaml 契约层已建立、方法论 v1.1（system_health_check.sh 审计前置基线）已落地、梦醒回路阶段 1+2 已实施（夜间观测待进行）、提取层+双向塑形 v1.3 设计完成（待审计/实施）、丰碑对齐调研完成（铺路）。全部成果清单与文档路径见 `成果存档索引-20260812.md`。
 > 本文件回答唯一问题：**这套系统由什么组成、按什么顺序部署、数据怎么流动、怎么判断它活着**。
 > 与 TOPOLOGY.md 的关系：TOPOLOGY 是**模块清单视角**（谁在哪、什么端口）；本文件是**数据流视角**（谁喂谁、明线暗线怎么互咬）。**部署前两个都读，先读本文件。**
 > 纪律：所有事实来自 2026-08-10 沙漏链路诊断 + 各仓库 README/源码；不确定处标注【待核实】。本文件随 `tdx1146/agent-os` 仓库维护。
@@ -72,7 +73,7 @@
 | 5 | **玄鉴 verify_daemon** | 监督·审外 | 每 5min 巡检 operation_log，对外部知识/文件变更做关键词校验审计；连续 3 FAIL 追加 WARN 并触发 doubt_hook | `AgentOS-IsoSand/同构沙盘/` | 无端口（守护进程，`src/verify_daemon.py`） | `data/daemon_audit.log`、`data/daemon.pid`、`data/daemon.seek` | 总线 operation_log、内核层规范 `PURPOSE.md` |
 | 6 | **doubt-system 怀疑系统** | 监督·审己 | "聪明=持续自我怀疑"：记忆带信任度、怀疑闭环写账本、每天 23:30 夜巡旁观+反教条复核；怀疑事件喂 LMS 塑形（记得+怀疑=不教条）；2026-08-11 起 LMS 内部另有**置信度场**（体验层D，与 doubt-system 互补：doubt-system 管外部怀疑账本，置信度场管记忆条目信任权重） | `Agent OS/doubt-system/` | 无端口（cron `30 23 * * *` 夜巡）；`doubt_adapter` 在胶水层 | `sandglass/doubt.db`（doubt_episode/memory_trust 表）；夜巡 findings 写沙漏（tag=旁观者-警讯）；marker `workspace/logs/night_patrol.last_run` | 沙漏数据目录、总线 event_bus.jsonl（`DOUBT_BUS_FILE`）、LMS(经总线 feed) |
 | 7 | **self_pulse 自主唤醒** | 唤醒 | 每 10min 自主"醒来"：读 LMS 状态做画像漂移检查 + 推进待办；显著事件经 salience_gate（含梦惊讶度第4通道 `SG_DREAM_FEED`、怀疑缺口第5通道 `SG_DOUBT_FEED`，默认关）→sleep_pressure（防自激）→按 `WAKE_CHANNEL` 选择出口唤醒主 AI | `所有自动化/轻如烟/scripts/`（`pulse-cron.sh`、`self_pulse_cli.py`、`salience_gate.py`、`sleep_pressure.py`、`wake_client.py`） | cron `*/10`；唤醒出口 `WAKE_CHANNEL`：`a`=`POST :10554/hooks/wake`（旧通道）、`b`=chat.send 注入[梦醒]文本（本机 env.local=b） | 写 `sandglass/metrics.jsonl`（每 10min）、漂移时写 sandglass ⚠️告警 + 总线 anomaly；状态 `/tmp/pulse-state.json` | LMS `/status/main`、沙漏 txt、OpenClaw hooks/chat（token 在 openclaw.json，不打印） |
-| 8 | **OpenClaw 插件 glue-memory-injector** | 胶水·注入 | 每轮对话前把记忆送进 AI 上下文：**三路并行**（体验层A）经 glue `/react`（实时反应+解读段，k=0 快路径）+ `/soul`（回魂快照）+ `/recall`（记忆块），拼成 `[回魂]（含 解读: 段）+[记忆注入]` 前缀；限流命中时仍注入轻量解读段（≤150 字，日志计数 `INJECTED-light`）；fail-open 绝不阻塞 | `/vol1/@apphome/trim.openclaw/data/home/.openclaw/plugins/glue-memory-injector/`（index.js + memory-recall.js） | OpenClaw `before_prompt_build` hook；超时 15s/回魂 4s；限流 ≥2s；注入 ≤1500 字（解读段放截断保活区）；心跳轮不注入 | 调试日志 `/tmp/glue-hook-debug.log`（INJECTED / INJECTED-light / MISS 留痕） | glue(:19000)；心跳轮判定靠 ctx.trigger |
+| 8 | **OpenClaw 插件 glue-memory-injector** | 胶水·注入 | 每轮对话前把记忆送进 AI 上下文：**三路并行**（体验层A）经 glue `/react`（实时反应+解读段，k=0 快路径）+ `/soul`（回魂快照）+ `/recall`（记忆块），拼成 `[回魂]（含 解读: 段）+[记忆注入]` 前缀；**检索 query 已净化**（召回 L1，2026-08-11：复刻 openclaw dist stripInboundMetadata 剥 metadata 块 + 子代理轮跳过 + glue 入口兜底净化，治"[记忆注入] 全是编辑器模板"）；限流命中时仍注入轻量解读段（≤150 字，日志计数 `INJECTED-light`）；fail-open 绝不阻塞 | `/vol1/@apphome/trim.openclaw/data/home/.openclaw/plugins/glue-memory-injector/`（index.js + memory-recall.js） | OpenClaw `before_prompt_build` hook；超时 15s/回魂 4s；限流 ≥2s；注入 ≤1500 字（解读段放截断保活区）；心跳轮不注入 | 调试日志 `/tmp/glue-hook-debug.log`（INJECTED / INJECTED-light / MISS 留痕） | glue(:19000)；心跳轮判定靠 ctx.trigger |
 | 9 | **轻如烟编辑器 edit-web** | 明线·写入口 | dandan 的聊天前端（:18888），**真正的落沙写入者**：每轮消息经 `_sandglass_log` → `sandglass_log_wrapper.py` → `sandglass_log.log_message`（P0-1 去重 + P0-2 sender 归一化 + P0-3 落沙后发 `sandglass.entry` 总线事件） | `所有自动化/轻如烟/scripts/edit-web.py`；注意 `/vol1/轻如烟/轻如烟` 与 `/vol2/1000/AI专用/所有自动化/轻如烟` 是**同一文件**（bind mount） | `:18888` | 写 `sandglass/sandglass.txt` + `shadow_sand.db`；`sandglass_log_wrapper.py` 同目录 | 沙漏源码路径、会话文件（`agent:main:main`）、`SANDGLASS_BUS_FILE`（总线路径，可自动推导） |
 | 10 | **OpenClaw Gateway** | 宿主 | 主 AI 运行时容器（毛毛本体）：跑插件、挂 MCP、收 hooks/wake | `/vol1/@apphome/trim.openclaw/data` | `:10554`（hooks 路径 `/hooks`，wake 端点 `/hooks/wake`） | OpenClaw 自身会话/配置；MCP 注册 lms-memory/lms-http/shouji-memory | 插件、各 MCP 后端（8190/17333/手机网关） |
 
@@ -278,6 +279,9 @@ bash stack_ctl.sh doctor
 15. **glue `/store` 聚合写从未被调用**：写侧实际走编辑器直写 + MCP 直连两条旁路。设计正路（glue /store → interfaces.store → feed）从未发生。想接暗线塑形素材，P0-3（落沙发 sandglass.entry）已落地为当前正路，P2-2（统一走 glue /store）二选一，别两条都改。
 16. **生产 8190 跑旧代码（体验层最常见的"部署了但没生效"）**：代码改了、测试过了，但 `:8190` 没重启 → `/react` 404 / 无 `doubt` 字段 / 回魂无解读段，且**不报错**（glue /react 会 502 fail-open，插件优雅降级成旧行为）。部署新代码后必须重启：`set -a; . ./.env; set +a` + 重启 8190。同理插件 memory-recall.js 改后必须**重载 OpenClaw gateway 插件**才生效（不改则仍是旧两路并行）。
 17. **子代理样板污染 [记忆注入]**（2026-08-11 已修，体验层B）：`_GARBAGE_TEXT_RE` 纯增量 +6 条正则（`[Subagent Context]`/`You are running as a subagent`/`[Subagent Task]`/`HEARTBEAT_OK`/`Results auto-announce`/`Your assigned task is in the sy`），入口过滤防新增。**新环境注意：新调度样板串出现时往正则里加，勿删现有 4 条。**
+18. **SIGUSR1 不重载插件**：改完 OpenClaw 插件（memory-recall.js/index.js）发 SIGUSR1 无效——插件代码要 **gateway 完全重启**才加载；且 SIGUSR1 **禁止连击**（第二次在活跃会话中 = forced restart = 杀 session）。SIGUSR1 前确认 session 空闲（无 pending 模型调用）。
+19. **4:00 会话重置已永久关闭**：openclaw.json 已设 `session.reset: {mode: idle, idleMinutes: 999999}`（备份 `.bak-20260811-0119-session-reset`，2026-08-11 生效）。**不要改回去**——每日 4:00 重置是历史失忆感元凶之一；现在由 `session-reset-watchdog`（cron `*/2`）守护归档被重置会话。
+20. **查询污染召回（2026-08-11 已修，召回 L1）**：插件曾把含 untrusted metadata 的完整提示词（Sender 块/时间戳/Subagent 模板）当检索 query → 注入全是编辑器模板记忆。已修三层：插件复刻 `stripInboundMetadata` 净化（L1-a）+ `ctx.sessionKey` 识别子代理轮跳过（L1-b）+ glue `/recall` 入口 `purify_recall_query` 兜底（L1-c）。**新环境注意：glue 侧已生效；插件侧需 gateway 重载才生效（改完重启，见坑 18）**。
 
 ---
 
@@ -333,3 +337,21 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 | **L4 决策粒子（决策追踪/偏移率/幽灵决策）** | 🗄️ 遗产 | 全库仅 1 条、feed_all 零调用方、从未接入链路、历史上无深入讨论。决策追踪职责由 **LMS 目的层 precision 调整**承担，是旧方案的影子，修的成本>收益 |
 
 > 判定依据：《沙漏链路诊断-20260810.md》+ 沙漏搜索实证（2026-08-10 23:08 dandan 确认：画像/L4 没必要修）
+
+---
+
+## 7. 成果存档速览（2026-08-11/12 增量，完整版见 `成果存档索引-20260812.md`）
+
+> 完整清单（标题/文档路径/状态/一句话说明）在 `成果存档索引-20260812.md`（本仓库，2026-08-12 建立）。本节只列状态，防止 SYSTEM.md 膨胀。
+
+| 成果 | 状态（2026-08-12 01:30） | 关键文档 |
+|------|--------------------------|----------|
+| 提取层+双向塑形 v1.3 设计（非生成式为主+LLM 增强） | 🔄 设计完成，待审计 v3/实施（三阶段） | 提取层双向塑形-v1.3设计-20260812.md |
+| 惊讶度修复闭环（surprise −36→+11，语义拆分） | ✅ 已闭环（LMS C1-C5 + glue G1，693 passed） | 惊讶度修复-进度.md |
+| 体验层 A-D（/react、回魂三段式、置信度场、元目的翻转） | ✅ A-D 已上线（总设计 v1.1 待 dandan 确认实施启动项） | 体验层总设计-20260811.md |
+| 失忆根因三件套（FTS 冻结/ts 列/搜索工具） | ✅ 已修复（3 项 4 commit，FTS 重建 984 去重条目） | workspace/memory/2026-08-11.md |
+| CONTRACTS.yaml 契约层 + 玄鉴 push_verify | ✅ 已建立（审计有条件通过，3 必修复项：SG-05 回填/cron 接入/推送积压） | CONTRACTS.yaml + 契约层审计-20260811.md |
+| 梦醒回路阶段 1+2（WAKE_CHANNEL=b 夜间观测） | ✅ 已实施（审计有条件通过）→ 🌙 夜间观测待进行 | 梦醒回路-阶段2审计-20260811.md |
+| 召回 L1 修复（query 净化） | ✅ 已实施（glue 生效；插件待 gateway 重载生效） | 召回L1实施审计-20260811.md |
+| 方法论 v1.1（system_health_check.sh 审计前置基线） | ✅ 已落地（dandan 钦定进方法论） | 子AI调度方法论-v1.0.md（内容 v1.1） |
+| 丰碑对齐调研（磨损机制铺路） | ✅ 调研完成（铺路，非实施；磨损生态从未接线=孤儿模块） | 丰碑LMS对齐调研-20260812.md |
