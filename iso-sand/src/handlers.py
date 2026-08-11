@@ -65,6 +65,10 @@ _OPERATION_LOG = os.path.join(
 # LMS 塑形喂入目标（Phase 4 D0：总线 → LMS /feed，只喂不指挥）
 _LMS_URL = os.environ.get("LMS_URL", "http://127.0.0.1:8190")
 _LMS_FEED_TIMEOUT = float(os.environ.get("LMS_FEED_TIMEOUT", "10"))
+# P0-4（feed503 修复，2026-08-11）：503/超时指数退避重试次数。
+# 默认 3（初始 1 次 + 3 次重试，等待 2s/4s/8s）；0=关闭重试（逃生门）。
+# handle() 实时读取，改 env 无需重启消费者即生效。
+_LMS_FEED_RETRIES = int(os.environ.get("LMS_FEED_RETRIES", "3"))
 
 # P1-4（T1.7）：总线系统事件停喂 LMS。
 # 证据：bus 脑 1212+ 轮几乎全是 "任务 bus_heartbeat 完成 (exit=0)"（每 5 分钟
@@ -362,6 +366,14 @@ class InterfacesRecallHandler(Handler, GlueHttpMixin):
         return True
 
 
+class _FeedRetryableError(Exception):
+    """LMS /feed 可重试失败标记（HTTP 503 / 超时）。
+
+    P0-4（feed503 修复）：_post_feed 把 503/超时转成该类型上抛（保留原异常链），
+    handle() 对其指数退避重试，重试仍失败才走既有死信路径。
+    """
+
+
 class LmsFeedHandler(Handler):
     """LMS 塑形喂入（Phase 4 D0 方向 1：只喂不指挥）。
 
@@ -429,19 +441,41 @@ class LmsFeedHandler(Handler):
         # 喂塑形是软参考：截断超长文本（LMS 侧也有总量限流）
         text = text[:2000]
         trace_id = str(event.get("trace_id", "unknown"))
-        try:
-            # P0-3：sandglass.entry 带来源标记 source=sandglass，供 LMS 识别
-            # （防循环：LMS 侧可据此不把该来源回灌/不回写沙漏）
-            source = "sandglass" if event.get("event_type") == "sandglass.entry" else "event_bus"
-            result = self._post_feed({
-                "text": text,
-                "session_id": "bus",
-                "source": source,
-            })
-        except Exception as e:
-            raise RuntimeError(
-                f"LMS /feed 失败: {type(e).__name__}: {e}"
-                f" (trace_id={trace_id})") from e
+        # P0-3：sandglass.entry 带来源标记 source=sandglass，供 LMS 识别
+        # （防循环：LMS 侧可据此不把该来源回灌/不回写沙漏）
+        source = "sandglass" if event.get("event_type") == "sandglass.entry" else "event_bus"
+
+        # P0-4（feed503 修复）：503/超时指数退避重试。
+        # 重试次数实时读 LMS_FEED_RETRIES（默认 3，等待 2s/4s/8s，阻塞 ≤14s）；
+        # 0=关闭重试（逃生门，改 env 无需重启消费者即生效）；
+        # 重试仍失败 raise → 既有死信路径（不新增异常路径）。
+        # 仅对 _FeedRetryableError（503/超时）重试；其他异常原样走死信。
+        retries = max(0, int(os.environ.get("LMS_FEED_RETRIES",
+                                            str(_LMS_FEED_RETRIES))))
+        attempt = 0
+        while True:
+            try:
+                result = self._post_feed({
+                    "text": text,
+                    "session_id": "bus",
+                    "source": source,
+                })
+                break
+            except _FeedRetryableError as e:
+                attempt += 1
+                if attempt > retries:
+                    raise RuntimeError(
+                        f"LMS /feed 失败（重试 {retries} 次后仍失败）: "
+                        f"{type(e).__name__}: {e} (trace_id={trace_id})") from e
+                wait = 2 ** attempt  # 指数退避：2s/4s/8s…
+                print(f"[handlers] ⚠️ {self.name}: LMS /feed 可重试失败"
+                      f"（{type(e).__name__}），第 {attempt}/{retries} 次重试，"
+                      f"{wait}s 后重试 (trace_id={trace_id})")
+                time.sleep(wait)
+            except Exception as e:
+                raise RuntimeError(
+                    f"LMS /feed 失败: {type(e).__name__}: {e}"
+                    f" (trace_id={trace_id})") from e
         if not result or result.get("status") != "ok":
             raise RuntimeError(f"LMS /feed 返回异常: {result}")
         self._op_writer.write({
@@ -459,16 +493,34 @@ class LmsFeedHandler(Handler):
 
     @staticmethod
     def _post_feed(body: dict):
-        """urllib POST LMS /feed（shell=False，零额外依赖）。"""
+        """urllib POST LMS /feed（shell=False，零额外依赖）。
+
+        P0-4（feed503 修复）：HTTP 503 / 超时抛 _FeedRetryableError（保留原异常
+        链），供 handle() 指数退避重试；其他异常原样上抛（走既有死信路径）。
+        """
         import urllib.request
+        import urllib.error
         req = urllib.request.Request(
             _LMS_URL + "/feed",
             data=json.dumps(body).encode("utf-8"),
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=_LMS_FEED_TIMEOUT) as resp:
-            return json.loads(resp.read().decode("utf-8"))
+        try:
+            with urllib.request.urlopen(req, timeout=_LMS_FEED_TIMEOUT) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if e.code == 503:
+                raise _FeedRetryableError(f"HTTP 503 {e.reason}") from e
+            raise
+        except TimeoutError as e:  # socket.timeout == TimeoutError（Py≥3.10）
+            raise _FeedRetryableError(f"超时 {type(e).__name__}") from e
+        except urllib.error.URLError as e:
+            # urllib 把连接超时包成 URLError(reason=TimeoutError)
+            if isinstance(e.reason, TimeoutError):
+                raise _FeedRetryableError(
+                    f"超时 {type(e).__name__}: {e.reason}") from e
+            raise
 
 
 class DreamCompleteHandler(Handler):
