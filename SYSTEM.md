@@ -76,7 +76,20 @@
 | 9 | **轻如烟编辑器 edit-web** | 明线·写入口 | dandan 的聊天前端（:18888），**真正的落沙写入者**：每轮消息经 `_sandglass_log` → `sandglass_log_wrapper.py` → `sandglass_log.log_message`（P0-1 去重 + P0-2 sender 归一化 + P0-3 落沙后发 `sandglass.entry` 总线事件） | `所有自动化/轻如烟/scripts/edit-web.py`；注意 `/vol1/轻如烟/轻如烟` 与 `/vol2/1000/AI专用/所有自动化/轻如烟` 是**同一文件**（bind mount） | `:18888` | 写 `sandglass/sandglass.txt` + `shadow_sand.db`；`sandglass_log_wrapper.py` 同目录 | 沙漏源码路径、会话文件（`agent:main:main`）、`SANDGLASS_BUS_FILE`（总线路径，可自动推导） |
 | 10 | **OpenClaw Gateway** | 宿主 | 主 AI 运行时容器（毛毛本体）：跑插件、挂 MCP、收 hooks/wake | `/vol1/@apphome/trim.openclaw/data` | `:10554`（hooks 路径 `/hooks`，wake 端点 `/hooks/wake`） | OpenClaw 自身会话/配置；MCP 注册 lms-memory/lms-http/shouji-memory | 插件、各 MCP 后端（8190/17333/手机网关） |
 
-**外部依赖（不是本系统组件但被依赖）：** 手机端 Ollama bge-m3 向量服务 `192.168.0.103:11435`（LMS 嵌入 + 胶水向量都用它；**HF 不可达，必须走它**）；DeepSeek API（LMS LLM 能力）。
+**外部依赖（不是本系统组件但被依赖，部署者必须自己准备）：**
+
+| 外部依赖 | 为什么必须 | 部署者自备说明 |
+|---------|-----------|--------------|
+| **embed 向量服务（bge-m3，OpenAI 兼容 /v1/embeddings）** ⚠️最关键 | LMS 感官层嵌入 + 胶水向量都用它；**没有它 = LMS/胶水全部静默降级，感官层就瞎了**（HF 在本机不可达，`LMS_EMBEDDER` 不能回 pretrained） | 手机/任意机器跑 Ollama + bge-m3（1024 维），暴露 `http://<host>:11435/v1/embeddings`，写入 `LMS_CLOUD_EMBED_URL`（LMS `.env` + env.local）与 `VECTOR_URL`（env.local）；可配 `LMS_CLOUD_EMBED_FALLBACK_URL` 备用端点 |
+| **DeepSeek API Key** | LMS LLM 能力（自述蒸馏等） | 写入 `$LMS_HOME/.env` 的 `DEEPSEEK_API_KEY`；不填 = LLM 功能禁用但记忆核心仍工作 |
+| **GitHub 三仓（均公开）** | clone 代码 | `living-memory-system` / `memory-integration-layer` / `agent-os` 均 **main 分支公开**（2026-08-10 起），**公开仓 clone 不需要 token**；只有 push 才需凭据（本机已配置 credential helper，不写入文档） |
+| **OpenClaw Gateway** | 主 AI 宿主（插件/MCP/hooks） | 需支持 `before_prompt_build` hook + MCP 注册 + `/hooks/wake` 端点；插件 `glue-memory-injector` 放入 plugins 目录；MCP 注册 lms-memory / lms-http / shouji-memory；版本以 OpenClaw 官方为准 |
+| **node（≥18，本机 v24）** | OpenClaw 运行时 + 插件 | 部署机器需安装 |
+| **手机记忆网关（可选）** | OpenClaw MCP shouji-memory 桥接 | `SHOUJI_MCP_URL`（默认 https://shouji.tdx1146.cc/tools）；缺省不影响本地链路 |
+
+**OpenClaw 侧配置清单**：① plugins 目录放入 `glue-memory-injector`（onStartup 启用）；② MCP 注册 lms-memory（stdio）、lms-http、shouji-memory；③ `session.reset` 相关由 `session-reset-watchdog.py`（cron `*/2`）守护；④ 插件改后需 gateway 重载才生效（体验层坑 16）。
+
+**crontab 三锁 + 新巡检**：`pulse-cron`（`*/10` 唤醒链）、`night_patrol`（`30 23` 夜巡）、`session-reset-watchdog`（`*/2`）三条是怀疑/唤醒/会话三把锁；另加 `*/5` health-check、LMS 备份三档、`@reboot` start_all.sh（全表见 §3.4）。
 
 ---
 
