@@ -13,11 +13,11 @@
 
 | 服务 | 端口 | 目录变量 | 启动入口 |
 |---|---|---|---|
-| 沙漏 HTTP API | 17333 | `SANDGLASS_SOURCE` | `python3 sandglass_http_api.py` |
-| 活体记忆 LMS API | 8190 | `LMS_HOME` | `.venv/bin/python -m api.run` |
-| 胶水层 glue_server | 19000 | `GLUE_HOME` | `python3 glue_server.py` |
+| 沙漏 HTTP API | 17333 | `SANDGLASS_SOURCE` | `python3 sandglass_http_api.py`（P0-1/2/3 补丁，fork `tdx1146/nyx`） |
+| 活体记忆 LMS API | 8190 | `LMS_HOME` | `.venv/bin/python -m api.run`（体验层 A-D：/react/解读段/过滤/元目的翻转/置信度场） |
+| 胶水层 glue_server | 19000 | `GLUE_HOME` | `python3 glue_server.py`（含 /react 薄代理） |
 | 总线调度器 scheduler | — | `ISO_SAND_HOME` | `bash start_scheduler.sh` |
-| 总线消费者 consumer | — | `ISO_SAND_HOME` | `bash start_consumer.sh` |
+| 总线消费者 consumer | — | `ISO_SAND_HOME` | `bash start_consumer.sh`（订阅 sandglass.entry，LMS_FEED_RETRIES 逃生门） |
 | 玄鉴 verify_daemon | — | `VERIFY_HOME` | `python3 src/verify_daemon.py` |
 | 编辑器 edit-web | 18888 | `EDITOR_HOME` | `python3 edit-web.py`（轻如烟自愈脚本托管） |
 
@@ -50,6 +50,25 @@ cd <你的>/Agent\ OS
 
 > 换机器只需改 `env.local` 的「A. 机器根变量」约 8 个路径 + 端口节，
 > 其余变量（`SANDGLASS_SOURCE`/`RUN_DIR`/`LOG_DIR`/`LMS_URL`…）全部自动派生。
+
+### 2.5 体验层部署（2026-08-11，新代码生效要点）
+
+> 体验层 A-D（/react 实时反应+解读段、子代理过滤、元目的翻转、怀疑融入置信度场）代码已在三仓 main，**部署后必须重启才生效**（不重启=静默跑旧版，见 SYSTEM.md §5 坑 16）。
+
+```bash
+# ① 重启 LMS（必须先 source .env，否则静默降级）
+cd "$LMS_HOME" && set -a; . ./.env; set +a && .venv/bin/python -m api.run --host 127.0.0.1 --port 8190 &
+# ② 重启 glue（/react 薄代理）
+cd "$GLUE_HOME" && python3 glue_server.py --host 127.0.0.1 --port 19000 &
+# ③ 重启 consumer（订阅 sandglass.entry + LMS_FEED_RETRIES）
+cd "$ISO_SAND_HOME" && bash start_consumer.sh
+# ④ 重载 OpenClaw 插件（memory-recall.js 三路并行；不重载=旧两路）
+#    gateway 插件重载按 OpenClaw 部署流程处理
+# ⑤ 验证（详见 SYSTEM.md §3.5 部署后 10 分钟验证清单）
+curl -s -X POST http://127.0.0.1:8190/react -H 'Content-Type: application/json' -d '{"user_input":"契约校验探针","k":0}' | head -c 300
+```
+
+**新增/生效环境变量（体验层 & 2026-08-11 修复）**：`WAKE_CHANNEL`（self_pulse 唤醒出口 a/b）、`SG_DREAM_FEED`/`SG_DOUBT_FEED`（salience_gate 第 4/5 通道，默认关）、`LMS_FEED_RETRIES`/`LMS_FEED_TIMEOUT`（consumer 重试逃生门）、`LMS_FEED_RATE_LIMIT`（LMS /feed 限流）、`LMS_CLOUD_EMBED_FALLBACK_URL`（embed 备用端点）、`SANDGLASS_DEDUP_WINDOW`/`SANDGLASS_SENDER_MAP`/`SANDGLASS_MAX_TEXT_LEN`/`SANDGLASS_BUS_FILE`/`SANDGLASS_BUS_MIN_INTERVAL`（沙漏 P0-1/2/3）。全部含义见 `SYSTEM.md §3.1` 核心环境变量表。
 
 ### 常用运维命令
 
@@ -123,6 +142,10 @@ D. 服务参数      —— LMS 做梦频率等
 
 ## 6. 变更记录
 
+- **2026-08-11（体验层 A-D + 沙漏 P0-1/2/3 部署同步）**
+  - 新增 §2.5 体验层部署（重启生效要点 + 新环境变量清单）
+  - 全景表标注 /react、sandglass.entry 订阅、WAKE_CHANNEL/SG_* 通道
+  - 部署后验证：SYSTEM.md §3.5 新增「部署后 10 分钟验证清单」（不看代码版）
 - **2026-08-10（部署统一化重构）**
   - 新建 `env.template`（带注释模板）+ 重写 `env.local`（配置中心）
   - `stack_ctl.sh`：新增 `setup` / `doctor` 命令；SERVICES 全部引用配置变量；删除全部硬编码默认路径
