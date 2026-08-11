@@ -82,8 +82,11 @@ def read_sandglass(d: str) -> dict:
         conn = sqlite3.connect(f"file:{SANDBASE_DB}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
+        # 失忆根因-1：sandglass.db 真实列名是 `timestamp`（CREATE TABLE sandglass
+        #   (id INTEGER PRIMARY KEY, timestamp TEXT, sender TEXT, text TEXT)），
+        #   旧代码用 `ts` 导致 no such column: ts → dialogue_entries 恒 0。
         rows = cur.execute(
-            "SELECT id, ts, sender, text FROM sandglass WHERE ts >= ? AND ts < ? ORDER BY ts, id",
+            "SELECT id, timestamp AS ts, sender, text FROM sandglass WHERE timestamp >= ? AND timestamp < ? ORDER BY timestamp, id",
             (start, end),
         ).fetchall()
         conn.close()
