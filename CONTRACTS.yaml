@@ -193,6 +193,43 @@ contracts:
     path: "doubt.db (doubt_episode / memory_trust)"
     check_id: C-12
     notes: "怀疑账本：doubt_episode 表必须有行且 db 48h 内有写入（夜巡/怀疑钩子）。"
+  - id: C-13
+    from: plugin(glue-memory-injector)
+    to: lms
+    method: POST
+    path: "/recall"
+    required_fields: ["count", "results[].origin", "results[].text"]
+    check_id: C-13
+    notes: >
+      体验层 D（设计 v1.1 §8.1）：结果条目增量置信度字段
+      （confidence/rebuttal_count/labile/source_trust/last_recalled_at）——
+      C-02 required 不变 → 绿；新字段为 optional_fields（缺席不违约，
+      归档条目 origin='archive' 无置信度字段）。
+  - id: C-14
+    from: self_pulse(salience_gate)
+    to: lms
+    method: GET
+    path: "/status/{sid}"
+    required_fields: [entropy_ratio, purpose_coherence, turn_count]
+    check_id: C-14
+    notes: >
+      体验层 D（设计 v1.1 §8.1）：status 增量 doubt 字段
+      （gaps{fok_unresolved,low_confidence_unreviewed}/labile_count/
+      low_confidence_count/last_review）——C-01 required 不变 → 绿；
+      doubt 为 optional_fields（缺席不违约）。explore_dims 仅诊断
+      （C 类不进怀疑灯，专注化修订 §6.6）。
+  - id: C-15
+    from: doubt_adapter(胶水层)
+    to: lms
+    method: POST
+    path: "/feed"
+    event: "doubt.episode"
+    check_id: C-15
+    notes: >
+      怀疑闭环（体验层 D，设计 v1.1 §8.1）：doubt.episode 事件经
+      doubt_adapter → glue /store → LMS /feed 结构化摄入（doubt_ingest，
+      fail-open）。无前缀=普通塑形逐字节不变。健康校验=共享 /feed 通道
+      无失败（consumer.log 证据型，同 C-05 通道）。
   - id: C-16
     from: plugin(glue-memory-injector)
     to: lms
@@ -332,6 +369,51 @@ checks:
       体验层 A：/react infer-only 零持久化（不 learn/不落 episodic/不写回
       sigma/turn_count 不变），探针固定串+k=0 作契约巡检安全、不污染大脑。
       可缺席=系统未启用，不违约（fail-open）。
+
+  - id: LM-05
+    component: lms
+    name: LMS /recall 置信度字段（体验层 D C-13，optional）
+    type: http_json
+    method: POST
+    url: "http://127.0.0.1:${LMS_API_PORT}/recall"
+    body: {"query": "置信度字段探针", "k": 2, "session_id": "main"}
+    timeout: 8
+    asserts:
+      - {path: "count", exists: true, note: "C-02 required 不变"}
+      - {path: "results", type: "list", note: "C-02 required 不变"}
+    optional_fields:
+      - {path: "results.0.confidence", if_present: {type: "float"}, note: "置信度（optional，缺席不违约）"}
+      - {path: "results.0.rebuttal_count", if_present: {type: "int"}, note: "反驳次数（optional）"}
+    notes: "体验层 D：/recall 条目置信度字段（C-02 不变 → 绿）。"
+
+  - id: LM-06
+    component: lms
+    name: LMS /status doubt 字段（体验层 D C-14，optional）
+    type: http_json
+    method: GET
+    url: "http://127.0.0.1:${LMS_API_PORT}/status/main"
+    timeout: 8
+    json_root: status
+    asserts:
+      - {path: "entropy_ratio", exists: true, note: "C-01 required 不变"}
+      - {path: "purpose_coherence", exists: true, note: "C-01 required 不变"}
+    optional_fields:
+      - {path: "doubt", if_present: {type: "dict"}, note: "doubt 增量字段（optional，缺席不违约）"}
+      - {path: "doubt.gaps", if_present: {type: "dict"}, note: "信息缺口（A/B 类进灯，C 类仅诊断）"}
+      - {path: "doubt.labile_count", if_present: {type: "int"}, note: "去稳定化计数（optional）"}
+    notes: "体验层 D：/status doubt 增量字段（C-01 不变 → 绿）。"
+
+  - id: LM-07
+    component: lms
+    name: doubt.episode → LMS /feed 摄入健康（体验层 D C-15）
+    type: log_failure_ratio
+    log: "${LOG_DIR}/consumer.log"
+    fail_pattern: "LMS /feed 失败"
+    ok_pattern: "lms.feed 处理成功"
+    tail_lines: 100
+    ok_max_fail: 0
+    warn_max_fail: 3
+    notes: "怀疑闭环摄入通道（doubt.episode 经 /feed 结构化摄入，doubt_ingest fail-open）；共享 /feed 通道无失败=绿（同 C-05 证据型校验）。"
 
   # ================= 胶水 glue =================
   - id: GL-01
