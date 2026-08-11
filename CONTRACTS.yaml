@@ -193,6 +193,19 @@ contracts:
     path: "doubt.db (doubt_episode / memory_trust)"
     check_id: C-12
     notes: "怀疑账本：doubt_episode 表必须有行且 db 48h 内有写入（夜巡/怀疑钩子）。"
+  - id: C-16
+    from: plugin(glue-memory-injector)
+    to: lms
+    method: POST
+    path: "/react"
+    required_fields: ["reaction.surprise(float≥0)", "interpretation(str 非空)"]
+    check_id: C-16
+    notes: >
+      实时反应只读端点（体验层 A，设计 v1.1 §8.1）：infer-only 零持久化
+      （不 learn/不落 episodic/不写回 sigma/turn_count 不变），探针
+      user_input 固定串 + k=0 作 30min 契约巡检安全、不污染大脑。
+      可缺席=系统未启用，不违约（fail-open）。check type=http_json，
+      contract_check.sh 通用解析器零脚本改动自动接入。
 
 # -------------------------------------------------------------
 # 三、checks — 机器执行定义（contract_check.sh 逐项跑）
@@ -302,6 +315,23 @@ checks:
     name: LMS 控制口 :8191
     type: port_listen
     port: 8191
+
+  - id: LM-04
+    component: lms
+    name: LMS /react 实时反应只读探针（体验层 A C-16）
+    type: http_json
+    method: POST
+    url: "http://127.0.0.1:${LMS_API_PORT}/react"
+    body: {"user_input": "契约校验探针", "k": 0}
+    timeout: 8
+    asserts:
+      - {path: "reaction.surprise", ge: 0, note: "惊讶度=准确性项恒≥0（语义红线）"}
+      - {path: "interpretation", nonempty: true, note: "解读段必须非空"}
+      - {path: "turn_count", exists: true, note: "只读锚点（探针调用不应改变轮次）"}
+    notes: >
+      体验层 A：/react infer-only 零持久化（不 learn/不落 episodic/不写回
+      sigma/turn_count 不变），探针固定串+k=0 作契约巡检安全、不污染大脑。
+      可缺席=系统未启用，不违约（fail-open）。
 
   # ================= 胶水 glue =================
   - id: GL-01
