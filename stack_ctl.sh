@@ -27,7 +27,17 @@ AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
+# AGENT_OS_HOME 以脚本位置为准（env.local 里的值仅作参考，防止占位符/搬迁后错位）
+AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
+# 外部仓库路径：相对推导兜底（与 deploy.sh 一致）。
+# 必须在 SERVICES 表之前定义 —— 全新 clone 无 env.local 时，set -u 下引用未定义
+# 变量会直接崩溃（演练实锤：SANDGLASS_SOURCE: unbound variable）。
+LIGHT_HOME="${LIGHT_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟}"
+LMS_HOME="${LMS_HOME:-$AGENT_OS_HOME/../living-memory-system-cloud}"
+GLUE_HOME="${GLUE_HOME:-$AGENT_OS_HOME/../memory-integration-layer}"
+SANDGLASS_SOURCE="${SANDGLASS_SOURCE:-$LIGHT_HOME/sandglass_source}"
+NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-$LIGHT_HOME/sandglass}"
 # 玄鉴已并入 agent-os/xuanjian（2026-08-12）；优先新路径，旧同构沙盘回退（本机运行实例仍在其 data/）。
 if [ -d "$AGENT_OS_HOME/xuanjian/src" ]; then
     VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/xuanjian}"
@@ -42,13 +52,16 @@ GLUE_PORT="${GLUE_PORT:-19000}"
 
 CMD="${1:-status}"
 
-# 外部仓库路径：env.local 缺失时给出明确指引（setup/doctor 例外，它们负责引导）
+# 外部仓库路径：env.local 缺失时给出明确指引（setup/doctor 例外，它们负责引导）。
+# 注意：不 exit —— 路径已有相对推导兜底，SERVICES 表不会崩；缺仓库时 start/status
+# 会如实报"目录不存在"，部署者用 deploy.sh bootstrap 或手工 clone 补齐。
 if [ "$CMD" != "setup" ] && [ "$CMD" != "doctor" ]; then
-    for v in LMS_HOME GLUE_HOME SANDGLASS_SOURCE NEXSANDBASE_HOME VERIFY_HOME; do
-        if [ -z "${!v:-}" ]; then
-            echo "❌ 缺少配置 $v（$AGENT_OS_HOME/env.local 缺失或未定义该变量）" >&2
-            echo "   请先运行: ./stack_ctl.sh setup  （首次部署向导）" >&2
-            exit 1
+    if [ ! -f "$AGENT_OS_HOME/env.local" ]; then
+        echo "⚠️ env.local 缺失，使用相对推导默认路径（建议先运行: ./stack_ctl.sh setup 生成）" >&2
+    fi
+    for v in LMS_HOME GLUE_HOME SANDGLASS_SOURCE NEXSANDBASE_HOME; do
+        if [ ! -d "${!v:-}" ]; then
+            echo "⚠️ 目录 $v 不存在: ${!v}（env.local 未配置或仓库未 clone；可用 deploy.sh bootstrap 自动补齐）" >&2
         fi
     done
 fi
