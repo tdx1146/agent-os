@@ -10,6 +10,8 @@ AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
+# AGENT_OS_HOME 以脚本位置为准（env.local 里的值仅作参考，防止占位符/搬迁后错位）
+AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 SANDGLASS_API_PORT="${SANDGLASS_API_PORT:-17333}"
 LMS_API_PORT="${LMS_API_PORT:-8190}"
 GLUE_PORT="${GLUE_PORT:-19000}"

@@ -13,6 +13,8 @@ AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
+# AGENT_OS_HOME 以脚本位置为准（env.local 里的值仅作参考，防止占位符/搬迁后错位）
+AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 # 相对推导默认值（以 AGENT_OS_HOME 为锚点，标准布局下自动定位）
 NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟/sandglass}"
 SANDGLASS_SOURCE="${SANDGLASS_SOURCE:-$AGENT_OS_HOME/../所有自动化/轻如烟/sandglass_source}"

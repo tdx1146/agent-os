@@ -11,6 +11,8 @@ AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
+# AGENT_OS_HOME 以脚本位置为准（env.local 里的值仅作参考，防止占位符/搬迁后错位）
+AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 RUN_DIR="${RUN_DIR:-$AGENT_OS_HOME/run}"
 ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
 # 玄鉴已并入 agent-os/xuanjian（2026-08-12）；优先新路径，旧同构沙盘回退（本机运行实例仍在其 data/）。
