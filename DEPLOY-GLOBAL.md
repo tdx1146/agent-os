@@ -27,10 +27,12 @@
 
 ## 2. 新机器部署步骤（5 步）
 
+> **2026-08-12 起推荐一键总控：`bash deploy.sh`**（前置检测→拉起→健康验证→cron 检查→汇总，一个命令到位）。下面的 5 步是 deploy.sh 内部做的事，供理解/手工分步用。
+
 ```bash
 # ① 拷贝仓库（保持目录间相对布局，或任意布局均可——路径由 env.local 决定）
 #    需要：Agent OS / 所有自动化/轻如烟 / living-memory-system-cloud /
-#          memory-integration-layer / AgentOS-IsoSand/同构沙盘
+#          memory-integration-layer / AgentOS-IsoSand/同构沙盘（玄鉴源码暂无远端，见复现缺口清单）
 cd <你的>/Agent\ OS
 
 # ② 生成本机配置（从模板拷贝）
@@ -38,14 +40,15 @@ cd <你的>/Agent\ OS
 #    → 自动 cp env.template env.local，并给出路径校验结果
 #    → 若报缺目录：编辑 env.local 的【A. 机器根变量】一节，改成你机器上的真实路径
 
-# ③ 全配置体检（路径存在 / 端口 / 依赖命令，全绿即就绪）
-./stack_ctl.sh doctor
+# ③ 一键部署总控（推荐）：前置检测 + 拉起 + 健康验证 + crontab 检查
+bash deploy.sh
+#    → 缺什么会逐项提示；幂等可重跑；之后日常：deploy.sh status / deploy.sh verify
 
-# ④ 一键启动全部服务（幂等：已在跑的服务自动跳过）
-./stack_ctl.sh start
+# ④ （等价手工分步）全配置体检 + 启动 + 状态
+./stack_ctl.sh doctor && ./stack_ctl.sh start && ./stack_ctl.sh status
 
-# ⑤ 确认 6 服务全绿
-./stack_ctl.sh status
+# ⑤ crontab 模板（路径按 env.local 展开，部署者直接复制）
+bash deploy.sh cron-show
 ```
 
 > 换机器只需改 `env.local` 的「A. 机器根变量」约 8 个路径 + 端口节，

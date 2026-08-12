@@ -136,14 +136,18 @@ grep -c "sandglass.entry" /vol2/1000/AI专用/Agent\ OS/iso-sand/data/event_bus.
 
 ---
 
-## 6. 已知缺口（2026-08-10 审计）
+## 6. 已知缺口（2026-08-10 审计 + 2026-08-12 复现保障复核）
 
-1. 轻如烟/玄鉴的远端仓库：**以姐姐侧 GitHub 版本为准**（dandan 2026-08-10：本机不自动上传）。本机目录无 git remote 属正常。
-2. ~~living-memory-system 为私有仓库~~ → **2026-08-10 已公开，默认分支 main**。
-3. 本文件建立后，各模块 README 需补「系统定位」段指向本文件（已完成：见各 README 顶部）。
-4. **待重启生效**：:8190 已重启（2026-08-10 10:31），阶段 2 的 T2.3 归档检索/T2.6 审计/T2.8 算法治理已加载；T2.2 健康检查调度、:8191 控制口、codex/workbody 接入尚未落地（C 类）。
-5. **体验层部署状态（2026-08-11 实测）**：生产 8190 / 19000 均已跑体验层新代码（`/react` 200、`/status` 含 doubt 字段）；插件 memory-recall.js 新代码已改但**需 gateway 重载插件**才生效（未重载则仍是旧两路并行）；三仓（agent-os/LMS/glue）本地 commit 均已就绪，push 前待 dandan 确认。
-6. **沙漏/轻如烟远端**：沙漏源码 fork 在 `tdx1146/nyx`（P0-1/2/3 补丁已含）；`qingruyan-scripts` 仓含 self_pulse 唤醒链（WAKE_CHANNEL/SG_* 环境变量）。
+1. **玄鉴 verify_daemon 无远端仓库（复现阻断，最高优先）**：本机 `AgentOS-IsoSand/同构沙盘` 无 .git；GitHub `tdx1146` 名下不存在对应公开仓（ls-remote 验证）。旧文"以姐姐侧 GitHub 仓库为准"无法兑现。**待 dandan 决策**：①新建仓（如 `tdx1146/agent-os-isosand`）推送同构沙盘（排除 data/）；②或并入 agent-os 仓子目录。详见 `复现缺口清单-20260812.md` #2。
+2. **edit-web.py 仓 main 分叉（复现影响中）**：本地 main 领先 GitHub main 20 commit（梦醒阶段2/salience_gate 第4通道/固定会话/wake A→B/dashboard 挂载），且与远端 main 无共同祖先（远端另有 F180 修复）；dashboard 挂载只在 `dashboard-mount` 分支。推送需先合并决策（force push 或 merge），**待 dandan 确认**。本地已修复的 `sandglass_log_wrapper.py` 硬编码路径（已 commit，未推）。详见缺口清单 #3。
+3. **轻如烟/玄鉴的远端仓库**：以 GitHub 现状为准（本机不自动上传）；玄鉴见 #1。
+4. ~~living-memory-system 为私有仓库~~ → **2026-08-10 已公开，默认分支 main**。
+5. 本文件建立后，各模块 README 需补「系统定位」段指向本文件（已完成：见各 README 顶部）。
+6. **待重启生效**：:8190 已重启（2026-08-10 10:31），阶段 2 的 T2.3 归档检索/T2.6 审计/T2.8 算法治理已加载；T2.2 健康检查调度、:8191 控制口、codex/workbody 接入尚未落地（C 类）。
+7. **体验层部署状态（2026-08-11 实测）**：生产 8190 / 19000 均已跑体验层新代码（`/react` 200、`/status` 含 doubt 字段）；插件 memory-recall.js 新代码已改但**需 gateway 重载插件**才生效（未重载则仍是旧两路并行）。
+8. **沙漏/轻如烟远端（2026-08-12 已修）**：`tdx1146/nyx` main 已推全 9 补丁（含失忆根因三件套），PATCH-README 已同步；`qingruyan-scripts` 仓与 edit-web.py 仓内容重叠（self_pulse 脚本在 edit-web.py 仓内），建议废弃标注 qingruyan-scripts 或合并（待 dandan 决策）。
+9. **glue-memory-injector 仓（2026-08-12 已修）**：main 已并入远端 README/平行回魂实现并推至生产态（storeTurn config 优先定案）。
+10. **编辑器 500 截断残留**：edit-web.py `_sandglass_log` 仍 `content[:500]`（P0-2 只修了 sandglass_log.py 侧），待 edit-web 仓合并后修复（见 SYSTEM.md 坑 6）。
 
 ---
 

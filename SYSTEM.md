@@ -54,7 +54,7 @@
 **部署顺序（5 步，详见 §3）：**
 1. 前置准备（Python/git/node + 5 个仓库 + `Agent OS/env.local` 配置中心）
 2. 确认外部依赖（手机向量服务 `192.168.0.103:11435` bge-m3）
-3. `cd Agent OS && bash start_all.sh` 一键起 5 服务（内部严格顺序：沙漏→LMS→胶水→总线→玄鉴）
+3. `cd Agent OS && bash deploy.sh` 一键部署（前置检测+按依赖顺序拉起 6 服务+编辑器+健康验证+cron 检查；内部委托 stack_ctl.sh/start_all.sh，严格顺序：沙漏→LMS→胶水→总线→玄鉴）
 4. 注册 crontab（唤醒链/夜巡/备份/开机自启）+ 启动轻如烟编辑器 :18888
 5. 接通 OpenClaw（插件 + MCP）→ 跑自检清单
 
@@ -66,7 +66,7 @@
 
 | # | 组件 | 角色 | 为什么存在（一句话） | 部署位置 | 端口/接口 | 数据文件 | 依赖谁 |
 |---|------|------|---------------------|----------|-----------|----------|--------|
-| 1 | **沙漏 NexSandglass** ⚠️最容易漏 | 明线·保底 | 每句话明文落沙、一字不丢，是"失忆后还能找回自己"的最后底牌；四层：L1 落沙/L2 检索/L3 思维/L4 决策粒子；2026-08-11 打 P0-1/2/3 补丁（去重/sender 归一化/总线事件） | 源码 `所有自动化/轻如烟/sandglass_source/`（= `/vol2/1000/AI专用/所有自动化/找回自己/scripts/sandglass_source/` 的部署副本，fork `tdx1146/nyx`）；数据 `轻如烟/sandglass/` | `:17333` HTTP（`GET /api/health`、`POST /api/memory_search`、`/api/embedding_search`、`/api/facts_lookup`、`/api/sandglass_query`） | **`sandglass.txt`（追加式明文，权威源）**、`sandglass.idx`、`shadow_sand.db`（织线三元组）、`doubt.db`（怀疑账本）、`metrics.jsonl`、`sleep_pressure.json`、`salience_state.json`、`persona/persona.md`、`decision_particles.txt` | 零依赖（纯 stdlib），被胶水/插件/self_pulse/夜巡消费 |
+| 1 | **沙漏 NexSandglass** ⚠️最容易漏 | 明线·保底 | 每句话明文落沙、一字不丢，是"失忆后还能找回自己"的最后底牌；四层：L1 落沙/L2 检索/L3 思维/L4 决策粒子；2026-08-11 打 P0-1/2/3 补丁（去重/sender 归一化/总线事件）+ 失忆根因三件套（FTS 冻结/搜索工具/时间戳解析） | 源码 `所有自动化/轻如烟/sandglass_source/`（**git 仓 fork `tdx1146/nyx`，main 已含全部 9 补丁**，2026-08-12 复核推送）；⚠️ `找回自己/scripts/sandglass_source/` 是**过期副本**（无 git、vault 已落后），勿作权威；数据 `轻如烟/sandglass/`（个人记忆，不随仓分发） | `:17333` HTTP（`GET /api/health`、`POST /api/memory_search`、`/api/embedding_search`、`/api/facts_lookup`、`/api/sandglass_query`） | **`sandglass.txt`（追加式明文，权威源）**、`sandglass.idx`、`shadow_sand.db`（织线三元组）、`doubt.db`（怀疑账本）、`metrics.jsonl`、`sleep_pressure.json`、`salience_state.json`、`persona/persona.md`、`decision_particles.txt` | 零依赖（纯 stdlib），被胶水/插件/self_pulse/夜巡消费 |
 | 2 | **LMS 活体记忆** | 暗线·塑形 + 质检 | 用 FEP 把对话流动塑成结构（J矩阵/熵/惊讶度/目的层），空闲自动做梦巩固；2026-08-11 体验层 D 起内部有**置信度场**（怀疑融入：修正已关注记忆的信任权重）——"不是存储记忆，是维护能产生记忆的大脑状态" | `living-memory-system-cloud/`（必须 `.venv` + `.env`） | `:8190` HTTP（`/health`、`/status/{sid}`、`/feed`、`/recall`、`/chat`、**`/react`**（体验层A：infer-only 实时反应+解读段））；`:8191` 控制口；MCP：lms-memory(stdio)、lms-http | `snapshots/`（J矩阵快照）、状态文件（turn_count 123/熵 0.97/目的 0.94，2026-08-11）；置信度场字段随 EpisodicEntry 存快照 | 向量服务（`LMS_EMBEDDER=cloud` → `192.168.0.103:11435`，可配 `LMS_CLOUD_EMBED_FALLBACK_URL` 隧道备用）；DeepSeek key（`.env`）；HF 不可达所以必须 cloud 嵌入 |
 | 3 | **胶水层 glue** | 胶水 | 把沙漏/LMS/向量三个记忆后端"粘"成唯一入口：读侧 `/recall` 加权融合（文本0.3+向量0.5+LMS激活0.2）、写侧 `/store` 聚合写、`/soul` 回魂快照、**`/react` 薄代理**（体验层A：转发 LMS /react，失败 502 fail-open） | `memory-integration-layer/` | `:19000`（`GET /health`、`POST /recall`、`/soul`、`/store`、`/status`、`/contribute`、**`/react`**）；`glue_helper.py` 薄桥接 | 无自有数据（读沙漏 txt、写沙漏+LMS+向量） | 沙漏(txt)、LMS(:8190)、向量(:11435)；`DOUBT_BUS_FILE` 启用怀疑总线发布 |
 | 4 | **Agent OS 总线 iso-sand** | 总线 | 事件骨架：scheduler 定时发事件、consumer 订阅分发（LmsFeedHandler 把事件喂给 LMS /feed 塑形）；`sandglass.heartbeat` 是**调度器心跳**不是沙漏数据！ | `Agent OS/iso-sand/` | 无端口（文件总线）；`start_scheduler.sh` + `start_consumer.sh` | `data/event_bus.jsonl`（6.1MB）、`data/operation_log.jsonl`、`data/processed_ids.jsonl`、`data/event_bus.seek`；schema 在 `deploy/event_schema.yaml` | 消费者调 LMS(:8190)/feed、glue(:19000)；生产者含 LMS(plastified)、doubt-system、调度器 |
@@ -81,7 +81,7 @@
 
 | 外部依赖 | 为什么必须 | 部署者自备说明 |
 |---------|-----------|--------------|
-| **embed 向量服务（bge-m3，OpenAI 兼容 /v1/embeddings）** ⚠️最关键 | LMS 感官层嵌入 + 胶水向量都用它；**没有它 = LMS/胶水全部静默降级，感官层就瞎了**（HF 在本机不可达，`LMS_EMBEDDER` 不能回 pretrained） | 手机/任意机器跑 Ollama + bge-m3（1024 维），暴露 `http://<host>:11435/v1/embeddings`，写入 `LMS_CLOUD_EMBED_URL`（LMS `.env` + env.local）与 `VECTOR_URL`（env.local）；可配 `LMS_CLOUD_EMBED_FALLBACK_URL` 备用端点 |
+| **embed 向量服务（bge-m3，OpenAI 兼容 /v1/embeddings）** ⚠️最关键 | LMS 感官层嵌入 + 胶水向量都用它；**没有它 = LMS/胶水全部静默降级，感官层就瞎了**（HF 在本机不可达，`LMS_EMBEDDER` 不能回 pretrained） | 手机/任意机器跑 Ollama + bge-m3（1024 维）：`ollama pull bge-m3 && ollama serve`（默认 11434；本机用 11435 端口），暴露 `http://<host>:11435/v1/embeddings`，写入 `LMS_CLOUD_EMBED_URL`（LMS `.env` + env.local）与 `VECTOR_URL`（env.local）；可配 `LMS_CLOUD_EMBED_FALLBACK_URL` 备用端点 |
 | **DeepSeek API Key** | LMS LLM 能力（自述蒸馏等） | 写入 `$LMS_HOME/.env` 的 `DEEPSEEK_API_KEY`；不填 = LLM 功能禁用但记忆核心仍工作 |
 | **GitHub 三仓（均公开）** | clone 代码 | `living-memory-system` / `memory-integration-layer` / `agent-os` 均 **main 分支公开**（2026-08-10 起），**公开仓 clone 不需要 token**；只有 push 才需凭据（本机已配置 credential helper，不写入文档） |
 | **OpenClaw Gateway** | 主 AI 宿主（插件/MCP/hooks） | 需支持 `before_prompt_build` hook + MCP 注册 + `/hooks/wake` 端点；插件 `glue-memory-injector` 放入 plugins 目录；MCP 注册 lms-memory / lms-http / shouji-memory；版本以 OpenClaw 官方为准 |
@@ -95,6 +95,9 @@
 ---
 
 ## 3. 部署手册（陌生 AI 照着做就能跑）
+
+> **一键总控（2026-08-12 起）**：`cd Agent OS && bash deploy.sh` = 前置检测（环境/依赖/embed/OpenClaw 逐项提示缺什么）→ 按依赖顺序拉起 6 服务+编辑器 → 每步健康验证 → crontab 检查 → 汇总。配套 `deploy.sh doctor/status/stop/verify/cron/cron-show`。
+> 分层关系：**deploy.sh（总控/体检）→ stack_ctl.sh（6 服务表驱动管理）→ start_all.sh（旧雏形，@reboot 兼容保留）**。
 
 ### 3.1 前置准备
 
@@ -158,7 +161,7 @@ cd "Agent OS"
 | ⑦ | 起**轻如烟编辑器** `:18888`（`cd 轻如烟/scripts && python3 edit-web.py`） | 它是落沙写入者，没有它对话不进 sandglass.txt | 浏览器开 `:18888`；发一条消息 → `tail -3 sandglass/sandglass.txt` 出现新行 |
 | ⑧ | **接通 OpenClaw**：启用插件 glue-memory-injector（onStartup）+ 注册 MCP（lms-memory、lms-http、shouji-memory） | 插件是"记忆送回对话"的唯一入口 | 发一条消息 → `/tmp/glue-hook-debug.log` 出现 `INJECTED len=…`；下一条消息 prompt 头部出现 `[回魂]`（**含 `解读:` 段，三段式**：状态/解读/最近）+ `[记忆注入]`；密集连发 3 条 → 第 2/3 条仍见 `INJECTED-light` 计数（限流轻量注入生效） |
 
-> 实际上 ①~⑤ 全部由 `bash start_all.sh` 按上述顺序一键完成（内部已做 health 检查）；② 需要 `LMS_HOME/.env` 已配好，否则报"缺少 .env"。
+> 实际上 ①~⑤ 全部由 `bash deploy.sh` 一键完成（前置检测→拉起→每步健康验证→汇总；内部委托 stack_ctl.sh/start_all.sh 按上述顺序）；② 需要 `LMS_HOME/.env` 已配好，否则 deploy.sh 前置检测会逐项提示缺什么。
 
 ### 3.3 部署完成自检清单（全部 ✅ 才算部署成功）
 
@@ -191,6 +194,8 @@ grep DOUBT_BUS_FILE memory-integration-layer/.env           # 应指向 event_bu
 - **总线活着**：`tail -2 iso-sand/data/event_bus.jsonl` 时间戳是当前（lms.plastified 约每 5min 一条）
 
 ### 3.4 本机 crontab 全表（部署参考）
+
+> 部署者不需要手抄本表：`cd Agent OS && bash deploy.sh cron-show` 输出**模板化**全表（路径按 env.local 展开），`bash deploy.sh cron` 检查本机缺失条目。
 
 ```
 */15 * * * *  lms_backup.sh --quick      # LMS 快照备份
@@ -267,7 +272,7 @@ bash stack_ctl.sh doctor
 3. **`LMS_EMBEDDER` 不是 cloud / 向量服务不可达**：HF 在本机不可达，必须 `LMS_EMBEDDER=cloud` + `LMS_CLOUD_EMBED_URL=http://192.168.0.103:11435/v1/embeddings`（手机 Ollama bge-m3）。嵌入挂了 → LMS 与胶水向量全部降级。
 4. **双写（2026-08-11 已修，P0-1）**：落沙幂等去重（`SANDGLASS_DEDUP_WINDOW`，同 sender+text 时间窗内只写一次）。修复前每条消息落沙 ×2；修复后新行应无重复。**新环境若把去重窗口调成 0 或换回旧 sandglass_log，双写复发。**
 5. **sender 错标（2026-08-11 已修，P0-2）**：`SANDGLASS_SENDER_MAP` 默认 `{"sister":"user"}` 归一化（sister→user），织线三元组提取恢复。**新环境注意：新 sender 名要加进 SANDGLASS_SENDER_MAP，否则织线又停摆。**
-6. **500 字截断（2026-08-11 已修，P0-2）**：落沙正文不再截断（`SANDGLASS_MAX_TEXT_LEN` 默认 0=不截断；旧版 `content[:500]` 会丢长消息后半）。**新环境若把它设成小值，长消息又丢尾。**
+6. **500 字截断（P0-2 修了一半，2026-08-12 复核）**：`sandglass_log.py` 自身已去截断（`SANDGLASS_MAX_TEXT_LEN` 默认 0=不截断）；但**编辑器侧 edit-web.py `_sandglass_log` 仍传 `content[:500]`**（落沙前先截断），长消息尾部仍丢。修在 edit-web 仓（该仓 main 与 GitHub 分叉 20 commit，需先合并再改），当前属已知缺口。新环境若把 `SANDGLASS_MAX_TEXT_LEN` 设成小值，直接调用路径也会丢尾。
 7. **总线心跳 ≠ 沙漏数据**：`event_bus.jsonl` 里 1789 条 `sandglass.heartbeat` 全是**调度器存活心跳**（`deploy/heartbeat.py` 发布，误导命名），不代表沙漏活着、也不是沙漏数据。判断沙漏活着只能看 `sandglass.txt` mtime/行数，别看总线。
 8. **`LMS_FEED_ENABLED` 开关被关**：这是"总线→LMS /feed 塑形"的总开关（默认开；env.local 不设=1）。关掉后 LMS 收不到任何总线塑形素材，暗线断粮但不报错。
 9. **沙漏流水→LMS 塑形素材（2026-08-11 已接通，P0-3）**：落沙成功后发 `sandglass.entry` 总线事件，consumer 的 LmsFeedHandler 已订阅（source=sandglass，跳过心跳噪声过滤）→ LMS /feed。**验证方式**：`grep -c "sandglass.entry" event_bus.jsonl` 在涨 + operation_log 出现 `LMS 塑形喂入成功 … text_len=…`。**新环境若 SANDGLASS_BUS_FILE 推导失败（找不到 Agent OS/iso-sand/data），此链路静默断**（落沙正常但不发事件，不报错）。LMS→沙漏标记方向仍未实现（P2-1）。
@@ -308,7 +313,7 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 | ② txt 在涨但 ③ 轮次不涨 | ⚠️ **暗线断**（LMS 没收到对话） | `curl :8190/health`；查 MCP lms_store 是否注册；查 `.env` 是否 source（/status 返回空=降级） |
 | ③ 在涨但 ⑤ 无 INJECTED | ⚠️ **读侧断**（记忆没送回对话=AI 失忆） | 查 glue :19000 health backends；`tail -50 /tmp/glue-hook-debug.log` 看 MISS reason（超时/网络/限流） |
 | ④ event_bus.jsonl 尾部是几小时前 | ⚠️ **总线/调度器断** | 查 scheduler.pid/consumer.pid；看 `iso-sand/data/operation_log.jsonl` 尾部 |
-| ① 某服务 ❌ | ❌ 该服务死了 | `bash start_all.sh` 重启（幂等）；单服务看 `Agent OS/logs/<svc>.log` |
+| ① 某服务 ❌ | ❌ 该服务死了 | `bash deploy.sh` 重启（幂等）；单服务看 `Agent OS/logs/<svc>.log` |
 
 **深入判据（30 秒补充）：**
 - **明线质量**：`grep -c "今天的关键词" sandglass.txt` 应为 1（P0-1 去重生效后=1；若=2 查 `SANDGLASS_DEDUP_WINDOW`）；`grep "| user |" sandglass.txt | tail -1` 应为今天（sender 错标则织线停摆）。
