@@ -34,12 +34,13 @@
 ## 部署（全新机器）
 
 edit-web.py 仓经 bootstrap clone 到 `$EDITOR_HOME`（= `$LIGHT_HOME/scripts`）后，
-本套件即随仓到位（edit-web.py 本地 main 已含这些文件）。**若 edit-web.py GitHub main
-尚未合并（缺口 #3），用本目录覆盖**：
+**bootstrap 会自动把本目录接线到 $EDITOR_HOME**（2026-08-13 R-1 修复：wire_editor_aux，
+幂等、不覆盖已存在的生产版）——pulse-cron.sh / session-reset-watchdog.py 等随
+`bash deploy.sh` 一步到位，无需手动复制；health-check.sh 同批接线。
 
 ```bash
-# 方式 A（推荐）：等缺口 #3 合并后随 edit-web.py 仓分发，无需手动
-# 方式 B（现状）：bootstrap 后手动补齐
+# 方式 A（推荐）：bash deploy.sh bootstrap 自动接线（R-1 起默认行为）
+# 方式 B（手工兜底）：仅当某文件缺失时
 cp agent-os/self_pulse/pulse-cron.sh agent-os/self_pulse/*.py "$EDITOR_HOME/"
 ```
 
