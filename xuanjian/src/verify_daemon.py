@@ -48,15 +48,31 @@ PURPOSE_HASH_PATH = DATA_DIR / "purpose.sha256"
 # ── 内核层规范路径 ───────────────────────────────────────────────────────
 # 2026-08-12 玄鉴并入 agent-os 时参数化：默认值向后兼容本机部署，
 # 新机器用 XJ_* 环境变量覆盖（复现缺口清单 #2：路径不硬编码）。
-def _env_path(name: str, default: str) -> Path:
-    """读取环境变量路径，缺省回退到默认值（向后兼容本机部署）"""
+# 2026-08-13（R-3）：默认值改为空/相对推导（不再回退到 dandan 生产 /vol2 路径——
+# 那会让新机器“活着但不审外”：按不存在的路径审计全部 FAIL 且无感知）；
+# 旧名 KERNEL_SPEC_DIR 仍兼容读取（迁移期双读）；未配置/占位符由启动校验 fail-loud。
+def _env_path(name: str, default: str = "", legacy: str | None = None) -> Path:
+    """读取环境变量路径；legacy 为旧名兼容（如 KERNEL_SPEC_DIR → XJ_KERNEL_SPEC_DIR）。
+    未配置/占位符（含 < >）时返回“未就绪”标记路径（不存在），由启动校验兜底告警。"""
     raw = os.environ.get(name)
-    return Path(raw).resolve() if raw else Path(default).resolve()
+    if not raw and legacy:
+        raw = os.environ.get(legacy)
+    if not raw:
+        raw = default
+    if not raw:
+        return Path("_XJ_UNSET_")
+    p = Path(raw)
+    if "<" in raw or ">" in raw:
+        return p  # 占位符未替换 → 按未配置处理
+    return p.resolve()
 
 
-KERNEL_SPEC_DIR = _env_path("XJ_KERNEL_SPEC_DIR", "/vol2/1000/AI专用/AgentOS-IsoSand/内核层规范")
+KERNEL_SPEC_DIR = _env_path("XJ_KERNEL_SPEC_DIR", "", legacy="KERNEL_SPEC_DIR")
 PURPOSE_PATH = KERNEL_SPEC_DIR / "PURPOSE.md"
 SNAPSHOTS_DIR = KERNEL_SPEC_DIR / "snapshots"
+
+# agent-os 根（玄鉴的上一级；XJ_DOUBT_HOOK / XJ_REPO_* 默认值的相对推导锚点）
+_AGENT_OS_ROOT = _PROJECT_PARENT.parent
 
 # ── 工具函数 ────────────────────────────────────────────────────────────
 
@@ -197,7 +213,7 @@ def append_warn_to_operation_log(detail_text: str) -> None:
     # 子进程调用 doubt_hook.py，fail-open 不阻断玄鉴主循环
     try:
         import subprocess
-        _hook = _env_path("XJ_DOUBT_HOOK", "/vol2/1000/AI专用/Agent OS/doubt-system/doubt_hook.py")
+        _hook = _env_path("XJ_DOUBT_HOOK", str(_AGENT_OS_ROOT / "doubt-system" / "doubt_hook.py"))
         if _hook.exists():
             subprocess.Popen(
                 [sys.executable, str(_hook), "--fail", f"verify_daemon: {detail_text[:150]}",
@@ -377,9 +393,10 @@ def _check_purpose_integrity() -> None:
 # 三仓路径与 agent-os TOPOLOGY.md 权威拓扑一致（2026-08-10 加入）
 # 2026-08-11 修复 ahead 计数：改用 rev-list 双向计数（详见 _check_push_integrity docstring）
 PUSH_REPOS = {
-    "living-memory-system": os.environ.get("XJ_REPO_LMS", "/vol2/1000/AI专用/living-memory-system-cloud"),
-    "memory-integration-layer": os.environ.get("XJ_REPO_GLUE", "/vol2/1000/AI专用/memory-integration-layer"),
-    "agent-os": os.environ.get("XJ_REPO_AGENTOS", "/vol2/1000/AI专用/Agent OS"),
+    # R-3（2026-08-13）：默认改相对推导（agent-os 同布局兄弟目录），不再硬编码 dandan 生产路径
+    "living-memory-system": os.environ.get("XJ_REPO_LMS", str(_AGENT_OS_ROOT.parent / "living-memory-system-cloud")),
+    "memory-integration-layer": os.environ.get("XJ_REPO_GLUE", str(_AGENT_OS_ROOT.parent / "memory-integration-layer")),
+    "agent-os": os.environ.get("XJ_REPO_AGENTOS", str(_AGENT_OS_ROOT)),
 }
 
 
@@ -584,10 +601,64 @@ def run_scan() -> None:
     write_seek(new_pos)
 
 
+def _startup_config_check() -> None:
+    """R-3（2026-08-13）：启动前校验 XJ_* 配置，缺失/占位符/指向不存在路径必须可见（fail-loud）。
+    不阻止启动（审外缺失按设计降级为 FAIL 审计），但把问题响亮打到 stdout（stack_ctl 会
+    落盘 $LOG_DIR/verify.log）并写一条审计 WARN 留痕——杜绝“活着但不审外”的静默空转。"""
+    problems: list[str] = []
+
+    def _state(p: Path) -> str:
+        s = str(p)
+        if s == "_XJ_UNSET_":
+            return "未配置（env.local 缺 XJ_* 或为空）"
+        if "<" in s or ">" in s:
+            return f"仍是占位符（env.local 未按机器填写）: {s}"
+        return ""
+
+    st = _state(KERNEL_SPEC_DIR)
+    if st:
+        problems.append(f"XJ_KERNEL_SPEC_DIR {st} —— 审外将全部 FAIL")
+    elif not KERNEL_SPEC_DIR.is_dir():
+        problems.append(f"XJ_KERNEL_SPEC_DIR 目录不存在: {KERNEL_SPEC_DIR} —— 审外将全部 FAIL")
+    else:
+        if not PURPOSE_PATH.is_file():
+            problems.append(f"PURPOSE.md 缺失: {PURPOSE_PATH}（目的完整性检查将 FAIL）")
+        if not SNAPSHOTS_DIR.is_dir():
+            problems.append(f"snapshots/ 缺失: {SNAPSHOTS_DIR}（快照恢复不可用）")
+
+    hook = _env_path("XJ_DOUBT_HOOK", str(_AGENT_OS_ROOT / "doubt-system" / "doubt_hook.py"))
+    if not hook.exists():
+        problems.append(f"XJ_DOUBT_HOOK 不存在: {hook}（连续 FAIL 无法触发怀疑钩子）")
+
+    for name, path in PUSH_REPOS.items():
+        if not path or not Path(path).exists():
+            problems.append(f"XJ_REPO_{name.upper()} 未配置/不存在: {path}（push_verify 将 WARN）")
+
+    if problems:
+        print("=" * 64, flush=True)
+        print("[玄鉴] ⚠️ 启动配置校验发现问题（fail-loud，R-3）：", flush=True)
+        for p in problems:
+            print(f"  - {p}", flush=True)
+        print("  修复: 在 Agent OS/env.local 配置 XJ_*（bash deploy.sh bootstrap 自动派生；", flush=True)
+        print("        XJ_KERNEL_SPEC_DIR 需自备内核层规范后手填）", flush=True)
+        print("=" * 64, flush=True)
+        write_audit({
+            "t": iso_now(), "level": "WARN", "detector": "startup_config_v0.1",
+            "task_id": "daemon-startup", "claim_actor": "system",
+            "keyword_overlap": 0.0, "result": "WARN",
+            "detail": "启动配置校验: " + "; ".join(problems),
+        })
+    else:
+        print(f"[玄鉴] 启动配置校验通过（XJ_KERNEL_SPEC_DIR={KERNEL_SPEC_DIR}）", flush=True)
+
+
 def main() -> None:
     """守护进程入口"""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     write_pid()
+
+    # R-3（2026-08-13）：启动前 XJ_* 配置校验（fail-loud，缺失可见不静默）
+    _startup_config_check()
 
     # 启动日志
     start_msg = {

@@ -52,6 +52,12 @@ ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
 EDITOR_HOME="${EDITOR_HOME:-$LIGHT_HOME/scripts}"
 RUN_DIR="${RUN_DIR:-$AGENT_OS_HOME/run}"
 LOG_DIR="${LOG_DIR:-$AGENT_OS_HOME/logs}"
+# ── 玄鉴 XJ_* 兜底（R-3，2026-08-13）：旧 env.local 无 XJ_* 时按标准布局派生（不覆盖已配置值）──
+XJ_KERNEL_SPEC_DIR="${XJ_KERNEL_SPEC_DIR:-${KERNEL_SPEC_DIR:-}}"
+XJ_DOUBT_HOOK="${XJ_DOUBT_HOOK:-$AGENT_OS_HOME/doubt-system/doubt_hook.py}"
+XJ_REPO_LMS="${XJ_REPO_LMS:-$LMS_HOME}"
+XJ_REPO_GLUE="${XJ_REPO_GLUE:-$GLUE_HOME}"
+XJ_REPO_AGENTOS="${XJ_REPO_AGENTOS:-$AGENT_OS_HOME}"
 SANDGLASS_API_PORT="${SANDGLASS_API_PORT:-17333}"
 LMS_API_PORT="${LMS_API_PORT:-8190}"
 GLUE_PORT="${GLUE_PORT:-19000}"
@@ -135,8 +141,12 @@ env_local_generate() {
       -e "s|^LMS_HOME=.*|LMS_HOME=\"$LMS_HOME\"|" \
       -e "s|^GLUE_HOME=.*|GLUE_HOME=\"$GLUE_HOME\"|" \
       -e "s|^VERIFY_HOME=.*|VERIFY_HOME=\"\${AGENT_OS_HOME}/xuanjian\"|" \
+      -e "s|^XJ_DOUBT_HOOK=.*|XJ_DOUBT_HOOK=\"$AGENT_OS_HOME/doubt-system/doubt_hook.py\"|" \
+      -e "s|^XJ_REPO_LMS=.*|XJ_REPO_LMS=\"$LMS_HOME\"|" \
+      -e "s|^XJ_REPO_GLUE=.*|XJ_REPO_GLUE=\"$GLUE_HOME\"|" \
+      -e "s|^XJ_REPO_AGENTOS=.*|XJ_REPO_AGENTOS=\"$AGENT_OS_HOME\"|" \
       "$AGENT_OS_HOME/env.local"
-    warn "已自动生成 env.local（A 节按标准布局填了默认路径）——如目录不在标准布局，请编辑 A 节；密钥类（FACTS_DICT_PATH/会话目录/embed URL）按实际机器填"
+    warn "已自动生成 env.local（A 节按标准布局填了默认路径）——如目录不在标准布局，请编辑 A 节；密钥类（FACTS_DICT_PATH/会话目录/embed URL/XJ_KERNEL_SPEC_DIR）按实际机器填"
     # 重新加载
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
     AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
@@ -339,6 +349,7 @@ bootstrap() {
         dim "    MCP 注册 lms-memory/lms-http/shouji-memory → openclaw.json（配置片段见 SYSTEM.md「OpenClaw 安装」一节）"
     fi
     dim "    cron: 环境就绪后 bash deploy.sh cron-show 看全表（已展开），bash deploy.sh cron-install 自动合并安装"
+    dim "    玄鉴审外: 自备内核层规范（PURPOSE.md + snapshots/）后写入 env.local 的 XJ_KERNEL_SPEC_DIR；留占位则 audit 全 FAIL（fail-loud，不静默）"
     echo ""
     if [ "$failed" -eq 0 ]; then
         ok "bootstrap 完成（外部依赖按 [e] 指引自备）"
@@ -515,6 +526,28 @@ preflight() {
     else
         fail "落沙 wrapper 缺失: $EDITOR_HOME/sandglass_log_wrapper.py（明线落沙将静默断=失忆；bash deploy.sh bootstrap 自动铺平）"; fails=$((fails+1)); fail_items+=("落沙 wrapper 缺失: $EDITOR_HOME/sandglass_log_wrapper.py")
     fi
+
+    echo "═══ [7b/7] 玄鉴 XJ_* 配置（R-3，缺失 fail-loud——活着但不审外=空转） ═══"
+    if printf '%s' "${XJ_KERNEL_SPEC_DIR:-}" | grep -q '<'; then
+        fail "XJ_KERNEL_SPEC_DIR 仍是占位符（审外目标未配置）—— 玄鉴将'活着但不审外'（audit 全 FAIL）"; fails=$((fails+1)); fail_items+=("XJ_KERNEL_SPEC_DIR 未配置（自备内核层规范后写入 env.local，例: /vol2/1000/AI专用/AgentOS-IsoSand/内核层规范）")
+    elif [ -z "${XJ_KERNEL_SPEC_DIR:-}" ]; then
+        fail "XJ_KERNEL_SPEC_DIR 未定义 —— 玄鉴审外目标缺失（audit 全 FAIL）；在 env.local 配置 XJ_KERNEL_SPEC_DIR"; fails=$((fails+1)); fail_items+=("XJ_KERNEL_SPEC_DIR 未定义（env.local 配置审外目标）")
+    elif [ -d "${XJ_KERNEL_SPEC_DIR:-}" ]; then
+        ok "XJ_KERNEL_SPEC_DIR → $XJ_KERNEL_SPEC_DIR"
+        [ -f "$XJ_KERNEL_SPEC_DIR/PURPOSE.md" ] && ok "PURPOSE.md 存在" || warn "PURPOSE.md 缺失（目的完整性检查将 FAIL；可自备或留空）"
+    else
+        fail "XJ_KERNEL_SPEC_DIR 目录不存在: $XJ_KERNEL_SPEC_DIR（玄鉴审外将全 FAIL——不崩但空转）"; fails=$((fails+1)); fail_items+=("XJ_KERNEL_SPEC_DIR 目录不存在: $XJ_KERNEL_SPEC_DIR")
+    fi
+    local xjv
+    for xjv in XJ_DOUBT_HOOK XJ_REPO_LMS XJ_REPO_GLUE XJ_REPO_AGENTOS; do
+        if [ -z "${!xjv:-}" ]; then
+            warn "$xjv 未定义（env.local 缺失；标准布局下 bash deploy.sh bootstrap 自动派生）"
+        elif printf '%s' "${!xjv}" | grep -q '<'; then
+            warn "$xjv 仍是占位符: ${!xjv}（编辑 env.local 或重跑 bootstrap 派生）"
+        else
+            ok "$xjv → ${!xjv}"
+        fi
+    done
 
     echo ""
     if [ "$fails" -eq 0 ]; then

@@ -36,6 +36,12 @@ ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
 LIGHT_HOME="${LIGHT_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟}"
 LMS_HOME="${LMS_HOME:-$AGENT_OS_HOME/../living-memory-system-cloud}"
 GLUE_HOME="${GLUE_HOME:-$AGENT_OS_HOME/../memory-integration-layer}"
+# ── 玄鉴 XJ_* 兜底（R-3，2026-08-13）：旧 env.local 无 XJ_* 时按标准布局派生（不覆盖已配置值）──
+XJ_KERNEL_SPEC_DIR="${XJ_KERNEL_SPEC_DIR:-${KERNEL_SPEC_DIR:-}}"
+XJ_DOUBT_HOOK="${XJ_DOUBT_HOOK:-$AGENT_OS_HOME/doubt-system/doubt_hook.py}"
+XJ_REPO_LMS="${XJ_REPO_LMS:-$LMS_HOME}"
+XJ_REPO_GLUE="${XJ_REPO_GLUE:-$GLUE_HOME}"
+XJ_REPO_AGENTOS="${XJ_REPO_AGENTOS:-$AGENT_OS_HOME}"
 SANDGLASS_SOURCE="${SANDGLASS_SOURCE:-$LIGHT_HOME/sandglass_source}"
 NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-$LIGHT_HOME/sandglass}"
 # 玄鉴已并入 agent-os/xuanjian（2026-08-12）；优先新路径，旧同构沙盘回退（本机运行实例仍在其 data/）。
@@ -126,6 +132,18 @@ svc_healthy() {  # name cwd cmd env_file port health_url depends desc
 # 启动单个服务（幂等）
 svc_start() {  # name cwd cmd env_file port health_url depends desc
   local name="$1" cwd="$2" cmd="$3" envf="$4" port="$5" health="$6" deps="$7" desc="$8"
+  # R-3（2026-08-13）：玄鉴启动前校验 XJ_*（fail-loud——缺配置=活着但不审外=空转）
+  if [ "$name" = "verify" ]; then
+    if [ -z "${XJ_KERNEL_SPEC_DIR:-}" ]; then
+      warn "玄鉴 XJ_KERNEL_SPEC_DIR 未定义 —— 审外将全 FAIL（活着但不审外）；env.local 配置后重启"
+    elif printf '%s' "$XJ_KERNEL_SPEC_DIR" | grep -q '<'; then
+      warn "玄鉴 XJ_KERNEL_SPEC_DIR 仍是占位符: $XJ_KERNEL_SPEC_DIR —— 审外将全 FAIL；编辑 env.local 配置"
+    elif [ ! -d "$XJ_KERNEL_SPEC_DIR" ]; then
+      warn "玄鉴 XJ_KERNEL_SPEC_DIR 目录不存在: $XJ_KERNEL_SPEC_DIR —— 审外将全 FAIL（不崩但空转）"
+    else
+      ok "玄鉴审外目标 XJ_KERNEL_SPEC_DIR → $XJ_KERNEL_SPEC_DIR"
+    fi
+  fi
   if svc_healthy "$@"; then
     ok "$name 已在运行（${desc}）"
     return 0
@@ -202,6 +220,12 @@ doctor_run() {
   LMS_API_PORT="${LMS_API_PORT:-8190}"
   GLUE_PORT="${GLUE_PORT:-19000}"
   EDITOR_PORT="${EDITOR_PORT:-18888}"
+  # R-3（2026-08-13）：玄鉴 XJ_* 兜底（与主入口一致）
+  XJ_KERNEL_SPEC_DIR="${XJ_KERNEL_SPEC_DIR:-${KERNEL_SPEC_DIR:-}}"
+  XJ_DOUBT_HOOK="${XJ_DOUBT_HOOK:-$AGENT_OS_HOME/doubt-system/doubt_hook.py}"
+  XJ_REPO_LMS="${XJ_REPO_LMS:-$LMS_HOME}"
+  XJ_REPO_GLUE="${XJ_REPO_GLUE:-$GLUE_HOME}"
+  XJ_REPO_AGENTOS="${XJ_REPO_AGENTOS:-$AGENT_OS_HOME}"
 
   echo "── [2/5] 必需变量 ──"
   for v in AGENT_OS_HOME LIGHT_HOME LMS_HOME GLUE_HOME VERIFY_HOME SANDGLASS_SOURCE NEXSANDBASE_HOME ISO_SAND_HOME RUN_DIR LOG_DIR SANDGLASS_API_PORT LMS_API_PORT GLUE_PORT; do
@@ -227,6 +251,27 @@ doctor_run() {
   if [ -f "$SANDGLASS_SOURCE/sandglass_http_api.py" ]; then ok "sandglass_http_api.py 存在"; else fail "sandglass_http_api.py 缺失"; rc=1; fi
   if [ -f "$ISO_SAND_HOME/start_scheduler.sh" ] && [ -f "$ISO_SAND_HOME/start_consumer.sh" ]; then ok "iso-sand 启动脚本存在"; else fail "iso-sand 启动脚本缺失"; rc=1; fi
   if [ -f "$VERIFY_HOME/src/verify_daemon.py" ]; then ok "verify_daemon.py 存在"; else fail "verify_daemon.py 缺失"; rc=1; fi
+
+  # R-3（2026-08-13）：玄鉴 XJ_* 配置校验（缺失/占位符 fail-loud）
+  echo "── [2b/5] 玄鉴 XJ_* 配置（R-3） ──"
+  if [ -z "${XJ_KERNEL_SPEC_DIR:-}" ]; then
+    fail "XJ_KERNEL_SPEC_DIR 未定义（玄鉴审外目标；env.local 配置）"; rc=1
+  elif printf '%s' "$XJ_KERNEL_SPEC_DIR" | grep -q '<'; then
+    warn "XJ_KERNEL_SPEC_DIR 是占位符（审外目标未配置，玄鉴 audit 将全 FAIL）"
+  elif [ -d "$XJ_KERNEL_SPEC_DIR" ]; then
+    ok "XJ_KERNEL_SPEC_DIR → $XJ_KERNEL_SPEC_DIR"
+  else
+    fail "XJ_KERNEL_SPEC_DIR 目录不存在: $XJ_KERNEL_SPEC_DIR"; rc=1
+  fi
+  for xjv in XJ_DOUBT_HOOK XJ_REPO_LMS XJ_REPO_GLUE XJ_REPO_AGENTOS; do
+    if [ -z "${!xjv:-}" ]; then
+      warn "$xjv 未定义（标准布局下 bash deploy.sh bootstrap 自动派生）"
+    elif printf '%s' "${!xjv}" | grep -q '<'; then
+      warn "$xjv 是占位符: ${!xjv}"
+    else
+      ok "$xjv → ${!xjv}"
+    fi
+  done
 
   echo "── [4/5] 端口状态 ──"
   for port in "$SANDGLASS_API_PORT" "$LMS_API_PORT" "$GLUE_PORT" "$EDITOR_PORT"; do

@@ -42,15 +42,17 @@ python3 src/verify_daemon.py &      # 首次运行自动创建 data/（pid/seek/
   operation_log.jsonl / 信誉积分 / 模型文件 均为运行时产物，新机器从空开始。
 - 玄鉴审计的事实字典 `facts.dict.md` 由 `facts_manager.py` 维护，属运行数据。
 
-## 环境变量（路径不硬编码；默认值向后兼容本机）
+## 环境变量（路径不硬编码；默认值按相对推导，不依赖 dandan 生产路径）
 
 | 变量 | 默认 | 用途 |
 |------|------|------|
-| `XJ_KERNEL_SPEC_DIR` | `/vol2/1000/AI专用/AgentOS-IsoSand/内核层规范` | PURPOSE.md + snapshots 完整性检查对象 |
-| `XJ_DOUBT_HOOK` | `<agent-os>/doubt-system/doubt_hook.py`（旧路径默认） | 连续 FAIL → 怀疑钩子 |
-| `XJ_REPO_LMS` | `/vol2/1000/AI专用/living-memory-system-cloud` | push_verify 三仓之一 |
-| `XJ_REPO_GLUE` | `/vol2/1000/AI专用/memory-integration-layer` | push_verify 三仓之一 |
-| `XJ_REPO_AGENTOS` | `/vol2/1000/AI专用/Agent OS` | push_verify 三仓之一 |
+| `XJ_KERNEL_SPEC_DIR` | 未配置（旧名 `KERNEL_SPEC_DIR` 兼容读） | PURPOSE.md + snapshots 完整性检查对象；缺失/占位符启动时 fail-loud 告警，audit 按 FAIL 不崩溃 |
+| `XJ_DOUBT_HOOK` | `<agent-os>/doubt-system/doubt_hook.py`（相对推导） | 连续 FAIL → 怀疑钩子 |
+| `XJ_REPO_LMS` | `<agent-os>/../living-memory-system-cloud`（相对推导） | push_verify 三仓之一 |
+| `XJ_REPO_GLUE` | `<agent-os>/../memory-integration-layer`（相对推导） | push_verify 三仓之一 |
+| `XJ_REPO_AGENTOS` | `<agent-os>`（相对推导） | push_verify 三仓之一 |
 
+> 2026-08-13（R-3）：这些键已加入 `env.template`，`bash deploy.sh bootstrap` 按标准布局自动派生写入 env.local；
+> 启动时 `_startup_config_check()` 校验配置并把缺失响亮打到日志（fail-loud，杜绝静默空转）。
 > 已知限制：`内核层规范`（PURPOSE.md/snapshots）本身不在任何 GitHub 仓，
 > 复现时需自备或置空（守护进程对缺失路径按 FAIL+快照恢复流程处理，不崩溃）。
