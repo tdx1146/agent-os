@@ -164,6 +164,74 @@ ensure_sandglass_wrapper() {
     return 1
 }
 
+# ── R-1（2026-08-13）：self_pulse / health-check 接线到编辑器目录 ──
+# 复验实锤：bootstrap 不复制 agent-os/self_pulse → $EDITOR_HOME，而 cron_show/cron_check 指向
+# $LIGHT_HOME/scripts/pulse-cron.sh / session-reset-watchdog.py / health-check.sh（= EDITOR_HOME）
+# → 3 条 cron 装了也是指向空文件的静默死条目。本函数幂等接线；缺失 fail-loud。
+wire_editor_aux() {
+    local failed=0
+    if [ ! -d "$EDITOR_HOME" ]; then
+        fail "EDITOR_HOME 不存在: $EDITOR_HOME（先 clone edit-web.py）"
+        return 1
+    fi
+    # 1) self_pulse 套件（pulse-cron.sh + *.py）→ $EDITOR_HOME（不覆盖已存在的生产版）
+    if [ -d "$AGENT_OS_HOME/self_pulse" ]; then
+        local f dst
+        for f in "$AGENT_OS_HOME/self_pulse/"*; do
+            [ -f "$f" ] || continue
+            case "$f" in
+                *.py|*/pulse-cron.sh)
+                    dst="$EDITOR_HOME/$(basename "$f")"
+                    if [ ! -f "$dst" ]; then
+                        cp "$f" "$dst" && chmod +x "$dst" && echo "  → 接线 $(basename "$f") → $EDITOR_HOME"
+                    fi
+                    ;;
+            esac
+        done
+        if [ -f "$EDITOR_HOME/pulse-cron.sh" ] && [ -f "$EDITOR_HOME/session-reset-watchdog.py" ]; then
+            ok "self_pulse 唤醒链已接线: pulse-cron.sh / session-reset-watchdog.py 等 → $EDITOR_HOME"
+        else
+            fail "self_pulse 接线失败: $EDITOR_HOME 仍缺 pulse-cron.sh 或 session-reset-watchdog.py"; failed=1
+        fi
+    else
+        fail "agent-os/self_pulse 目录缺失（仓库不完整）—— 唤醒链 cron 将失效"; failed=1
+    fi
+    # 2) health-check.sh（编辑器自愈 */5）→ $EDITOR_HOME
+    if [ -f "$AGENT_OS_HOME/scripts/health-check.sh" ]; then
+        if [ ! -f "$EDITOR_HOME/health-check.sh" ]; then
+            cp "$AGENT_OS_HOME/scripts/health-check.sh" "$EDITOR_HOME/health-check.sh" && chmod +x "$EDITOR_HOME/health-check.sh" && echo "  → 接线 health-check.sh → $EDITOR_HOME"
+        fi
+        if [ -f "$EDITOR_HOME/health-check.sh" ]; then
+            ok "编辑器自愈 health-check.sh 已接线 → $EDITOR_HOME"
+        else
+            fail "health-check.sh 接线失败: $EDITOR_HOME/health-check.sh"; failed=1
+        fi
+    else
+        fail "agent-os/scripts/health-check.sh 缺失（仓库不完整）—— 编辑器自愈 cron 将失效"; failed=1
+    fi
+    return $failed
+}
+
+# ── R-1（2026-08-13）：cron 目标脚本存在性校验（fail-loud——cron 指向不存在的脚本=静默失效）──
+# 返回 0=全部就位；1=存在缺失（输出 ❌ + 修复指引）
+verify_cron_targets() {
+    local rc=0
+    local pulse="$LIGHT_HOME/scripts/pulse-cron.sh"
+    local watchdog="$LIGHT_HOME/scripts/session-reset-watchdog.py"
+    local hcheck="$LIGHT_HOME/scripts/health-check.sh"
+    local spec desc path
+    for spec in "唤醒链 pulse-cron.sh|$pulse" "会话看门狗 session-reset-watchdog.py|$watchdog" "编辑器自愈 health-check.sh|$hcheck"; do
+        desc="${spec%%|*}"; path="${spec#*|}"
+        if [ -f "$path" ]; then
+            ok "cron 目标 $desc → $path"
+        else
+            fail "cron 目标 $desc 缺失: $path —— 该 cron 将静默失效！运行 bash deploy.sh bootstrap 自动接线（R-1）"
+            rc=1
+        fi
+    done
+    return $rc
+}
+
 # 只把仍为占位符的 embed URL 修成本机 Ollama（绝不覆盖真实配置）
 auto_fix_embed_placeholder() {
     local f="$AGENT_OS_HOME/env.local"
@@ -191,6 +259,8 @@ bootstrap() {
     ok "agent-os 自身: $AGENT_OS_HOME（clone 来源 tdx1146/agent-os）"
     # R-4（2026-08-13）：落沙 wrapper 铺平到编辑器克隆根（缺失 fail-loud，明线不断）
     ensure_sandglass_wrapper || failed=1
+    # R-1（2026-08-13）：self_pulse / health-check 接线到编辑器目录（唤醒链/看门狗/自愈 cron 指向真实文件）
+    wire_editor_aux || failed=1
 
     # b. LMS venv + pip install（唯一强制 venv 的仓；胶水零依赖、沙漏纯 stdlib）
     echo "── [b] LMS venv + 依赖 ──"
@@ -606,9 +676,17 @@ cron_check() {
         fi
     done
     [ "$missing" -eq 0 ] && ok "crontab 全表完整" || warn "缺失条目可 bash deploy.sh cron-install 自动合并安装（幂等），或 cron-show 查看全表手动复制"
+    echo ""
+    # R-1（2026-08-13）：cron 指向的脚本必须真实存在（fail-loud，防静默死条目）
+    verify_cron_targets || warn "存在 cron 目标缺失 —— cron-install 会拒绝安装；请先 bash deploy.sh bootstrap 接线（R-1）"
 }
 
 cron_show() {
+    # R-1（2026-08-13）：先校验 cron 目标脚本存在（缺失时表格不可直接复制——fail-loud）
+    if ! verify_cron_targets; then
+        warn "⚠️ 下列 crontab 中指向缺失脚本的条目将是死条目 —— 请先运行 bash deploy.sh bootstrap 接线（R-1），再复制本表"
+        echo ""
+    fi
     # 用 env.local 实际值展开（heredoc 不加引号；路径保持引号，兼容含空格的路径）。
     # 演练实锤：旧版 `<<'EOF'` 输出字面 $LMS_HOME/$LIGHT_HOME/$AGENT_OS_HOME，
     # 照抄进 crontab 全是空变量静默失效。
@@ -643,6 +721,11 @@ EOF
 
 # 合并安装推荐 crontab（备份→按命令关键词去重合并，幂等；G6「部署者不需要手抄」落地）
 cron_install() {
+    # R-1（2026-08-13）：安装前校验 cron 目标脚本存在（缺失=装了也是死条目，拒绝安装，fail-loud）
+    if ! verify_cron_targets; then
+        fail "cron 目标脚本缺失（见上）—— 拒绝安装死条目。请先 bash deploy.sh bootstrap 接线（R-1）后重试"
+        return 1
+    fi
     local now; now=$(date '+%Y%m%d-%H%M%S')
     local bak="$HOME/.crontab.bak-$now"
     crontab -l > "$bak" 2>/dev/null || true
