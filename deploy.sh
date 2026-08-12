@@ -143,6 +143,27 @@ env_local_generate() {
     return 0
 }
 
+# ── R-4（2026-08-13）：落沙 wrapper 必须位于编辑器的克隆根 ──
+# edit-web.py 的 _sandglass_log 用 os.path.dirname(__file__)/sandglass_log_wrapper.py 定位；
+# GitHub main（旧布局）把 wrapper 放在嵌套 scripts/ 下 → 新机器上 `if os.path.exists` 静默跳过
+# = 每轮落沙零写入且无报错（部署成功但失忆，复验 R-4）。本函数把它铺平到克隆根，
+# 缺失则 fail-loud（计入失败汇总，绝不静默）。幂等。
+ensure_sandglass_wrapper() {
+    local wrapper="$EDITOR_HOME/sandglass_log_wrapper.py"
+    if [ -f "$wrapper" ]; then
+        ok "落沙 wrapper 就位: $wrapper"
+        return 0
+    fi
+    if [ -f "$EDITOR_HOME/scripts/sandglass_log_wrapper.py" ]; then
+        cp "$EDITOR_HOME/scripts/sandglass_log_wrapper.py" "$wrapper" && chmod +x "$wrapper"
+        ok "落沙 wrapper 已从嵌套 scripts/ 铺平到克隆根（R-4）: $wrapper"
+        return 0
+    fi
+    fail "落沙 wrapper 缺失: $wrapper —— 编辑器每轮落沙将静默失败（失忆！）"
+    dim "    修复: ① bash deploy.sh bootstrap（重新铺平）; ② 从 edit-web.py 仓 scripts/ 复制到克隆根; ③ 或等缺口 #3 合并（生产布局 wrapper 在顶层）"
+    return 1
+}
+
 # 只把仍为占位符的 embed URL 修成本机 Ollama（绝不覆盖真实配置）
 auto_fix_embed_placeholder() {
     local f="$AGENT_OS_HOME/env.local"
@@ -168,6 +189,8 @@ bootstrap() {
         repo_clone "$name" "$url" "$dir" || failed=1
     done
     ok "agent-os 自身: $AGENT_OS_HOME（clone 来源 tdx1146/agent-os）"
+    # R-4（2026-08-13）：落沙 wrapper 铺平到编辑器克隆根（缺失 fail-loud，明线不断）
+    ensure_sandglass_wrapper || failed=1
 
     # b. LMS venv + pip install（唯一强制 venv 的仓；胶水零依赖、沙漏纯 stdlib）
     echo "── [b] LMS venv + 依赖 ──"
@@ -414,6 +437,14 @@ preflight() {
             fail "编辑器源码缺失: $EDITOR_HOME/edit-web.py（clone tdx1146/edit-web.py 到 EDITOR_HOME）"; fails=$((fails+1)); fail_items+=("编辑器源码缺失: $EDITOR_HOME/edit-web.py")
         fi
     fi
+    # R-4（2026-08-13）：落沙 wrapper 存在性（明线写入口依赖；缺失 fail-loud）
+    if [ -f "$EDITOR_HOME/sandglass_log_wrapper.py" ]; then
+        ok "落沙 wrapper 就位: $EDITOR_HOME/sandglass_log_wrapper.py"
+    elif [ "$autofix" = "1" ]; then
+        ensure_sandglass_wrapper || { fails=$((fails+1)); fail_items+=("落沙 wrapper 缺失: $EDITOR_HOME/sandglass_log_wrapper.py（bash deploy.sh bootstrap 自动铺平）"); }
+    else
+        fail "落沙 wrapper 缺失: $EDITOR_HOME/sandglass_log_wrapper.py（明线落沙将静默断=失忆；bash deploy.sh bootstrap 自动铺平）"; fails=$((fails+1)); fail_items+=("落沙 wrapper 缺失: $EDITOR_HOME/sandglass_log_wrapper.py")
+    fi
 
     echo ""
     if [ "$fails" -eq 0 ]; then
@@ -442,6 +473,11 @@ start_editor() {
     fi
     if [ ! -f "$EDITOR_HOME/edit-web.py" ]; then
         fail "编辑器源码缺失: $EDITOR_HOME/edit-web.py（clone tdx1146/edit-web.py）"
+        return 1
+    fi
+    # R-4（2026-08-13）：落沙 wrapper 缺失 = 明线断，拒绝静默启动（fail-loud）
+    if [ ! -f "$EDITOR_HOME/sandglass_log_wrapper.py" ]; then
+        fail "落沙 wrapper 缺失: $EDITOR_HOME/sandglass_log_wrapper.py —— 明线落沙将静默失败（失忆）。已拒绝启动编辑器；请先运行 bash deploy.sh bootstrap 补齐（R-4）"
         return 1
     fi
     echo "  → 启动编辑器 :$EDITOR_PORT ..."
@@ -522,6 +558,12 @@ verify_services() {
         ok "编辑器 :$EDITOR_PORT 运行中（发一条消息 → 沙漏 txt 应出现新行）"
     else
         warn "编辑器 :$EDITOR_PORT 未运行（明线落沙入口缺失！）"; allok=0
+    fi
+    # R-4（2026-08-13）：落沙 wrapper 就位检查（编辑器在跑但 wrapper 缺失 = 静默失忆）
+    if [ -f "$EDITOR_HOME/sandglass_log_wrapper.py" ]; then
+        ok "落沙 wrapper 就位（每轮消息将写入沙漏）"
+    else
+        fail "落沙 wrapper 缺失: $EDITOR_HOME/sandglass_log_wrapper.py —— 编辑器在跑但落沙静默断（失忆）；先 bash deploy.sh bootstrap（R-4）"; allok=0
     fi
     local txt_tail; txt_tail=$(tail -1 "$NEXSANDBASE_HOME/sandglass.txt" 2>/dev/null | head -c 80)
     [ -n "$txt_tail" ] && ok "沙漏 txt 尾部: $txt_tail" || warn "sandglass.txt 为空或不可读（$NEXSANDBASE_HOME/sandglass.txt，新机器首次落沙后生成）"
