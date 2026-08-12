@@ -43,165 +43,25 @@ footer { color:#484f58; font-size:12px; margin-top:30px; text-align:center; }
 code { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:1px 5px; font-size:12px; }
 </style></head><body>
 <h1>🐾 Agent OS 系统健康看板</h1>
-<div class="meta">生成：2026-08-11 21:20:02 ｜ 数据源：system_health.state / contract_check.state / 实时探针 / 状态文件 ｜ 页面每 60 秒自动刷新 ｜ 重新生成：<code>bash /vol2/1000/AI专用/Agent OS/scripts/gen_dashboard.sh</code></div>
-<div class="banner fault">巡检 20 项：绿 16 · 黄 2 · 红 2 —— 判定：有故障 ❌（契约层：绿 41 · 黄 1 · 红 3）</div>
-<div class="hist"><span class="hitem" title="2026-08-10 23:33:20"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:22"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:28"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-11 21:00:02"><b>08-11 21:00</b> 绿16 黄2 红2</span></div>
+<div class="meta">生成：2026-08-13 00:10:01 ｜ 数据源：system_health.state / contract_check.state / 实时探针 / 状态文件 ｜ 页面每 60 秒自动刷新 ｜ 重新生成：<code>bash /vol2/1000/AI专用/Agent OS/scripts/gen_dashboard.sh</code></div>
+<div class="banner ok">巡检 0 项：绿 0 · 黄 0 · 红 0 —— 判定：全绿 ✅（契约层：绿 43 · 黄 0 · 红 3）</div>
+<div class="hist"><span class="hitem" title="2026-08-10 23:33:20"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:22"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:28"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-11 21:00:02"><b>08-11 21:00</b> 绿16 黄2 红2</span><span class="hitem" title="2026-08-11 21:30:02"><b>08-11 21:30</b> 绿17 黄2 红1</span></div>
 <h2>关键数字</h2>
 
 <div class="keynums">
-  <div class="k"><span class="kl">沙漏记忆条数</span><span class="kv">4947</span><span class="ks">txt 26秒前 更新</span></div>
-  <div class="k"><span class="kl">LMS 轮次/熵/目的</span><span class="kv">123</span><span class="ks">熵 0.970 · 目的 0.941</span></div>
-  <div class="k"><span class="kl">self_pulse</span><span class="kv">21:10</span><span class="ks">rc=0 · round=3</span></div>
-  <div class="k"><span class="kl">总线最近事件</span><span class="kv">sandglass.entry</span><span class="ks">25秒前 · 死信 132 行</span></div>
-  <div class="k"><span class="kl">玄鉴审计(近200行)</span><span class="kv">FAIL 95</span><span class="ks">WARN 104 · OK 1 · 最后 2026-08-11T21:01:54</span></div>
-  <div class="k"><span class="kl">备份日志(近40行)</span><span class="kv">ERROR 2</span><span class="ks">[lms_backup][2026-08-11 21:15:01] == 增量镜像开始（snapshots/ → /vol2/1000/AI专用/backups</span></div>
-  <div class="k"><span class="kl">回魂注入</span><span class="kv">7秒前</span><span class="ks">[2026-08-11T13:19:54.914Z] INJECTED len=958</span></div>
-  <div class="k"><span class="kl">怀疑账本</span><span class="kv">16</span><span class="ks">doubt.db 1小时前 写入</span></div>
+  <div class="k"><span class="kl">沙漏记忆条数</span><span class="kv">5149</span><span class="ks">txt 7分钟前 更新</span></div>
+  <div class="k"><span class="kl">LMS 轮次/熵/目的</span><span class="kv">151</span><span class="ks">熵 1.000 · 目的 0.991</span></div>
+  <div class="k"><span class="kl">self_pulse</span><span class="kv">00:10</span><span class="ks">rc=0 · round=5</span></div>
+  <div class="k"><span class="kl">总线最近事件</span><span class="kv">lms.dream_complete</span><span class="ks">4分钟前 · 死信 132 行</span></div>
+  <div class="k"><span class="kl">玄鉴审计(近200行)</span><span class="kv">FAIL 100</span><span class="ks">WARN 99 · OK 1 · 最后 2026-08-13T00:08:31</span></div>
+  <div class="k"><span class="kl">备份日志(近40行)</span><span class="kv">ERROR 6</span><span class="ks">[lms_backup][2026-08-13 00:00:02] 上一轮备份仍在运行，本轮跳过（flock 非阻塞）</span></div>
+  <div class="k"><span class="kl">回魂注入</span><span class="kv">6分钟前</span><span class="ks">[2026-08-12T16:03:32.195Z] SUBAGENT-SKIP sessionKey=agent:main:subagent:a1e8d971</span></div>
+  <div class="k"><span class="kl">怀疑账本</span><span class="kv">18</span><span class="ks">doubt.db 8小时前 写入</span></div>
 </div>
 <h2>组件状态（点击「怎么恢复」看处置步骤）</h2>
-<div class="grid"><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">沙漏API</span><span class="cs">正常</span></div>
-  <div class="ce">端口 17333 健康，sandglass_count=4944</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot 拉起（start_all.sh）</p>
-    <pre>bash /vol2/1000/AI专用/Agent OS/start_all.sh        # 幂等重启（含沙漏 17333）</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">沙漏落沙</span><span class="cs">正常</span></div>
-  <div class="ce">sandglass.txt 4分钟前 有新落沙（活跃）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot 拉起</p>
-    <pre>先看沙漏API是否活着 → bash /vol2/1000/AI专用/Agent OS/start_all.sh</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">沙漏索引</span><span class="cs">正常</span></div>
-  <div class="ce">sandglass.idx 4分钟前 在更新（索引活着）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot 拉起</p>
-    <pre>bash /vol2/1000/AI专用/Agent OS/start_all.sh</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">沙漏自治</span><span class="cs">正常</span></div>
-  <div class="ce">metrics.jsonl 10分钟前（10min 心跳正常）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：pulse-cron.sh 每 10min（cron 在则自动）</p>
-    <pre>crontab -l | grep pulse-cron；缺失则补：*/10 * * * * /vol2/1000/AI专用/所有自动化/轻如烟/scripts/pulse-cron.sh</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">显著性/体力</span><span class="cs">正常</span></div>
-  <div class="ce">salience 10分钟前 + sleep_pressure 10分钟前，体力模式=awake</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：pulse-cron.sh 每 10min（同上）</p>
-    <pre>同沙漏自治：跑一次 /vol2/1000/AI专用/所有自动化/轻如烟/scripts/pulse-cron.sh 观察 salience/sleep_pressure 是否恢复更新</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">怀疑账本</span><span class="cs">正常</span></div>
-  <div class="ce">doubt.db 1小时前 有写入</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：无独立 watchdog（随沙漏管线）</p>
-    <pre>看 /vol2/1000/AI专用/Agent OS/doubt-system/ 日志与 night_patrol；doubt.db 由怀疑闭环写入</pre>
-  </details>
-</div><div class="card warn">
-  <div class="ch"><span class="dot warn"></span><span class="cn">LMS-API</span><span class="cs">警告</span></div>
-  <div class="ce">轮次=123 惊讶=? 异常（&lt;0=降级/未修复语义）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot（lms_ctl.sh start, sleep 30）</p>
-    <pre>cd /vol2/1000/AI专用/living-memory-system-cloud &amp;&amp; bash scripts/lms_ctl.sh restart      # 先确保 .env 已 source</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">LMS-深度指标</span><span class="cs">正常</span></div>
-  <div class="ce">lms_metrics.jsonl 0秒前（深度健康检查活着）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：cron */5 lms_ops_monitor.py（在则自动）</p>
-    <pre>补 cron：*/5 * * * * cd /vol2/1000/AI专用/living-memory-system-cloud &amp;&amp; python3 scripts/lms_ops_monitor.py &gt;&gt; logs/lms_ops_monitor.log 2&gt;&amp;1</pre>
-  </details>
-</div><div class="card warn">
-  <div class="ch"><span class="dot warn"></span><span class="cn">LMS-告警账本</span><span class="cs">警告</span></div>
-  <div class="ce">最近告警：WARN 2026-08-11T21:00:02: 检测到 1 个 PPID=1 的 LMS 孤儿进程（systemd 接管后 API 不应为孤儿；MCP 孤儿待回收 cron）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：无（事件式记录）</p>
-    <pre>看 lms_alerts.jsonl 最近告警类型：孤儿进程→cleanup_orphan_mcp.sh；备份失败→见「备份」行</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">LMS-控制口</span><span class="cs">正常</span></div>
-  <div class="ce">端口 8191 在听</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：@reboot（run_control.py, sleep 45）</p>
-    <pre>cd /vol2/1000/AI专用/living-memory-system-cloud &amp;&amp; setsid .venv/bin/python scripts/run_control.py --host 127.0.0.1 --port 8191 &gt;&gt; logs/lms_control.log 2&gt;&amp;1 &lt; /dev/null &amp;</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">胶水层</span><span class="cs">正常</span></div>
-  <div class="ce">三后端全健康：sandglass=好(4944)</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot（start_all.sh）</p>
-    <pre>先救三后端（LMS/沙漏/向量），再 bash /vol2/1000/AI专用/Agent OS/start_all.sh</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">总线</span><span class="cs">正常</span></div>
-  <div class="ce">event_bus 4分钟前 + operation_log 4分钟前；scheduler活(171071) consumer活(1250493)；死信 83142B</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot（start_all.sh）</p>
-    <pre>bash /vol2/1000/AI专用/Agent OS/iso-sand/start_scheduler.sh &amp;&amp; bash /vol2/1000/AI专用/Agent OS/iso-sand/start_consumer.sh</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">玄鉴-进程</span><span class="cs">正常</span></div>
-  <div class="ce">daemon活(1243374)，audit 日志 4分钟前（5min 巡检活着）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot（start_all.sh）</p>
-    <pre>cd /vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘 &amp;&amp; nohup python3 src/verify_daemon.py &gt;&gt; /vol2/1000/AI专用/Agent OS/logs/verify_daemon.log 2&gt;&amp;1 &amp;</pre>
-  </details>
-</div><div class="card fault">
-  <div class="ch"><span class="dot fault"></span><span class="cn">玄鉴-审计发现</span><span class="cs">故障</span></div>
-  <div class="ce">近 200 行 FAIL=95 WARN=104（样例: [agent-os] 声称推送成功但实际未推送: 本地领先远端 ahead=5, 远端领先本地 behind=0, 本地HEAD=3ba21722, 远端HEAD=ebd67724）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：push_verify 会重试（网络恢复后自愈）</p>
-    <pre>FAIL 多为 git 推送未落地：进对应仓库 `git status` 看 ahead，`git push` 补推</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">夜巡</span><span class="cs">正常</span></div>
-  <div class="ce">最近成功 2026-08-11（每日 23:30 正常）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：cron 23:30（在则自动）</p>
-    <pre>bash /vol2/1000/AI专用/Agent OS/doubt-system/night_patrol_run.sh      # 看 /tmp/night-patrol-cron.log</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">self_pulse</span><span class="cs">正常</span></div>
-  <div class="ce">pulse-status 0秒前，rc=0 round=2，唤醒链 4 脚本齐</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：pulse-cron.sh 每 10min（cron 在则自动）</p>
-    <pre>bash /vol2/1000/AI专用/所有自动化/轻如烟/scripts/pulse-cron.sh &amp;&amp; cat /tmp/pulse-status.json</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">回魂插件</span><span class="cs">正常</span></div>
-  <div class="ce">glue-hook-debug.log 4分钟前 有注入（最近: [2026-08-11T12:55:48.799Z] INJECTED len=1022）</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：仅 @reboot（openclaw-proxy）</p>
-    <pre>重启 openclaw-proxy（/vol2/1000/AI专用/lobe-chat/openclaw-proxy.mjs），看 /tmp/glue-hook-debug.log 是否恢复 INJECTED</pre>
-  </details>
-</div><div class="card fault">
-  <div class="ch"><span class="dot fault"></span><span class="cn">备份</span><span class="cs">故障</span></div>
-  <div class="ce">快照 1小时前；今日 ERROR=0 次（最近: 2）——看 /vol2/1000/AI专用/living-memory-system-cloud/logs/lms_backup.log</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：cron */15 --quick（在则自动）</p>
-    <pre>bash /vol2/1000/AI专用/living-memory-system-cloud/scripts/lms_backup.sh --quick      # 看 /vol2/1000/AI专用/living-memory-system-cloud/logs/lms_backup.log 尾部 ERROR</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">cron完整性</span><span class="cs">正常</span></div>
-  <div class="ce">怀疑三把锁+备份+深度健康+巡检 全部在位</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：无（人工）</p>
-    <pre>对照 SYSTEM_HEALTH.md §5 补 crontab 关键条目（三把锁/备份/深度健康/巡检）</pre>
-  </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">磁盘</span><span class="cs">正常</span></div>
-  <div class="ce">/vol2 使用率 43%</div>
-  <details class="cr"><summary>🛠 怎么恢复</summary>
-    <p class="ca">自动恢复：无（人工）</p>
-    <pre>df -h /vol2/1000/AI专用    # 清旧备份：backups/lms 下 hourly 保留 9 份、daily 按策略</pre>
-  </details>
-</div></div>
-<h2>契约层（45 项，机器可校验）</h2>
-<div class="cfl"><b>契约违反 3 项：</b><ul><li><code>BUS-05</code> — ❌ [BUS-05] 死信队列（近期）: 近24h死信=50 条</li><li><code>VD-03</code> — ❌ [VD-03] 玄鉴审计发现（近 300 行 FAIL 数）: 近300行 FAIL=151</li><li><code>BK-01</code> — ❌ [BK-01] LMS 备份无 ERROR + 快照新鲜: 备份日志近40行含 ERROR/失败 x2</li></ul></div>
+<div class="grid"><div class="empty">暂无巡检数据（等 system_health_check.sh 跑一次）</div></div>
+<h2>契约层（46 项，机器可校验）</h2>
+<div class="cfl"><b>契约违反 3 项：</b><ul><li><code>VD-03</code> — ❌ [VD-03] 玄鉴审计发现（近 300 行 FAIL 数）: 近300行 FAIL=161</li><li><code>SP-04</code> — ❌ [SP-04] 睡眠压力状态更新: /vol2/1000/AI专用/所有自动化/轻如烟/sandglass/sleep_pressure.json 1小时前 停更</li><li><code>BK-01</code> — ❌ [BK-01] LMS 备份无 ERROR + 快照新鲜: 备份日志近40行含 ERROR/失败 x6</li></ul></div>
 <h2>故障恢复预案（点开即看，照做即可）</h2>
 <details class="scen"><summary>1️⃣ 明天 session 被重置（openclaw 会话没了）</summary>
   <p><b>现象：</b>现象：对话历史/上下文没了，编辑器会话列表被清空</p>
@@ -242,7 +102,7 @@ code { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:
   <p><b>现象：</b>现象：看板玄鉴-进程红灯；daemon_audit.log 停更（&gt;10min）</p>
   <p><b>影响：</b>影响：审外监督死——没人再巡检 operation_log、没人再验证 git 推送是否落地</p>
   <p><b>自动恢复：</b>自动恢复：仅 @reboot</p>
-  <p><b>怎么办：</b>恢复：`cd /vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘 &amp;&amp; nohup python3 src/verify_daemon.py &gt;&gt; /vol2/1000/AI专用/Agent OS/logs/verify_daemon.log 2&gt;&amp;1 &amp;`</p>
+  <p><b>怎么办：</b>恢复：`cd /vol2/1000/AI专用/Agent OS/xuanjian &amp;&amp; nohup python3 src/verify_daemon.py &gt;&gt; /vol2/1000/AI专用/Agent OS/logs/verify_daemon.log 2&gt;&amp;1 &amp;`（2026-08-12 起玄鉴已并入 agent-os/xuanjian；旧部署在 AgentOS-IsoSand/同构沙盘）</p>
 </details><details class="scen"><summary>9️⃣ 备份失败（BK-01 红）</summary>
   <p><b>现象：</b>现象：看板备份红灯；lms_backup.log 尾部有 ERROR；巡检报「最近 ERROR=4」</p>
   <p><b>影响：</b>影响：记忆快照可能没备份出去（rsync/磁盘/锁问题）。注意：BK-01 的「ERROR x4」可能是**历史**记录（近 40 行含），今天 0 次 ERROR + 快照新鲜 = 实际已恢复</p>
