@@ -1,22 +1,28 @@
 #!/bin/bash
 # =============================================================
-# deploy.sh — 一键部署总控（2026-08-12 新增，复现保障配套）
+# deploy.sh — 一键部署总控（2026-08-12 新增，2026-08-13 升级为安装器）
 # -------------------------------------------------------------
-# 一个命令完整部署：前置检测 → 逐项提示缺什么 → 按依赖顺序拉起
+# 一个命令从零到全绿：bootstrap（自动 clone 6 仓/venv/.env/数据目录）
+#   → 前置检测（缺→自动修→修不了给可复制命令，不中止）→ 按依赖顺序拉起
 #   （沙漏→LMS→胶水→总线 scheduler/consumer→玄鉴→编辑器→cron 检查）
 #   → 每步健康验证 → 最终汇总。
 #
 # 用法:
-#   bash deploy.sh               # 完整部署（幂等：已在跑的服务自动跳过）
-#   bash deploy.sh doctor        # 只做前置检测，不启动
+#   bash deploy.sh               # 完整部署（bootstrap + 自动修复 + 拉起；幂等）
+#   bash deploy.sh bootstrap     # 只做环境安装（clone/venv/.env/数据目录），不启动
+#   bash deploy.sh doctor        # 只做前置检测（不自动修复、不启动）
 #   bash deploy.sh status        # 全栈状态汇总（复用 stack_ctl.sh + 编辑器/OpenClaw/cron）
 #   bash deploy.sh stop          # 全栈停止（委托 stack_ctl.sh stop，不含编辑器/OpenClaw）
 #   bash deploy.sh verify        # 部署后深度验证（关键数据点，对齐 SYSTEM.md §3.5）
 #   bash deploy.sh cron          # crontab 检查（列出缺失条目，不自动写入）
-#   bash deploy.sh cron-show     # 打印推荐 crontab 全表（供部署者复制）
+#   bash deploy.sh cron-show     # 打印推荐 crontab 全表（已按 env.local 展开，可直接复制）
+#   bash deploy.sh cron-install  # 合并安装推荐 crontab（备份→去重→幂等）
 #
 # 设计原则：
 #   - 零硬编码：路径全部来自 env.local（配置中心），缺失时相对推导兜底
+#   - 自动修复只补"缺失/占位符"，绝不覆盖已配置的真实值
+#   - 系统级安装（python/node/embed/OpenClaw/cron 写 crontab）不自动做，
+#     只给可复制命令 + 校验；仓库级安装（clone/venv/.env/数据目录）自动做
 #   - 6 服务启动/停止委托 stack_ctl.sh（表驱动、幂等、依赖顺序、优雅停机）
 #   - 与 lms_ctl.sh 兼容（LMS 统一由 stack_ctl.sh 以非 systemd 模式管理）
 #   - 本机验证过的服务：全部幂等，可重复执行
@@ -28,6 +34,8 @@ AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
+# AGENT_OS_HOME 以脚本位置为准（env.local 里的值仅作参考，防止占位符/搬迁后错位）
+AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
 LIGHT_HOME="${LIGHT_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟}"
 LMS_HOME="${LMS_HOME:-$AGENT_OS_HOME/../living-memory-system-cloud}"
 GLUE_HOME="${GLUE_HOME:-$AGENT_OS_HOME/../memory-integration-layer}"
@@ -51,8 +59,25 @@ EDITOR_PORT="${EDITOR_PORT:-18888}"
 OPENCLAW_PORT="${OPENCLAW_PORT:-10554}"
 LMS_CLOUD_EMBED_URL="${LMS_CLOUD_EMBED_URL:-http://127.0.0.1:11435/v1/embeddings}"
 LMS_CLOUD_EMBED_MODEL="${LMS_CLOUD_EMBED_MODEL:-bge-m3}"
+LMS_CLOUD_EMBED_DIM="${LMS_CLOUD_EMBED_DIM:-1024}"
 # OpenClaw 配置（机器相关，找不到则跳过该项检查）
 OPENCLAW_JSON="${OPENCLAW_JSON:-$HOME/.openclaw/openclaw.json}"
+# 插件目录（bootstrap 把 glue-memory-injector clone 到这里）
+PLUGIN_HOME="${PLUGIN_HOME:-$HOME/.openclaw/plugins}"
+
+# 仓库注册表（bootstrap 自动 clone；全部公开，无需 token）。
+# 注意：必须在 env.local 就绪（或 bootstrap 生成后）再初始化 —— 用 repos_init() 惰性重建。
+GITHUB_BASE="${GITHUB_BASE:-https://github.com/tdx1146}"
+repos_init() {
+    REPOS=(
+      "living-memory-system|$GITHUB_BASE/living-memory-system.git|$LMS_HOME"
+      "memory-integration-layer|$GITHUB_BASE/memory-integration-layer.git|$GLUE_HOME"
+      "nyx|$GITHUB_BASE/nyx.git|$SANDGLASS_SOURCE"
+      "edit-web.py|$GITHUB_BASE/edit-web.py.git|$EDITOR_HOME"
+      "glue-memory-injector|$GITHUB_BASE/glue-memory-injector.git|$PLUGIN_HOME/glue-memory-injector"
+    )
+}
+repos_init
 
 CMD="${1:-deploy}"
 
@@ -70,31 +95,235 @@ dim()  { echo -e "${C_DIM}$1${C_RST}"; }
 mkdir -p "$RUN_DIR" "$LOG_DIR"
 
 # ══════════════════════════════════════════════════════════════
-# 1. 前置检测（preflight）——逐项提示缺什么
+# 0. bootstrap —— 环境安装（幂等：已就绪跳过）
+#    clone 6 仓 → LMS venv+pip → env.local/.env → 数据目录
+#    embed/OpenClaw/cron：只给可复制命令 + 校验（不自动装系统级）
+# ══════════════════════════════════════════════════════════════
+
+# 克隆单个仓（幂等：目标已是 git 仓则跳过）
+repo_clone() {  # name url dir
+    local name="$1" url="$2" dir="$3"
+    if [ -d "$dir/.git" ]; then
+        ok "仓库 $name 已就绪: $dir（跳过 clone）"
+        return 0
+    fi
+    if [ -e "$dir" ] && [ ! -d "$dir/.git" ]; then
+        warn "仓库 $name 目标路径已存在但不是 git 仓: $dir —— 跳过 clone（请人工确认内容）"
+        return 1
+    fi
+    echo "  → clone $name → $dir ..."
+    mkdir -p "$(dirname "$dir")"
+    if git clone --depth 1 "$url" "$dir" > /tmp/deploy-clone-$name.log 2>&1; then
+        ok "clone $name 完成"
+        return 0
+    else
+        fail "clone $name 失败（网络不通或仓不存在？日志: /tmp/deploy-clone-$name.log）"
+        dim "    可复制命令: git clone $url $dir"
+        return 1
+    fi
+}
+
+# 生成 env.local：从模板复制 + A 节占位符替换为相对推导默认值（标准布局零手工）
+# 只替换仍是占位符（含 <）的行，绝不覆盖已配置的真实值
+env_local_generate() {
+    [ -f "$AGENT_OS_HOME/env.template" ] || { fail "env.template 缺失，仓库不完整"; return 1; }
+    cp "$AGENT_OS_HOME/env.template" "$AGENT_OS_HOME/env.local"
+    # A 节占位符 → 相对推导默认值（标准布局：agent-os 与各仓同级）
+    sed -i \
+      -e "s|^AGENT_OS_HOME=.*|AGENT_OS_HOME=\"$AGENT_OS_HOME\"|" \
+      -e "s|^LIGHT_HOME=.*|LIGHT_HOME=\"$LIGHT_HOME\"|" \
+      -e "s|^LMS_HOME=.*|LMS_HOME=\"$LMS_HOME\"|" \
+      -e "s|^GLUE_HOME=.*|GLUE_HOME=\"$GLUE_HOME\"|" \
+      -e "s|^VERIFY_HOME=.*|VERIFY_HOME=\"\${AGENT_OS_HOME}/xuanjian\"|" \
+      "$AGENT_OS_HOME/env.local"
+    warn "已自动生成 env.local（A 节按标准布局填了默认路径）——如目录不在标准布局，请编辑 A 节；密钥类（FACTS_DICT_PATH/会话目录/embed URL）按实际机器填"
+    # 重新加载
+    set -a; . "$AGENT_OS_HOME/env.local"; set +a
+    AGENT_OS_HOME="$(cd "$(dirname "$0")" && pwd)"
+    return 0
+}
+
+# 只把仍为占位符的 embed URL 修成本机 Ollama（绝不覆盖真实配置）
+auto_fix_embed_placeholder() {
+    local f="$AGENT_OS_HOME/env.local"
+    [ -f "$f" ] || return 0
+    if grep -qE '^LMS_CLOUD_EMBED_URL=.*<' "$f" 2>/dev/null && \
+       curl -sf --max-time 3 -X POST "http://127.0.0.1:11434/v1/embeddings" -H 'Content-Type: application/json' -d "{\"model\":\"$LMS_CLOUD_EMBED_MODEL\",\"input\":\"ping\"}" -o /dev/null 2>/dev/null; then
+        sed -i "s|^LMS_CLOUD_EMBED_URL=.*|LMS_CLOUD_EMBED_URL=\"http://127.0.0.1:11434/v1/embeddings\"|" "$f"
+        sed -i "s|^VECTOR_URL=.*|VECTOR_URL=\"http://127.0.0.1:11434/v1/embeddings\"|" "$f"
+        warn "检测到本机 Ollama(:11434) 可达，已把 env.local 的 embed 占位符修为 http://127.0.0.1:11434/v1/embeddings"
+        set -a; . "$f"; set +a
+    fi
+}
+
+bootstrap() {
+    repos_init
+    echo "═══ bootstrap：环境安装（幂等，已就绪跳过） ═══"
+
+    # a. 自动 clone 6 仓（agent-os 自身已在）
+    echo "── [a] 仓库（6 个：agent-os 已知 + 5 个自动 clone） ──"
+    local failed=0
+    for item in "${REPOS[@]}"; do
+        IFS='|' read -r name url dir <<< "$item"
+        repo_clone "$name" "$url" "$dir" || failed=1
+    done
+    ok "agent-os 自身: $AGENT_OS_HOME（clone 来源 tdx1146/agent-os）"
+
+    # b. LMS venv + pip install（唯一强制 venv 的仓；胶水零依赖、沙漏纯 stdlib）
+    echo "── [b] LMS venv + 依赖 ──"
+    if [ -x "$LMS_HOME/.venv/bin/python" ]; then
+        ok "LMS venv 已就绪: $LMS_HOME/.venv/bin/python"
+    elif [ -d "$LMS_HOME" ]; then
+        echo "  → 创建 LMS venv（python3 -m venv .venv）..."
+        if ( cd "$LMS_HOME" && python3 -m venv .venv ); then
+            echo "  → pip install -r requirements.txt（torch 较大，可能耗时数分钟）..."
+            if ( cd "$LMS_HOME" && .venv/bin/pip install -r requirements.txt > "$LOG_DIR/bootstrap-pip-lms.log" 2>&1 ); then
+                ok "LMS 依赖安装完成"
+            else
+                fail "LMS pip install 失败（日志: $LOG_DIR/bootstrap-pip-lms.log 尾部）"
+                tail -5 "$LOG_DIR/bootstrap-pip-lms.log" 2>/dev/null | sed 's/^/    /'
+                dim "    可复制命令: cd \"$LMS_HOME\" && .venv/bin/pip install -r requirements.txt"
+            fi
+        else
+            fail "LMS venv 创建失败（python3 -m venv 不可用？）"
+            dim "    可复制命令: cd \"$LMS_HOME\" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"
+        fi
+    else
+        fail "LMS 目录不存在（clone 失败或路径未配）: $LMS_HOME"
+    fi
+
+    # c. env.local / .env
+    echo "── [c] 配置模板 → env.local / .env ──"
+    if [ -f "$AGENT_OS_HOME/env.local" ]; then
+        ok "env.local 已存在: $AGENT_OS_HOME/env.local"
+        auto_fix_embed_placeholder
+    else
+        env_local_generate && ok "env.local 已从模板生成"
+    fi
+    if [ -f "$LMS_HOME/.env" ]; then
+        ok "LMS .env 已存在"
+    elif [ -f "$LMS_HOME/.env.example" ]; then
+        cp "$LMS_HOME/.env.example" "$LMS_HOME/.env"
+        warn "已 cp .env.example → $LMS_HOME/.env —— 请填入 DEEPSEEK_API_KEY / LMS_CLOUD_EMBED_URL（密钥不进仓库）"
+    else
+        warn "LMS 无 .env.example（仓库缺模板）—— 需手工创建 $LMS_HOME/.env（见 LMS README）"
+    fi
+
+    # d. 数据目录（沙漏数据/LMS 快照/总线/玄鉴 data/运行目录）
+    echo "── [d] 数据目录 ──"
+    local dirs=(
+      "$NEXSANDBASE_HOME" "$NEXSANDBASE_HOME/persona"
+      "$LMS_HOME/snapshots/main" "$ISO_SAND_HOME/data"
+      "$VERIFY_HOME/data" "$LIGHT_HOME/memory" "$PLUGIN_HOME"
+    )
+    for d in "${dirs[@]}"; do
+        if [ -n "$d" ] && [ ! -d "$d" ]; then mkdir -p "$d" && ok "mkdir $d"; fi
+    done
+    [ -d "$NEXSANDBASE_HOME" ] && ok "沙漏数据目录: $NEXSANDBASE_HOME（sandglass.txt 首次运行自动创建）"
+    [ -d "$ISO_SAND_HOME/data" ] && ok "总线数据目录: $ISO_SAND_HOME/data"
+    [ -d "$VERIFY_HOME/data" ] && ok "玄鉴数据目录: $VERIFY_HOME/data"
+
+    # e. embed / OpenClaw / cron：可复制命令 + 校验（不自动装系统级）
+    echo "── [e] 外部依赖指引（不自动安装系统级，按需执行） ──"
+    local code; code=$(curl -s --max-time 6 -o /dev/null -w '%{http_code}' \
+        -X POST "$LMS_CLOUD_EMBED_URL" -H 'Content-Type: application/json' \
+        -d "{\"model\":\"$LMS_CLOUD_EMBED_MODEL\",\"input\":\"ping\"}" 2>/dev/null)
+    if [ "$code" = "200" ]; then
+        ok "embed 向量服务可达: $LMS_CLOUD_EMBED_URL（model=$LMS_CLOUD_EMBED_MODEL）"
+    else
+        warn "embed 不可达（HTTP $code）—— 在任意机器起 Ollama + bge-m3 后写 env.local:"
+        dim "    ollama pull bge-m3 && ollama serve            # 默认 11434"
+        dim "    OLLAMA_HOST=0.0.0.0:11435 ollama serve        # 本机用 11435 端口"
+        dim "    校验: curl -X POST http://<host>:11435/v1/embeddings -H 'Content-Type: application/json' -d '{\"model\":\"bge-m3\",\"input\":\"ping\"}'"
+        dim "    env.local: LMS_CLOUD_EMBED_URL=http://<host>:11435/v1/embeddings + VECTOR_URL 同值（LMS .env 同步）"
+    fi
+    if ss -tln 2>/dev/null | grep -q ":$OPENCLAW_PORT "; then
+        ok "OpenClaw Gateway 监听 :$OPENCLAW_PORT"
+    else
+        warn "OpenClaw Gateway 未监听 :$OPENCLAW_PORT —— 安装指引（不自动装）:"
+        dim "    官方安装: https://docs.openclaw.ai 按系统安装（需 node ≥18）"
+        dim "    插件: git clone $GITHUB_BASE/glue-memory-injector.git → \$HOME/.openclaw/plugins/（bootstrap 已尝试 clone 到 $PLUGIN_HOME/glue-memory-injector）"
+        dim "    MCP 注册 lms-memory/lms-http/shouji-memory → openclaw.json（配置片段见 SYSTEM.md「OpenClaw 安装」一节）"
+    fi
+    dim "    cron: 环境就绪后 bash deploy.sh cron-show 看全表（已展开），bash deploy.sh cron-install 自动合并安装"
+    echo ""
+    if [ "$failed" -eq 0 ]; then
+        ok "bootstrap 完成（外部依赖按 [e] 指引自备）"
+    else
+        warn "bootstrap 完成但存在失败项（见上；多为网络问题，可重跑幂等续传）"
+    fi
+}
+
+# ══════════════════════════════════════════════════════════════
+# 1. 前置检测（preflight）——缺→自动修→修不了给可复制命令→不中止
+#    参数: $1=autofix（1=deploy 时自动修复；0=doctor 纯检测）
+#    返回: 未修复项数量（deploy 不因此中止，最后汇总）
 # ══════════════════════════════════════════════════════════════
 preflight() {
-    local rc=0
+    local autofix="${1:-1}"
+    local fails=0
+    local -a fail_items=()
+    repos_init
 
     echo "═══ [1/7] 配置中心 env.local ═══"
     if [ -f "$AGENT_OS_HOME/env.local" ]; then
         ok "env.local 存在: $AGENT_OS_HOME/env.local"
+    elif [ "$autofix" = "1" ] && [ -f "$AGENT_OS_HOME/env.template" ]; then
+        echo "  → 自动修复: 从 env.template 生成 env.local ..."
+        if env_local_generate; then
+            ok "env.local 已自动生成（A 节按标准布局填默认，非标准布局请编辑）"
+        else
+            fail "env.local 自动生成失败"; fails=$((fails+1)); fail_items+=("env.local 生成失败（env.template 缺失？重新 clone agent-os）")
+        fi
     elif [ -f "$AGENT_OS_HOME/env.template" ]; then
-        fail "env.local 缺失（执行: cd \"$AGENT_OS_HOME\" && ./stack_ctl.sh setup 生成）"
-        rc=1
+        fail "env.local 缺失（可复制命令: cd \"$AGENT_OS_HOME\" && bash stack_ctl.sh setup 生成）"
+        fails=$((fails+1)); fail_items+=("env.local 缺失（bash stack_ctl.sh setup 生成）")
     else
         fail "env.local 与 env.template 均缺失 —— 仓库不完整，请重新 clone agent-os"
-        rc=1
+        fails=$((fails+1)); fail_items+=("env.local 与 env.template 均缺失（重新 clone agent-os）")
     fi
 
     echo "═══ [2/7] 仓库目录（5 个模块） ═══"
     for v in "LIGHT_HOME:$LIGHT_HOME" "LMS_HOME:$LMS_HOME" "GLUE_HOME:$GLUE_HOME" \
-             "SANDGLASS_SOURCE:$SANDGLASS_SOURCE" "NEXSANDBASE_HOME:$NEXSANDBASE_HOME" \
-             "ISO_SAND_HOME:$ISO_SAND_HOME" "VERIFY_HOME:$VERIFY_HOME"; do
+             "SANDGLASS_SOURCE:$SANDGLASS_SOURCE" "ISO_SAND_HOME:$ISO_SAND_HOME" \
+             "VERIFY_HOME:$VERIFY_HOME"; do
         local name="${v%%:*}" path="${v#*:}"
-        if [ -d "$path" ]; then ok "目录 $name → $path"; else fail "目录 $name 不存在: $path（检查 env.local A 节路径）"; rc=1; fi
+        if [ -d "$path" ]; then
+            ok "目录 $name → $path"
+        elif [ "$autofix" = "1" ] && [ "$name" != "VERIFY_HOME" ]; then
+            echo "  → 自动修复: clone 缺失仓到 $path ..."
+            local repo_url=""
+            for item in "${REPOS[@]}"; do
+                IFS='|' read -r rn ru rd <<< "$item"
+                case "$name" in
+                    LMS_HOME)        [ "$rn" = "living-memory-system" ] && repo_url="$ru" ;;
+                    GLUE_HOME)       [ "$rn" = "memory-integration-layer" ] && repo_url="$ru" ;;
+                    SANDGLASS_SOURCE) [ "$rn" = "nyx" ] && repo_url="$ru" ;;
+                    LIGHT_HOME)      [ "$rn" = "edit-web.py" ] && repo_url="$ru" ;;
+                esac
+            done
+            # LIGHT_HOME 不是单个仓（含多个），只 mkdir 不 clone
+            if [ "$name" = "LIGHT_HOME" ]; then
+                mkdir -p "$path" && ok "mkdir $name → $path"
+            elif [ -n "$repo_url" ]; then
+                repo_clone "$name" "$repo_url" "$path" || { fails=$((fails+1)); fail_items+=("目录 $name 缺失: $path（git clone $repo_url $path）"); }
+            else
+                mkdir -p "$path" 2>/dev/null && ok "mkdir $name → $path（目录级）"
+            fi
+        else
+            fail "目录 $name 不存在: $path"
+            fails=$((fails+1)); fail_items+=("目录 $name 不存在: $path")
+        fi
     done
-    [ -f "$SANDGLASS_SOURCE/sandglass_http_api.py" ] || { fail "沙漏源码缺 sandglass_http_api.py（clone tdx1146/nyx 到 SANDGLASS_SOURCE）"; rc=1; }
-    [ -f "$GLUE_HOME/glue_server.py" ] || { fail "胶水层缺 glue_server.py（clone tdx1146/memory-integration-layer）"; rc=1; }
+    # NEXSANDBASE_HOME 是数据目录：服务首次运行自动创建（G13 修正提示）
+    if [ -d "$NEXSANDBASE_HOME" ]; then
+        ok "数据目录 NEXSANDBASE_HOME → $NEXSANDBASE_HOME"
+    else
+        warn "数据目录 NEXSANDBASE_HOME 不存在: $NEXSANDBASE_HOME（首次运行自动创建；也可先 mkdir -p）"
+        if [ "$autofix" = "1" ]; then mkdir -p "$NEXSANDBASE_HOME" && ok "已自动 mkdir $NEXSANDBASE_HOME"; fi
+    fi
+    [ -f "$SANDGLASS_SOURCE/sandglass_http_api.py" ] || { fail "沙漏源码缺 sandglass_http_api.py（clone tdx1146/nyx 到 SANDGLASS_SOURCE）"; fails=$((fails+1)); fail_items+=("沙漏源码缺 sandglass_http_api.py"); }
+    [ -f "$GLUE_HOME/glue_server.py" ] || { fail "胶水层缺 glue_server.py（clone tdx1146/memory-integration-layer）"; fails=$((fails+1)); fail_items+=("胶水层缺 glue_server.py"); }
     [ -f "$VERIFY_HOME/src/verify_daemon.py" ] || { warn "玄鉴缺 src/verify_daemon.py（xuanjian/ 未检出或源码缺失；见复现缺口清单 #2；可暂缓，不影响核心链路）"; }
 
     echo "═══ [3/7] Python / node 运行时 ═══"
@@ -104,29 +333,41 @@ preflight() {
             ok "python3 $(python3 --version 2>&1 | grep -oP '\d+\.\d+\.\d+')（LMS 要求 ≥3.10，本机实测 3.11）"
             [ "$(echo "$pyv" | cut -d. -f2)" -lt 11 ] && warn "python3 为 3.$pyv，沙漏/胶水实测为 3.11，建议升级"
         else
-            fail "python3 $pyv < 3.10（LMS 最低要求）"; rc=1
+            fail "python3 $pyv < 3.10（LMS 最低要求）"; fails=$((fails+1)); fail_items+=("python3 版本过低: $pyv（需 ≥3.10；apt install python3）")
         fi
     else
-        fail "python3 未安装"; rc=1
+        fail "python3 未安装"; fails=$((fails+1)); fail_items+=("python3 未安装（apt install python3 python3-venv）")
     fi
     if command -v node > /dev/null 2>&1; then
         local nv; nv=$(node --version 2>&1 | tr -d 'v' | cut -d. -f1)
-        [ "$nv" -ge 18 ] 2>/dev/null && ok "node $(node --version 2>&1)（≥18）" || { fail "node $(node --version 2>&1) < 18（OpenClaw 运行时要求）"; rc=1; }
+        [ "$nv" -ge 18 ] 2>/dev/null && ok "node $(node --version 2>&1)（≥18）" || { fail "node $(node --version 2>&1) < 18（OpenClaw 运行时要求）"; fails=$((fails+1)); fail_items+=("node < 18（需 ≥18；apt install nodejs 或官方源）"); }
     else
-        fail "node 未安装（OpenClaw Gateway 运行时必需）"; rc=1
+        fail "node 未安装（OpenClaw Gateway 运行时必需）"; fails=$((fails+1)); fail_items+=("node 未安装（apt install nodejs，OpenClaw 需 ≥18）")
     fi
 
     echo "═══ [4/7] LMS venv 与 .env（密钥） ═══"
     if [ -x "$LMS_HOME/.venv/bin/python" ]; then
         ok "venv 存在: $LMS_HOME/.venv/bin/python"
+    elif [ "$autofix" = "1" ] && [ -d "$LMS_HOME" ]; then
+        echo "  → 自动修复: 创建 venv + pip install（torch 较大，可能耗时数分钟）..."
+        if ( cd "$LMS_HOME" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt > "$LOG_DIR/bootstrap-pip-lms.log" 2>&1 ); then
+            ok "LMS venv + 依赖已装好"
+        else
+            fail "LMS venv 自动安装失败（日志: $LOG_DIR/bootstrap-pip-lms.log）"
+            dim "    可复制命令: cd \"$LMS_HOME\" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"
+            fails=$((fails+1)); fail_items+=("LMS venv 缺失: $LMS_HOME/.venv")
+        fi
     else
-        fail "LMS venv 缺失（执行: cd \"$LMS_HOME\" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt）"; rc=1
+        fail "LMS venv 缺失（可复制命令: cd \"$LMS_HOME\" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt）"; fails=$((fails+1)); fail_items+=("LMS venv 缺失: $LMS_HOME/.venv")
     fi
     if [ -f "$LMS_HOME/.env" ]; then
         ok "LMS .env 存在"
         grep -q '^LMS_EMBEDDER=cloud' "$LMS_HOME/.env" 2>/dev/null && ok "LMS_EMBEDDER=cloud（HF 不可达，必须 cloud）" || warn "LMS .env 未设 LMS_EMBEDDER=cloud（否则嵌入静默降级，见 SYSTEM.md 坑 3）"
+    elif [ "$autofix" = "1" ] && [ -f "$LMS_HOME/.env.example" ]; then
+        cp "$LMS_HOME/.env.example" "$LMS_HOME/.env"
+        warn "已自动 cp .env.example → $LMS_HOME/.env —— 请填入 DEEPSEEK_API_KEY / LMS_CLOUD_EMBED_URL 等密钥后重启 deploy"
     else
-        fail "LMS .env 缺失（执行: cd \"$LMS_HOME\" && cp .env.example .env 后填入 DEEPSEEK_API_KEY / LMS_CLOUD_EMBED_URL 等）"; rc=1
+        fail "LMS .env 缺失（可复制命令: cd \"$LMS_HOME\" && cp .env.example .env 后填入 DEEPSEEK_API_KEY / LMS_CLOUD_EMBED_URL 等）"; fails=$((fails+1)); fail_items+=("LMS .env 缺失（cp .env.example .env 并填密钥）")
     fi
 
     echo "═══ [5/7] 外部依赖：embed 向量服务（bge-m3） ═══"
@@ -137,8 +378,11 @@ preflight() {
         ok "embed 服务可达: $LMS_CLOUD_EMBED_URL（model=$LMS_CLOUD_EMBED_MODEL）"
     else
         fail "embed 服务不可达: $LMS_CLOUD_EMBED_URL（HTTP $code）—— 这是 LMS/胶水感官层，缺它=静默降级"
-        warn "  修复：在任意机器起 Ollama + bge-m3（1024 维），暴露 /v1/embeddings；或配 LMS_CLOUD_EMBED_FALLBACK_URL 隧道备用"
-        rc=1
+        warn "  修复（任意机器起 Ollama + bge-m3，1024 维，暴露 /v1/embeddings）:"
+        dim "    ollama pull bge-m3 && ollama serve"
+        dim "    OLLAMA_HOST=0.0.0.0:11435 ollama serve"
+        dim "    然后 env.local 与 LMS .env 同步 LMS_CLOUD_EMBED_URL/VECTOR_URL（或配 LMS_CLOUD_EMBED_FALLBACK_URL 隧道备用）"
+        fails=$((fails+1)); fail_items+=("embed 服务不可达: $LMS_CLOUD_EMBED_URL（起 Ollama+bge-m3 后同步 env.local/LMS .env）")
     fi
 
     echo "═══ [6/7] OpenClaw Gateway（宿主，可选但强烈建议） ═══"
@@ -154,6 +398,7 @@ preflight() {
         fi
     else
         warn "OpenClaw Gateway 未监听 :$OPENCLAW_PORT —— 主 AI 宿主需单独安装启动（不在本脚本拉起范围）"
+        dim "    安装: https://docs.openclaw.ai（需 node ≥18）；插件 clone 到 $PLUGIN_HOME/；openclaw.json 片段见 SYSTEM.md"
     fi
 
     echo "═══ [7/7] 编辑器（落沙写入口，:${EDITOR_PORT}） ═══"
@@ -162,18 +407,29 @@ preflight() {
     else
         if [ -f "$EDITOR_HOME/edit-web.py" ]; then
             warn "编辑器未运行（deploy 时会自动拉起）"
+        elif [ "$autofix" = "1" ]; then
+            echo "  → 自动修复: clone edit-web.py 到 $EDITOR_HOME ..."
+            repo_clone "edit-web.py" "$GITHUB_BASE/edit-web.py.git" "$EDITOR_HOME" || { fails=$((fails+1)); fail_items+=("编辑器源码缺失: $EDITOR_HOME/edit-web.py"); }
         else
-            fail "编辑器源码缺失: $EDITOR_HOME/edit-web.py（clone tdx1146/edit-web.py 到 EDITOR_HOME）"; rc=1
+            fail "编辑器源码缺失: $EDITOR_HOME/edit-web.py（clone tdx1146/edit-web.py 到 EDITOR_HOME）"; fails=$((fails+1)); fail_items+=("编辑器源码缺失: $EDITOR_HOME/edit-web.py")
         fi
     fi
 
     echo ""
-    if [ "$rc" -eq 0 ]; then
-        ok "前置检测全绿 —— 可执行 bash deploy.sh 完整部署"
+    if [ "$fails" -eq 0 ]; then
+        ok "前置检测全绿"
     else
-        fail "前置检测存在 ${rc} 类缺失项（见上逐项修复；玄鉴缺失可暂缓）"
+        fail "前置检测存在 ${fails} 项未修复（见上逐项；自动修复已尝试，剩余多为外部依赖/系统级）"
+        echo "── 未修复项汇总（可复制命令） ──"
+        local i
+        for i in "${!fail_items[@]}"; do
+            echo "  $((i+1)). ${fail_items[$i]}"
+        done
+        if [ "$autofix" = "1" ]; then
+            warn "deploy 继续尝试拉起已就绪服务；修复后可重跑 bash deploy.sh（幂等）"
+        fi
     fi
-    return $rc
+    return $fails
 }
 
 # ══════════════════════════════════════════════════════════════
@@ -268,7 +524,7 @@ verify_services() {
         warn "编辑器 :$EDITOR_PORT 未运行（明线落沙入口缺失！）"; allok=0
     fi
     local txt_tail; txt_tail=$(tail -1 "$NEXSANDBASE_HOME/sandglass.txt" 2>/dev/null | head -c 80)
-    [ -n "$txt_tail" ] && ok "沙漏 txt 尾部: $txt_tail" || warn "sandglass.txt 为空或不可读（$NEXSANDBASE_HOME/sandglass.txt）"
+    [ -n "$txt_tail" ] && ok "沙漏 txt 尾部: $txt_tail" || warn "sandglass.txt 为空或不可读（$NEXSANDBASE_HOME/sandglass.txt，新机器首次落沙后生成）"
 
     # allok=1 成功 / 0 失败 → 映射为退出码 0/1
     [ "$allok" -eq 1 ] && return 0 || return 1
@@ -307,26 +563,35 @@ cron_check() {
             missing=1
         fi
     done
-    [ "$missing" -eq 0 ] && ok "crontab 全表完整" || warn "缺失条目请手动 crontab -e 添加（或 bash deploy.sh cron-show 查看推荐全表）"
+    [ "$missing" -eq 0 ] && ok "crontab 全表完整" || warn "缺失条目可 bash deploy.sh cron-install 自动合并安装（幂等），或 cron-show 查看全表手动复制"
 }
 
 cron_show() {
-    cat <<'EOF'
-# ===== 推荐 crontab 全表（部署参考，路径按本机 env.local 替换） =====
+    # 用 env.local 实际值展开（heredoc 不加引号；路径保持引号，兼容含空格的路径）。
+    # 演练实锤：旧版 `<<'EOF'` 输出字面 $LMS_HOME/$LIGHT_HOME/$AGENT_OS_HOME，
+    # 照抄进 crontab 全是空变量静默失效。
+    local b="$LMS_HOME/scripts/lms_backup.sh"
+    local lmsctl="$LMS_HOME/scripts/lms_ctl.sh"
+    local runctl="$LMS_HOME/.venv/bin/python $LMS_HOME/scripts/run_control.py"
+    local pulse="$LIGHT_HOME/scripts/pulse-cron.sh"
+    local watchdog="$LIGHT_HOME/scripts/session-reset-watchdog.py"
+    local hcheck="$LIGHT_HOME/scripts/health-check.sh"
+    cat <<EOF
+# ===== 推荐 crontab 全表（已按本机 env.local 展开，可直接复制） =====
 # LMS 备份三档
-*/15 * * * *  $LMS_HOME/scripts/lms_backup.sh --quick
-0 * * * *     $LMS_HOME/scripts/lms_backup.sh --hourly
-30 2 * * *    $LMS_HOME/scripts/lms_backup.sh --daily
+*/15 * * * *  $b --quick
+0 * * * *     $b --hourly
+30 2 * * *    $b --daily
 # 开机自启（LMS 由 lms_ctl.sh 幂等拉起；全栈由 start_all.sh）
-@reboot       sleep 30 && bash $LMS_HOME/scripts/lms_ctl.sh start
-@reboot       sleep 45 && setsid $LMS_HOME/.venv/bin/python $LMS_HOME/scripts/run_control.py --host 127.0.0.1 --port 8191 < /dev/null &
+@reboot       sleep 30 && bash $lmsctl start
+@reboot       sleep 45 && setsid $runctl --host 127.0.0.1 --port 8191 < /dev/null &
 @reboot       sleep 20 && bash "$AGENT_OS_HOME/start_all.sh"
 # 怀疑/唤醒三锁
-*/10 * * * *  bash $LIGHT_HOME/scripts/pulse-cron.sh
+*/10 * * * *  bash $pulse
 30 23 * * *   bash "$AGENT_OS_HOME/doubt-system/night_patrol_run.sh"
-*/2 * * * *   python3 $LIGHT_HOME/scripts/session-reset-watchdog.py
+*/2 * * * *   python3 $watchdog
 # 自愈/巡检
-*/5 * * * *   bash $LIGHT_HOME/scripts/health-check.sh
+*/5 * * * *   bash $hcheck
 */30 * * * *  bash "$AGENT_OS_HOME/scripts/system_health_check.sh" --cron
 */30 * * * *  bash "$AGENT_OS_HOME/scripts/contract_check.sh" --cron
 */10 * * * *  bash "$AGENT_OS_HOME/scripts/sandglass_sync.sh"
@@ -334,18 +599,51 @@ cron_show() {
 EOF
 }
 
+# 合并安装推荐 crontab（备份→按命令关键词去重合并，幂等；G6「部署者不需要手抄」落地）
+cron_install() {
+    local now; now=$(date '+%Y%m%d-%H%M%S')
+    local bak="$HOME/.crontab.bak-$now"
+    crontab -l > "$bak" 2>/dev/null || true
+    echo "已备份现有 crontab → $bak"
+    local tmp; tmp=$(mktemp)
+    local skip=0 added=0
+    local existing; existing=$(crontab -l 2>/dev/null || true)
+    local line kw
+    while IFS= read -r line; do
+        case "$line" in \#*|"") continue ;; esac
+        kw=$(printf '%s' "$line" | awk '{print $NF}')
+        if printf '%s' "$existing" | grep -qF "$kw"; then
+            echo "  跳过已存在: $kw"; skip=$((skip+1)); continue
+        fi
+        echo "$line" >> "$tmp"; added=$((added+1))
+    done < <(cron_show | sed '1d')   # 去掉首行注释标题
+    if [ "$added" -gt 0 ]; then
+        { printf '%s\n' "$existing"; cat "$tmp"; } | crontab -
+        echo "✅ 新增 $added 条（跳过 $skip 条已存在）—— 注意 @reboot 条目需重新登录/重启才生效"
+    else
+        echo "✅ 无新增（$skip 条已存在，幂等）"
+    fi
+    rm -f "$tmp"
+}
+
 # ══════════════════════════════════════════════════════════════
 # 主流程
 # ══════════════════════════════════════════════════════════════
 case "$CMD" in
   doctor|preflight)
-    preflight; exit $?
+    preflight 0; exit $?
+    ;;
+  bootstrap)
+    bootstrap; exit $?
     ;;
   cron)
     cron_check; exit 0
     ;;
   cron-show)
     cron_show; exit 0
+    ;;
+  cron-install)
+    cron_install; exit $?
     ;;
   status)
     echo "=== deploy.sh status（$(date '+%F %T')） ==="
@@ -378,25 +676,24 @@ case "$CMD" in
     echo "  Agent OS 一键部署（deploy.sh）$(date '+%F %T')"
     echo "════════════════════════════════════════════════"
     echo ""
-    # 1. 前置检测：失败则中止（给出修复指引）
-    if ! preflight; then
-        echo ""
-        fail "前置检测未通过，请按上述提示修复后重试（或 bash deploy.sh doctor 复查）"
-        exit 1
-    fi
+    # 1. bootstrap：环境安装（幂等；clone/venv/.env/数据目录/外部依赖指引）
+    bootstrap
     echo ""
-    # 2. 按依赖顺序拉起 6 服务（stack_ctl.sh 内部已按 沙漏→LMS→胶水→总线→玄鉴 顺序 + 幂等）
+    # 2. 前置检测（缺→自动修→修不了给可复制命令→不中止；失败项最后汇总）
+    preflight 1
+    echo ""
+    # 3. 按依赖顺序拉起 6 服务（stack_ctl.sh 内部已按 沙漏→LMS→胶水→总线→玄鉴 顺序 + 幂等）
     echo "── 拉起 6 服务栈（依赖顺序，幂等） ──"
     bash "$AGENT_OS_HOME/stack_ctl.sh" start
     echo ""
-    # 3. 拉起编辑器（落沙写入口）
+    # 4. 拉起编辑器（落沙写入口）
     start_editor
     echo ""
-    # 4. 每步健康验证
+    # 5. 每步健康验证
     verify_services
     VRC_=$?
     echo ""
-    # 5. crontab 检查（只读提示）
+    # 6. crontab 检查（只读提示）
     cron_check
     echo ""
     echo "────────────────────────────────────────────────"
@@ -404,18 +701,21 @@ case "$CMD" in
         ok "一键部署完成 —— 核心链路全绿；日常查健康: bash deploy.sh status / bash scripts/system_health_check.sh"
     else
         fail "部署完成但存在红项（见上）；修复后重跑 bash deploy.sh（幂等）"
+        dim "  未就绪项多为外部依赖（embed/OpenClaw/cron），按 [e]/[5/7]/[6/7] 指引补齐后重跑"
     fi
     exit $VRC_
     ;;
   *)
-    echo "用法: bash deploy.sh [deploy|doctor|status|stop|verify|cron|cron-show]"
-    echo "  deploy      完整部署（默认）"
-    echo "  doctor      只做前置检测"
-    echo "  status      全栈状态汇总"
-    echo "  stop        停止 6 服务栈"
-    echo "  verify      部署后深度验证"
-    echo "  cron        检查 crontab 缺失条目"
-    echo "  cron-show   打印推荐 crontab 全表"
+    echo "用法: bash deploy.sh [deploy|bootstrap|doctor|status|stop|verify|cron|cron-show|cron-install]"
+    echo "  deploy        完整部署（bootstrap + 自动修复 + 拉起；默认，幂等）"
+    echo "  bootstrap     只做环境安装（clone 6 仓/venv/.env/数据目录/外部依赖指引）"
+    echo "  doctor        只做前置检测（不自动修复、不启动）"
+    echo "  status        全栈状态汇总"
+    echo "  stop          停止 6 服务栈"
+    echo "  verify        部署后深度验证"
+    echo "  cron          检查 crontab 缺失条目"
+    echo "  cron-show     打印推荐 crontab 全表（已按 env.local 展开）"
+    echo "  cron-install  合并安装推荐 crontab（备份→去重→幂等）"
     exit 1
     ;;
 esac
