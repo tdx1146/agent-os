@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "created": "2026-07-08T22:40:00+08:00",
+  "agents": [
+    {
+      "id": "iso-sand-monitor",
+      "name": "IsoSand 监控代理",
+      "model": "DeepSeek/deepseek-v4-flash",
+      "role": "定期检查系统健康状态",
+      "tasks": [
+        "检查 operation_log.jsonl 活性",
+        "检查 facts.dict.md 断言数",
+        "检查 essence/ 轮感文件",
+        "检查守护进程运行状态"
+      ],
+      "schedule": "每6小时",
+      "enabled": true
+    },
+    {
+      "id": "iso-sand-distill",
+      "name": "IsoSand 轮感蒸馏代理",
+      "model": "DeepSeek/deepseek-v4-flash",
+      "role": "运行 essence_distiller.py 从操作日志提取模式",
+      "tasks": [
+        "读取 operation_log.jsonl",
+        "运行规则驱动的模式检测",
+        "保存轮感结晶到 essence/",
+        "记录操作日志"
+      ],
+      "schedule": "每2小时",
+      "enabled": true
+    },
+    {
+      "id": "iso-sand-verify",
+      "name": "IsoSand 验证代理",
+      "model": "混元/hy3-preview",
+      "role": "验证断言和履约",
+      "tasks": [
+        "运行 verify_claim.py 验证断言",
+        "运行 ci_verify.py 项目级验证",
+        "交叉验证守护进程审计结果"
+      ],
+      "schedule": "每日23:00",
+      "enabled": false
+    }
+  ]
+}

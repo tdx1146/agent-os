@@ -46,7 +46,7 @@ curl -s http://127.0.0.1:8190/status/main | head -c 300  # 暗线轮次在涨
 | 2 | **LMS 活体记忆** | 暗线·塑形+质检 | `living-memory-system-cloud/`（必须 .venv+.env） | `:8190` 主口（/health /status /feed /react）、`:8191` 控制口、MCP lms-memory/lms-http | 容易漏 .env 不 source → 静默降级 |
 | 3 | **胶水层 glue** | 胶水·统一编排 | `memory-integration-layer/` | `:19000`（/recall /soul /store /react） | 中（依赖沙漏+LMS+向量都活） |
 | 4 | **Agent OS 总线 iso-sand** | 总线·事件骨架 | `Agent OS/iso-sand/`（本仓库内） | 无端口，文件总线 `data/event_bus.jsonl` | 中（scheduler/consumer 两个进程都要起） |
-| 5 | **玄鉴 verify_daemon** | 监督·审外 | `AgentOS-IsoSand/同构沙盘/` | 无端口，5min 巡检 operation_log | 高（独立目录、无端口、不起也不报错） |
+| 5 | **玄鉴 verify_daemon** | 监督·审外 | `Agent OS/xuanjian/`（2026-08-12 并入本仓，源码随仓分发；data/ 不随仓） | 无端口，5min 巡检 operation_log | 高（无端口守护进程，不起也不报错） |
 | 6 | **doubt-system 怀疑系统** | 监督·审己 | `Agent OS/doubt-system/`（本仓库内） | 无端口，cron 23:30 夜巡 | 高（纯 cron，不部署就是"没怀疑"） |
 | 7 | **self_pulse 自主唤醒** | 唤醒 | `所有自动化/轻如烟/scripts/`（pulse-cron.sh + self_pulse_cli.py + salience_gate + sleep_pressure + wake_client） | cron `*/10`；唤醒出口 `WAKE_CHANNEL`（a=hooks/wake，b=chat.send 注入[梦醒]） | 高（一套脚本不在一个仓，散在轻如烟 scripts/） |
 | 8 | **OpenClaw 插件 glue-memory-injector** | 胶水·注入 | OpenClaw plugins 目录（`glue-memory-injector/`） | `before_prompt_build` hook；`[回魂]+[记忆注入]` 前缀 | 高（在 OpenClaw 目录，不在任何仓库根；改后需 gateway 重载才生效） |
@@ -68,7 +68,7 @@ curl -s http://127.0.0.1:8190/status/main | head -c 300  # 暗线轮次在涨
 | ② | LMS :8190 | 依赖向量服务 + `.env`（必须 `set -a; . ./.env; set +a`） | `curl http://127.0.0.1:8190/status/main`（turn_count 非空，空=降级） |
 | ③ | 胶水 :19000 | 依赖沙漏+LMS+向量都活 | `curl http://127.0.0.1:19000/health`（backends 非 degraded） |
 | ④ | 总线 scheduler+consumer | consumer 的 LmsFeedHandler 依赖 LMS /feed | `tail -3 iso-sand/data/event_bus.jsonl`（时间戳是当前） |
-| ⑤ | 玄鉴 | 依赖 operation_log（总线消费者产出） | `cat 同构沙盘/data/daemon.pid` |
+| ⑤ | 玄鉴 | 依赖 operation_log（总线消费者产出） | `cat xuanjian/data/daemon.pid`（data/ 首次运行自动创建） |
 | ⑥ | crontab（唤醒链/夜巡/备份/自启） | 常驻守护 + 开机自启 | `crontab -l`（全表见 SYSTEM.md §3.4） |
 | ⑦ | 编辑器 :18888 | 落沙写入者 | 发消息 → `tail -3 sandglass.txt` 出现新行 |
 | ⑧ | OpenClaw 插件+MCP | 记忆送回对话的唯一入口 | 发消息 → `/tmp/glue-hook-debug.log` 有 INJECTED |

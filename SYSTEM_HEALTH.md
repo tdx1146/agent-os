@@ -55,7 +55,7 @@ cd "/vol2/1000/AI专用/Agent OS" && bash scripts/system_health_check.sh
 | ❌ LMS-深度指标 | crontab 里有没有 `lms_ops_monitor.py` | **深度健康检查 cron 缺失**（当前真实病灶） | 加 cron，见 §5 修复 1 |
 | ❌ 胶水层 | `Agent OS/logs/glue_server.log` + 三后端各自 health | LMS/沙漏/向量挂了会带崩它 | 先救后端，再 `bash start_all.sh` |
 | ❌ 总线 | `iso-sand/data/scheduler.pid` `consumer.pid` | 调度器/消费者死了 | `bash iso-sand/start_scheduler.sh` + `start_consumer.sh` |
-| ❌ 玄鉴-进程 | `同构沙盘/data/daemon.pid` | verify_daemon 死了 | 重跑 `src/verify_daemon.py` |
+| ❌ 玄鉴-进程 | `xuanjian/data/daemon.pid`（2026-08-12 起玄鉴并入 agent-os/xuanjian；本机运行实例暂在旧同构沙盘 data/） | verify_daemon 死了 | 重跑 `src/verify_daemon.py` |
 | ❌ 玄鉴-审计发现 | audit 日志 FAIL 行的 detail | git 推送没落地（见 §6 现状③） | `git status` 查 ahead，push 补推 |
 | ❌ 夜巡 | `/tmp/night-patrol-cron.log` | **crontab 路径含空格被拆词 + 脚本内路径错**（当前真实病灶） | 见 §5 修复 2 |
 | ❌ 备份 | `living-memory-system-cloud/logs/lms_backup.log` | rsync/磁盘/锁 | 看 ERROR 行；`bash scripts/lms_backup.sh --quick` 手动跑一次 |

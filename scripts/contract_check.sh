@@ -60,7 +60,9 @@ AGENT_OS_HOME = os.environ.get("AGENT_OS_HOME") or os.path.dirname(os.path.dirna
 PARENT = os.path.dirname(os.path.dirname(AGENT_OS_HOME))  # /vol2/1000/AI专用
 NEX = derive("NEXSANDBASE_HOME", os.path.join(PARENT, "所有自动化", "轻如烟", "sandglass"))
 LMS_HOME = derive("LMS_HOME", os.path.join(PARENT, "living-memory-system-cloud"))
-VERIFY_HOME = derive("VERIFY_HOME", os.path.join(PARENT, "AgentOS-IsoSand", "同构沙盘"))
+# 玄鉴已并入 agent-os/xuanjian（2026-08-12）；优先新路径，旧同构沙盘回退
+_xj = os.path.join(AGENT_OS_HOME, "xuanjian")
+VERIFY_HOME = derive("VERIFY_HOME", _xj if os.path.isdir(os.path.join(_xj, "src")) else os.path.join(PARENT, "AgentOS-IsoSand", "同构沙盘"))
 ISO_SAND_HOME = derive("ISO_SAND_HOME", os.path.join(AGENT_OS_HOME, "iso-sand"))
 LIGHT_HOME = derive("LIGHT_HOME", os.path.join(PARENT, "所有自动化", "轻如烟"))
 FACTS = os.environ.get("FACTS_DICT_PATH", "")

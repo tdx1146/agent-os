@@ -1,0 +1,25 @@
+# ─── 运行时数据绝不入库（复现缺口清单 #2 数据边界）───
+data/
+*.log
+*.pid
+logs/
+
+# ─── 源仓历史遗留（非源码）───
+.claims/
+backups/
+revisions/
+
+# ─── Python ───
+__pycache__/
+*.pyc
+*.pyo
+.venv*/
+venv/
+
+# ─── 备份 ───
+*.bak*
+*.bak
+
+# ─── 系统 ───
+.DS_Store
+Thumbs.db

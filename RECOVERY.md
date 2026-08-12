@@ -98,7 +98,7 @@ crontab 里有 5 条 @reboot 启动条目（另有 1 条注释行），按依赖
 - **自动恢复**：仅 @reboot
 - **恢复**：
   ```bash
-  cd "/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘" && nohup python3 src/verify_daemon.py \
+  cd "/vol2/1000/AI专用/Agent OS/xuanjian" && nohup python3 src/verify_daemon.py \
     >> "/vol2/1000/AI专用/Agent OS/logs/verify_daemon.log" 2>&1 &
   ```
 

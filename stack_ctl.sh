@@ -28,6 +28,12 @@ if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
 ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
+# 玄鉴已并入 agent-os/xuanjian（2026-08-12）；优先新路径，旧同构沙盘回退（本机运行实例仍在其 data/）。
+if [ -d "$AGENT_OS_HOME/xuanjian/src" ]; then
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/xuanjian}"
+else
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+fi
 RUN_DIR="${RUN_DIR:-$AGENT_OS_HOME/run}"
 LOG_DIR="${LOG_DIR:-$AGENT_OS_HOME/logs}"
 SANDGLASS_API_PORT="${SANDGLASS_API_PORT:-17333}"

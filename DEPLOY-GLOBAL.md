@@ -32,7 +32,7 @@
 ```bash
 # ① 拷贝仓库（保持目录间相对布局，或任意布局均可——路径由 env.local 决定）
 #    需要：Agent OS / 所有自动化/轻如烟 / living-memory-system-cloud /
-#          memory-integration-layer / AgentOS-IsoSand/同构沙盘（玄鉴源码暂无远端，见复现缺口清单）
+#          memory-integration-layer / （玄鉴已并入 agent-os/xuanjian/，无需单独 clone；见复现缺口清单 #2）
 cd <你的>/Agent\ OS
 
 # ② 生成本机配置（从模板拷贝）

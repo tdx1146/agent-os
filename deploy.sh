@@ -31,7 +31,13 @@ fi
 LIGHT_HOME="${LIGHT_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟}"
 LMS_HOME="${LMS_HOME:-$AGENT_OS_HOME/../living-memory-system-cloud}"
 GLUE_HOME="${GLUE_HOME:-$AGENT_OS_HOME/../memory-integration-layer}"
-VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+# 玄鉴已并入 agent-os/xuanjian（2026-08-12，复现缺口清单 #2）。
+# 默认优先新路径；旧同构沙盘保留为回退（本机运行中守护进程仍在旧位置，data/ 不随仓分发）。
+if [ -d "$AGENT_OS_HOME/xuanjian/src" ]; then
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/xuanjian}"
+else
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+fi
 SANDGLASS_SOURCE="${SANDGLASS_SOURCE:-$LIGHT_HOME/sandglass_source}"
 NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-$LIGHT_HOME/sandglass}"
 ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
@@ -89,7 +95,7 @@ preflight() {
     done
     [ -f "$SANDGLASS_SOURCE/sandglass_http_api.py" ] || { fail "沙漏源码缺 sandglass_http_api.py（clone tdx1146/nyx 到 SANDGLASS_SOURCE）"; rc=1; }
     [ -f "$GLUE_HOME/glue_server.py" ] || { fail "胶水层缺 glue_server.py（clone tdx1146/memory-integration-layer）"; rc=1; }
-    [ -f "$VERIFY_HOME/src/verify_daemon.py" ] || { warn "玄鉴缺 src/verify_daemon.py（源码暂无 GitHub 仓库，见复现缺口清单；可暂缓，不影响核心链路）"; }
+    [ -f "$VERIFY_HOME/src/verify_daemon.py" ] || { warn "玄鉴缺 src/verify_daemon.py（xuanjian/ 未检出或源码缺失；见复现缺口清单 #2；可暂缓，不影响核心链路）"; }
 
     echo "═══ [3/7] Python / node 运行时 ═══"
     if command -v python3 > /dev/null 2>&1; then

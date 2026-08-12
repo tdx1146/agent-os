@@ -47,7 +47,7 @@
 | 2 | **胶水层 glue** | `github.com/tdx1146/memory-integration-layer`（**main**，公开） | `/vol2/1000/AI专用/memory-integration-layer` | `:19000` /health、`/react` 薄代理（体验层A） | 记忆注入（读侧 /recall）、落沙（写侧 storeTurn）、doubt_adapter 怀疑账本、lms_client SDK |
 | 3 | **Agent OS 总线** | `github.com/tdx1146/agent-os`（main） | `/vol2/1000/AI专用/Agent OS` | 无端口（文件总线 + 调度器） | 事件总线 event_bus.jsonl、scheduler/consumer、stack_ctl 一键运维、**SYSTEM.md（数据流/部署中心）+ 本拓扑的宿主** |
 | 4 | **doubt-system 怀疑系统** | `github.com/tdx1146/agent-os` → `doubt-system/` 子目录 | `/vol2/1000/AI专用/Agent OS/doubt-system` | 无端口（cron 23:30 夜巡） | 持续自我怀疑：memory_trust 信任度、夜巡旁观者、反教条复核、doubt_hook 部署钩子 |
-| 5 | **玄鉴 verify_daemon** | 以姐姐侧 GitHub 仓库为准（dandan 2026-08-10 确认已在 GitHub；本机目录无 git remote，不自动上传） | `/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘` | 无端口（守护进程，5min 巡检） | 对外部知识/文件变更的校验审计（keyword_v0.1） |
+| 5 | **玄鉴 verify_daemon** | `github.com/tdx1146/agent-os` → `xuanjian/` 子目录（**2026-08-12 并入**，源码随仓分发；运行中实例暂在旧同构沙盘路径，`data/` 不随仓分发） | `/vol2/1000/AI专用/Agent OS/xuanjian` | 无端口（守护进程，5min 巡检） | 对外部知识/文件变更的校验审计（keyword_v0.1）+ PURPOSE 完整性 + 三仓推送真实性验证 |
 | 6 | **沙漏 sandglass** | 以姐姐侧 GitHub 仓库为准（dandan 2026-08-10 确认已在 GitHub；本机目录无 git remote，不自动上传） | `/vol2/1000/AI专用/所有自动化/轻如烟` | `:17333`（HTTP API）；`:18888` 编辑器 | 落沙日志 + 状态中枢（metrics.jsonl、persona、sleep_pressure、doubt.db） |
 | 7 | **self_pulse 自主唤醒** | ⚠️ 属沙漏（无独立远端） | `/vol2/1000/AI专用/所有自动化/轻如烟/scripts/` | cron `*/10` | 唤醒链：salience_gate（含 SG_DREAM_FEED/SG_DOUBT_FEED 通道，默认关）→ sleep_pressure（体力）→ 按 `WAKE_CHANNEL`（a=hooks/wake，b=chat.send 注入[梦醒]）出口唤醒 |
 | 8 | **OpenClaw Gateway** | 官方（openclaw） | `/vol1/@apphome/trim.openclaw/data` | `:10554` | 主 AI 运行时（毛毛本体） |
@@ -138,9 +138,9 @@ grep -c "sandglass.entry" /vol2/1000/AI专用/Agent\ OS/iso-sand/data/event_bus.
 
 ## 6. 已知缺口（2026-08-10 审计 + 2026-08-12 复现保障复核）
 
-1. **玄鉴 verify_daemon 无远端仓库（复现阻断，最高优先）**：本机 `AgentOS-IsoSand/同构沙盘` 无 .git；GitHub `tdx1146` 名下不存在对应公开仓（ls-remote 验证）。旧文"以姐姐侧 GitHub 仓库为准"无法兑现。**待 dandan 决策**：①新建仓（如 `tdx1146/agent-os-isosand`）推送同构沙盘（排除 data/）；②或并入 agent-os 仓子目录。详见 `复现缺口清单-20260812.md` #2。
+1. **~~玄鉴 verify_daemon 无远端仓库~~ → ✅ 已并入 agent-os/xuanjian（2026-08-12）**：verify_daemon 体系（src 6 件 + tests/deploy/config）随 `tdx1146/agent-os` 仓分发，复现缺口清单 #2 修正。运行时 `data/`（pid/seek/audit/日志）不随仓分发；本机运行实例仍在旧同构沙盘路径，迁移到 xuanjian 运行（停旧起新）属可选后续。路径已参数化（`XJ_KERNEL_SPEC_DIR`/`XJ_DOUBT_HOOK`/`XJ_REPO_*`，默认向后兼容），详见 `xuanjian/README.md`。
 2. **edit-web.py 仓 main 分叉（复现影响中）**：本地 main 领先 GitHub main 20 commit（梦醒阶段2/salience_gate 第4通道/固定会话/wake A→B/dashboard 挂载），且与远端 main 无共同祖先（远端另有 F180 修复）；dashboard 挂载只在 `dashboard-mount` 分支。推送需先合并决策（force push 或 merge），**待 dandan 确认**。本地已修复的 `sandglass_log_wrapper.py` 硬编码路径（已 commit，未推）。详见缺口清单 #3。
-3. **轻如烟/玄鉴的远端仓库**：以 GitHub 现状为准（本机不自动上传）；玄鉴见 #1。
+3. **轻如烟的远端仓库**：以 GitHub 现状为准（本机不自动上传）；玄鉴见 #1（已并入 agent-os/xuanjian）。
 4. ~~living-memory-system 为私有仓库~~ → **2026-08-10 已公开，默认分支 main**。
 5. 本文件建立后，各模块 README 需补「系统定位」段指向本文件（已完成：见各 README 顶部）。
 6. **待重启生效**：:8190 已重启（2026-08-10 10:31），阶段 2 的 T2.3 归档检索/T2.6 审计/T2.8 算法治理已加载；T2.2 健康检查调度、:8191 控制口、codex/workbody 接入尚未落地（C 类）。

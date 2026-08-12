@@ -8,7 +8,12 @@ AGENT_OS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
 if [ -f "$AGENT_OS_HOME/env.local" ]; then
     set -a; . "$AGENT_OS_HOME/env.local"; set +a
 fi
-VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+# 玄鉴已并入 agent-os/xuanjian（2026-08-12）；优先新路径，旧同构沙盘回退（本机运行实例仍在其 data/）。
+if [ -d "$AGENT_OS_HOME/xuanjian/src" ]; then
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/xuanjian}"
+else
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+fi
 
 echo "=== Agent OS 启动 ==="
 echo "时间: $(date '+%Y-%m-%d %H:%M:%S')"

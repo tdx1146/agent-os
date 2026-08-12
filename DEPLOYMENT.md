@@ -34,7 +34,7 @@
 | 活体记忆 LMS | `https://github.com/tdx1146/living-memory-system.git`（remote 内嵌 token，勿外泄） | `/vol2/1000/AI专用/living-memory-system-cloud` |
 | 胶水层 | `https://github.com/tdx1146/memory-integration-layer.git`（remote 内嵌 token） | `/vol2/1000/AI专用/memory-integration-layer` |
 | iso-sand 事件总线 | 无独立 remote（随 Agent OS 目录） | `/vol2/1000/AI专用/Agent OS/iso-sand` |
-| 同构沙盘（玄鉴） | 无 remote | `/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘` |
+| 玄鉴 verify_daemon | 随 agent-os 仓分发（`xuanjian/`，2026-08-12 并入；旧本地仓 `AgentOS-IsoSand/同构沙盘` 无 remote） | `/vol2/1000/AI专用/Agent OS/xuanjian` |
 | 丰碑网络 | 无 remote | `/vol2/1000/AI专用/丰碑网络` |
 
 ---
@@ -77,7 +77,7 @@ bash status_all.sh   # 进程 + 端口 + health 端点一览
 ```
 
 - 日志：`Agent OS/logs/*.log`（sandglass_http_api / lms_api / glue_server / verify_daemon）
-- PID：`Agent OS/run/*.pid`（stop_all 用；玄鉴另在 `同构沙盘/data/daemon.pid`）
+- PID：`Agent OS/run/*.pid`（stop_all 用；玄鉴另在 `xuanjian/data/daemon.pid`，2026-08-12 并入后 data/ 不随仓分发）
 - 开机自启：crontab 已含 `@reboot sleep 20 && bash /vol2/1000/AI专用/Agent OS/start_all.sh`（systemd user bus 不可用，故用 crontab）
 - 服务被中断时也能自愈：`*/5 * * * *` health-check.sh（已修正路径）、`*/10 * * * *` pulse-cron.sh（沙漏自治脉冲）
 
@@ -112,8 +112,8 @@ curl http://127.0.0.1:8190/health                           # {"status":"ok",...
 curl http://127.0.0.1:19000/health                          # backends 三后端 healthy
 
 # 3. 玄鉴
-cat /vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘/data/daemon.pid   # 进程存活
-tail -1 /vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘/data/daemon_audit.log
+cat /vol2/1000/AI专用/Agent OS/xuanjian/data/daemon.pid   # 进程存活（本机运行实例暂在旧同构沙盘 data/）
+tail -1 /vol2/1000/AI专用/Agent OS/xuanjian/data/daemon_audit.log
 
 # 4. 一次端到端记忆写入（沙漏 L1）
 cd /vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source

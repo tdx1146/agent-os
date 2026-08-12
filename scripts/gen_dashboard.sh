@@ -39,7 +39,12 @@ EDITOR_PORT="${EDITOR_PORT:-18888}"
 ISO_SAND_HOME="${ISO_SAND_HOME:-$AGENT_OS_HOME/iso-sand}"
 RUN_DIR="${RUN_DIR:-$AGENT_OS_HOME/run}"
 LOG_DIR="${LOG_DIR:-$AGENT_OS_HOME/logs}"
-VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+# 玄鉴已并入 agent-os/xuanjian（2026-08-12）；优先新路径，旧同构沙盘回退（本机运行实例仍在其 data/）。
+if [ -d "$AGENT_OS_HOME/xuanjian/src" ]; then
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/xuanjian}"
+else
+    VERIFY_HOME="${VERIFY_HOME:-$AGENT_OS_HOME/../AgentOS-IsoSand/同构沙盘}"
+fi
 NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟/sandglass}"
 LIGHT_HOME="${LIGHT_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟}"
 LMS_HOME="${LMS_HOME:-$AGENT_OS_HOME/../living-memory-system-cloud}"
@@ -307,7 +312,7 @@ SCEN = [
      "现象：看板玄鉴-进程红灯；daemon_audit.log 停更（>10min）",
      "影响：审外监督死——没人再巡检 operation_log、没人再验证 git 推送是否落地",
      "自动恢复：仅 @reboot",
-     "恢复：`cd /vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘 && nohup python3 src/verify_daemon.py >> /vol2/1000/AI专用/Agent OS/logs/verify_daemon.log 2>&1 &`"),
+     "恢复：`cd /vol2/1000/AI专用/Agent OS/xuanjian && nohup python3 src/verify_daemon.py >> /vol2/1000/AI专用/Agent OS/logs/verify_daemon.log 2>&1 &`（2026-08-12 起玄鉴已并入 agent-os/xuanjian；旧部署在 AgentOS-IsoSand/同构沙盘）"),
     ("9️⃣ 备份失败（BK-01 红）",
      "现象：看板备份红灯；lms_backup.log 尾部有 ERROR；巡检报「最近 ERROR=4」",
      "影响：记忆快照可能没备份出去（rsync/磁盘/锁问题）。注意：BK-01 的「ERROR x4」可能是**历史**记录（近 40 行含），今天 0 次 ERROR + 快照新鲜 = 实际已恢复",
