@@ -608,11 +608,15 @@ cron_install() {
     local tmp; tmp=$(mktemp)
     local skip=0 added=0
     local existing; existing=$(crontab -l 2>/dev/null || true)
+    # 去重键 = 行内最后一个脚本路径（xxx.sh/xxx.py），忽略重定向/引号差异；
+    # 已有条目带 >>log 2>&1 后缀也能正确判重（2026-08-13 修复：曾按行尾 token 判重导致重复添加）
+    key_of() { printf '%s' "$1" | tr -d '"' | grep -oE '[^ ]+\.(sh|py)' | tail -1; }
     local line kw
     while IFS= read -r line; do
         case "$line" in \#*|"") continue ;; esac
-        kw=$(printf '%s' "$line" | awk '{print $NF}')
-        if printf '%s' "$existing" | grep -qF "$kw"; then
+        kw=$(key_of "$line")
+        [ -z "$kw" ] && { echo "  跳过(无脚本路径): $line"; continue; }
+        if printf '%s\n' "$existing" | grep -qF "$kw"; then
             echo "  跳过已存在: $kw"; skip=$((skip+1)); continue
         fi
         echo "$line" >> "$tmp"; added=$((added+1))
