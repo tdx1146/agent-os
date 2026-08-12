@@ -96,14 +96,36 @@
 
 ## 3. 部署手册（陌生 AI 照着做就能跑）
 
-> **一键总控（2026-08-12 起）**：`cd Agent OS && bash deploy.sh` = 前置检测（环境/依赖/embed/OpenClaw 逐项提示缺什么）→ 按依赖顺序拉起 6 服务+编辑器 → 每步健康验证 → crontab 检查 → 汇总。配套 `deploy.sh doctor/status/stop/verify/cron/cron-show`。
-> 分层关系：**deploy.sh（总控/体检）→ stack_ctl.sh（6 服务表驱动管理）→ start_all.sh（旧雏形，@reboot 兼容保留）**。
+> **一键总控（2026-08-12 起，08-13 升级为安装器）**：`cd Agent OS && bash deploy.sh` = **bootstrap（自动 clone 6 仓/venv/.env/数据目录）→ 前置检测（缺→自动修→修不了给可复制命令，不中止）→ 按依赖顺序拉起 6 服务+编辑器 → 每步健康验证 → crontab 检查 → 汇总**。配套 `deploy.sh bootstrap/doctor/status/stop/verify/cron/cron-show/cron-install`。
+> 分层关系：**deploy.sh（总控/安装器/体检）→ stack_ctl.sh（6 服务表驱动管理）→ start_all.sh（旧雏形，@reboot 兼容保留）**。
+> 2026-08-13 变化（干净环境复现演练闭环）：执行位已修（全部 .sh 100755）、stack_ctl 全新 clone 不再崩、cron-show 按 env.local 实际值展开（可直接复制）、env.template A 节为占位符（不再是生产路径快照）。
+
+### 3.0 全新机器初始化清单（从零到全绿，G15 补）
+
+> 给“第一次上手的人”：严格按下面顺序执行，每步验证过了再下一步。**最终形态：
+> `git clone https://github.com/tdx1146/agent-os.git && cd agent-os && bash deploy.sh` 一条命令自动完成 1-6 步（幂等，已就绪自动跳过）。**
+
+| 步 | 做什么 | 自动化？ | 验证 |
+|----|--------|---------|------|
+| 1 | 装基础软件：git、python3（≥3.10，Debian/Ubuntu：`apt install python3 python3-venv git`）、node ≥18 | ❌ 系统级，deploy 只检测+给命令 | `python3 --version` ≥3.10；`node --version` ≥18 |
+| 2 | clone agent-os（其余 5 仓+插件仓由 bootstrap 自动 clone；手工版见 README「仓库一览」） | ✅ bootstrap 自动 | `ls agent-os/deploy.sh` 存在 |
+| 3 | 生成 env.local（标准布局自动填默认；非标准布局/密钥类手改 A 节） | ✅ bootstrap 自动（`cp env.template env.local` + 占位符→默认值） | `bash deploy.sh doctor` 路径项不报占位符 |
+| 4 | LMS venv + pip install（torch 较大，数分钟） | ✅ bootstrap 自动 | `$LMS_HOME/.venv/bin/python -c "import torch"` 无报错 |
+| 5 | LMS .env（cp .env.example .env 后填 **DEEPSEEK_API_KEY**；⚠️ 密钥只能手填） | ⚠️ 半自动（cp 自动，密钥手动） | `grep -c DEEPSEEK_API_KEY $LMS_HOME/.env` ≥1 |
+| 6 | embed 向量服务（任意机器 Ollama+bge-m3，端口 11435）+ env.local 同步 URL | ❌ 外部机器；bootstrap 给可复制命令；本机 :11434 可达时自动修占位符 | `curl -X POST http://<host>:11435/v1/embeddings -d '{"model":"bge-m3","input":"ping"}'` 返回 200 |
+| 7 | 数据目录（沙漏数据/总线/玄鉴/LMS 快照） | ✅ bootstrap 自动 mkdir（沙漏 txt 首次运行自动创建，无需预建） | `ls $NEXSANDBASE_HOME` 可写 |
+| 8 | OpenClaw 安装 + 插件 glue-memory-injector + MCP 注册 | ❌ 宿主层，见 §3.1b「OpenClaw 安装」 | `ss -tln | grep :10554` 有监听 |
+| 9 | `bash deploy.sh`（拉起 6 服务+编辑器） | ✅ 自动（幂等） | `bash deploy.sh status` 全绿 |
+| 10 | cron 注册（唤醒链/夜巡/备份/自启） | ⚠️ `bash deploy.sh cron-show`（已展开可复制）/ `cron-install`（自动合并） | `crontab -l | grep pulse-cron` 存在 |
+| 11 | 10 分钟验证清单（§3.5） | — | 8 条全过 |
+
+**新机器第一次启动前不需要**：预建 sandglass.txt（服务自动创建）、预建 LMS snapshots（空目录已由 bootstrap 建好）、任何个人记忆数据（数据不随仓分发，从空起步）。
 
 ### 3.1 前置准备
 
 **软件：** Python 3.10+（LMS 要求；沙漏/胶水实测 3.11）、git、node（OpenClaw 运行时必需）。
 
-**克隆 5 个仓库**（保持相对布局即可，绝对路径只允许出现在 env.local）：
+**克隆 6 个仓库 + 1 插件仓**（保持相对布局即可，绝对路径只允许出现在 env.local；**集中可复制命令见 README「仓库一览」**，或直接 `bash deploy.sh` 由 bootstrap 自动 clone）：
 ```
 Agent OS/                    ← tdx1146/agent-os（含 doubt-system/、iso-sand/、TOPOLOGY.md、SYSTEM.md、env.local）
 所有自动化/轻如烟/            ← 沙漏数据+源码+编辑器（sandglass/、sandglass_source/、scripts/）
@@ -161,7 +183,48 @@ cd "Agent OS"
 | ⑦ | 起**轻如烟编辑器** `:18888`（`cd 轻如烟/scripts && python3 edit-web.py`） | 它是落沙写入者，没有它对话不进 sandglass.txt | 浏览器开 `:18888`；发一条消息 → `tail -3 sandglass/sandglass.txt` 出现新行 |
 | ⑧ | **接通 OpenClaw**：启用插件 glue-memory-injector（onStartup）+ 注册 MCP（lms-memory、lms-http、shouji-memory） | 插件是"记忆送回对话"的唯一入口 | 发一条消息 → `/tmp/glue-hook-debug.log` 出现 `INJECTED len=…`；下一条消息 prompt 头部出现 `[回魂]`（**含 `解读:` 段，三段式**：状态/解读/最近）+ `[记忆注入]`；密集连发 3 条 → 第 2/3 条仍见 `INJECTED-light` 计数（限流轻量注入生效） |
 
-> 实际上 ①~⑤ 全部由 `bash deploy.sh` 一键完成（前置检测→拉起→每步健康验证→汇总；内部委托 stack_ctl.sh/start_all.sh 按上述顺序）；② 需要 `LMS_HOME/.env` 已配好，否则 deploy.sh 前置检测会逐项提示缺什么。
+> 实际上 ①~⑤ 全部由 `bash deploy.sh` 一键完成（bootstrap→前置检测→拉起→每步健康验证→汇总；内部委托 stack_ctl.sh/start_all.sh 按上述顺序）；② 需要 `LMS_HOME/.env` 已配好，否则 deploy.sh 前置检测会逐项提示缺什么（并自动尝试修复）。
+
+### 3.1b OpenClaw 安装（宿主层，G14 补；不在 deploy.sh 拉起范围）
+
+> OpenClaw 是主 AI 宿主（插件/MCP/hooks 的容器），**版本以 OpenClaw 官方为准**；本体系只要求 3 件事：`before_prompt_build` hook、MCP 注册、`/hooks/wake` 端点（:10554）。deploy.sh 只检测端口与配置，不安装。
+
+```bash
+# ① 安装（官方方式，需 node ≥18）
+#    按 https://docs.openclaw.ai 系统对应方式安装；装完验证：
+openclaw gateway status          # 或 ss -tln | grep :10554
+
+# ② 插件 glue-memory-injector（bootstrap 已尝试 clone 到 $PLUGIN_HOME/glue-memory-injector；手工：）
+mkdir -p ~/.openclaw/plugins
+git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugins/glue-memory-injector
+
+# ③ openclaw.json 注册插件 + MCP（片段模板；路径按本机，token 由 OpenClaw 生成，勿抄生产值）
+#    ~/.openclaw/openclaw.json 内追加/合并：
+#    {
+#      "plugins": { "entries": {
+#        "glue-memory-injector": { "enabled": true,
+#          "config": { "glueUrl": "http://127.0.0.1:19000",
+#                       "storeTurn": { "enabled": false } } }
+#      } },
+#      "mcp": { "servers": {
+#        "lms-memory":   { "type": "stdio", "command": "<LMS_HOME>/.venv/bin/python",
+#                           "args": ["<LMS_HOME>/mcp_memory_server.py"] },
+#        "lms-http":     { "type": "http", "url": "http://127.0.0.1:8190/mcp" },
+#        "shouji-memory":{ "type": "http", "url": "https://shouji.tdx1146.cc/tools" }
+#      } },
+#      "hooks": { "path": "/hooks", "token": "<openssl rand -hex 32>" }
+#    }
+
+# ④ 重启 gateway 使插件/MCP 生效（改插件代码后也必须完全重启，SIGUSR1 不重载插件，见坑 18）
+openclaw gateway restart
+
+# ⑤ 验证
+#    插件注入: 发一条消息 → /tmp/glue-hook-debug.log 出现 INJECTED
+#    MCP:      openclaw 内 /mcp 列表应见 lms-memory/lms-http/shouji-memory
+#    wake:     curl -X POST http://127.0.0.1:10554/hooks/wake -H "Authorization: Bearer <token>" -d '{"text":"测试","mode":"now"}'
+```
+
+> ⚠️ 插件/MCP 注册后，`session.reset` 建议按坑 19 关闭（`{mode: idle, idleMinutes: 999999}`），由 `session-reset-watchdog`（cron `*/2`）守护。
 
 ### 3.3 部署完成自检清单（全部 ✅ 才算部署成功）
 
@@ -195,7 +258,7 @@ grep DOUBT_BUS_FILE memory-integration-layer/.env           # 应指向 event_bu
 
 ### 3.4 本机 crontab 全表（部署参考）
 
-> 部署者不需要手抄本表：`cd Agent OS && bash deploy.sh cron-show` 输出**模板化**全表（路径按 env.local 展开），`bash deploy.sh cron` 检查本机缺失条目。
+> 部署者不需要手抄本表：`cd Agent OS && bash deploy.sh cron-show` 输出**已按 env.local 展开**的全表（可直接复制；2026-08-13 修复：旧版输出字面 `$VAR`），`bash deploy.sh cron` 检查本机缺失条目，`bash deploy.sh cron-install` 自动合并安装（备份→去重→幂等）。
 
 ```
 */15 * * * *  lms_backup.sh --quick      # LMS 快照备份

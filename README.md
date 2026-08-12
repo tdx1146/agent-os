@@ -22,17 +22,41 @@
 #    SYSTEM.md（数据流/部署中心）→ TOPOLOGY.md（模块清单）→ 本文档 → 各模块 README
 #    ★ 新成果速查：成果存档索引-20260812.md（8/11-8/12 全部成果的标题/路径/状态）
 
-# ② 一键部署（配置中心 env.local 是唯一写绝对路径的地方）
+# ② 一键部署（配置中心 env.local 是唯一写绝对路径的地方；clone 见下方「仓库一览」）
 cd "Agent OS"
-./stack_ctl.sh setup     # 自动生成 env.local（改 A 节机器根路径）
-./stack_ctl.sh doctor    # 全配置体检，全绿才继续
-bash start_all.sh        # 内部按严格顺序起 5 服务（沙漏→LMS→胶水→总线→玄鉴）
-
-# ③ 验证活着（10 分钟清单，见 SYSTEM.md §3.5）
-bash status_all.sh       # 6 服务全绿
-tail -3 "所有自动化/轻如烟/sandglass/sandglass.txt"   # 明线在涨
-curl -s http://127.0.0.1:8190/status/main | head -c 300  # 暗线轮次在涨
+bash deploy.sh          # 一键：bootstrap 自动 clone 6 仓/venv/.env/数据目录 → 前置检测(缺→自动修) → 拉起 → 验证 → cron 检查
+bash deploy.sh status   # 验证活着（10 分钟清单见 SYSTEM.md §3.5）
 ```
+
+## 二·仓库一览（6 仓 + 1 插件仓，全部公开无需 token）
+
+> 2026-08-13 更新（演练 G11）：README 原“三仓”口径过时。实际需要 6 个仓库 + 1 个插件仓，
+> clone 命令集中在此，可直接复制（保持相对布局即可，绝对路径只写进 env.local）。
+> **一键替代**：clone 完 agent-os 后 `cd agent-os && bash deploy.sh` —— bootstrap 会自动 clone 其余全部。
+
+```bash
+# 0) 主仓（本仓库）
+git clone https://github.com/tdx1146/agent-os.git
+cd agent-os
+
+# 1) 活体记忆 LMS（→ LMS_HOME）
+git clone https://github.com/tdx1146/living-memory-system.git ../living-memory-system-cloud
+# 2) 胶水层（→ GLUE_HOME）
+git clone https://github.com/tdx1146/memory-integration-layer.git ../memory-integration-layer
+# 3) 沙漏源码（→ SANDGLASS_SOURCE，nyx fork；LIGHT_HOME=沙漏数据+源码+编辑器所在）
+mkdir -p ../所有自动化/轻如烟
+git clone https://github.com/tdx1146/nyx.git ../所有自动化/轻如烟/sandglass_source
+# 4) 轻如烟编辑器（→ EDITOR_HOME = LIGHT_HOME/scripts；⚠️ 缺口 #3 合并前为旧版，self_pulse 用 agent-os/self_pulse 覆盖）
+git clone https://github.com/tdx1146/edit-web.py.git ../所有自动化/轻如烟/scripts
+# 5) 玄鉴：已内置在 agent-os/xuanjian/（无需单独 clone；data/ 首次运行自动创建）
+# 6) OpenClaw 插件 glue-memory-injector（→ PLUGIN_HOME，默认 ~/.openclaw/plugins）
+mkdir -p ~/.openclaw/plugins
+git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugins/glue-memory-injector
+```
+
+> 注：`living-memory-system` 与本地目录名 `living-memory-system-cloud` 的差异是历史命名（cloud = 云端嵌入部署）；
+> bootstrap 的仓库注册表在 `deploy.sh` 的 `REPOS`（可用 `GITHUB_BASE` 环境变量覆盖，供镜像/内网）。
+> 上述 clone 全部可省略——`bash deploy.sh` 的 bootstrap 阶段会自动完成（幂等）。
 
 ---
 
@@ -85,7 +109,7 @@ curl -s http://127.0.0.1:8190/status/main | head -c 300  # 暗线轮次在涨
 | **DeepSeek API Key** | LMS LLM 能力（自述蒸馏等） | 写入 `$LMS_HOME/.env` 的 `DEEPSEEK_API_KEY`；不填 = LLM 功能禁用但记忆核心仍工作 |
 | **OpenClaw Gateway** | 主 AI 宿主（插件/MCP/hooks） | 需支持 `before_prompt_build` hook + MCP 注册 + `/hooks/wake` 端点；版本以 OpenClaw 官方为准 |
 | **node（≥18）** | OpenClaw 运行时 + 插件 | 部署机器需安装 |
-| **GitHub 三仓** | clone 代码 | `living-memory-system` / `memory-integration-layer` / `agent-os` 均 **main 公开**，clone 不需要 token；只有 push 才需凭据（本机已配 credential helper，**token 不进 git、不进文档**） |
+| **GitHub 6 仓 + 1 插件仓** | clone 代码 | `agent-os` / `living-memory-system` / `memory-integration-layer` / `nyx` / `edit-web.py` / `glue-memory-injector` 均 **main 分支公开**（2026-08-10 起），**clone 不需要 token**；只有 push 才需凭据（本机已配 credential helper，**token 不进 git、不进文档**）。玄鉴内置在 agent-os/xuanjian/。集中 clone 命令见上方「仓库一览」，或 `bash deploy.sh` 自动完成 |
 | **手机记忆网关（可选）** | OpenClaw MCP shouji-memory 桥接 | `SHOUJI_MCP_URL`；缺省不影响本地链路 |
 
 ---
