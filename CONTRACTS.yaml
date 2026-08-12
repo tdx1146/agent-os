@@ -243,6 +243,25 @@ contracts:
       user_input 固定串 + k=0 作 30min 契约巡检安全、不污染大脑。
       可缺席=系统未启用，不违约（fail-open）。check type=http_json，
       contract_check.sh 通用解析器零脚本改动自动接入。
+  - id: C-17
+    from: plugin(glue-memory-injector agent_end)
+    to: glue
+    method: POST
+    path: "/store-turn"
+    required_fields: [session_id, turn_count, stored, dedup_hit]
+    check_id: C-17
+    notes: >
+      提取层阶段2（S2-7，设计 v1.1 §3.2/§5.1）：/store 写侧薄代理契约
+      （插件 agent_end → glue /store-turn → LMS /store，timeout=10s）。
+      请求：{session_id, user_input, llm_output, sender}——sender 仅 glue
+      日志审计用，不转发（LMS StoreRequest 无此字段，不改 LMS）。
+      响应（透传不改结构）：200 StoreResponse（session_id/turn_count/stored/
+      dedup_hit/value_filtered/core_chars/gray/surprise/info_value/reason）；
+      429=限流（Retry-After 透传）；503=做梦协调/embed 熔断降级
+      （Retry-After:30，预期失败 C-05 先例，插件不重试）；422=会话不在
+      白名单（不应出现，白名单=main）；400=user_input 必填；
+      502=LMS 不可达（fail-open）。M-1 判据 3 数据源：stored 由 /store
+      响应给出（只有真写入才 true），独立权威对账。
 
 # -------------------------------------------------------------
 # 三、checks — 机器执行定义（contract_check.sh 逐项跑）
@@ -720,3 +739,28 @@ checks:
     query: "SELECT COUNT(*) FROM doubt_episode"
     gt: 0
     notes: "怀疑账本必须非空（同 NP-03，契约视角复述）"
+
+  - id: C-17
+    component: contract
+    name: 插件 agent_end → glue POST /store-turn 写侧透传（只读探针）
+    type: http_json
+    method: POST
+    url: "http://127.0.0.1:${GLUE_PORT}/store-turn"
+    body: {"session_id": "main", "user_input": "[Subagent Context] contract-probe（C-17 只读探针，垃圾过滤不落库）", "llm_output": "contract-probe", "sender": "contract_check"}
+    timeout: 12
+    asserts:
+      - {path: "session_id", eq: "main", note: "透传响应含 session_id"}
+      - {path: "turn_count", type: int, note: "turn_count 顶层 int（B3）"}
+      - {path: "stored", type: bool, note: "正常路径=false（垃圾过滤不落库）；60s 窗口内重复跑 dedup 路径=true（同样不产生新写入）"}
+      - {path: "dedup_hit", type: bool, note: "正常路径=false；重复跑=true"}
+      - {path: "reason", exists: true, note: "正常路径=filtered_garbage；dedup 路径=null（键存在即可）"}
+    notes: >
+      只读探针（S2-7）：user_input 含 [Subagent Context] → LMS 垃圾过滤
+      （memory.py _is_garbage_text）→ stored=false 不写 episodic——全链路
+      验证（路由/转发/LMS 可达/响应结构）零污染。两种合法结果：
+      ①正常路径（30min cron 间隔>60s 幂等窗口）：stored=false、
+      dedup_hit=false、reason=filtered_garbage；②同一 payload 在 60s 窗口内
+      重复跑：dedup_hit=true（幂等窗口命中，同样不产生新写入、turn 不增）——
+      两种都不算违约，故断言用类型/存在性而非固定值。副作用：探针仍走
+      process_turn → turn_count +1（与 /chat 查询回声同类已知污染，
+      M-1 已声明 /status turn 仅参考不作判据）。
