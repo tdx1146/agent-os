@@ -41,8 +41,10 @@ SANDBASE_HOME = os.environ.get(
 )
 SANDBASE_DB = os.path.join(SANDBASE_HOME, "sandglass.db")
 DOUBT_DB = os.path.join(SANDBASE_HOME, "doubt.db")
-OP_LOG = "/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
-MEMORY_DIR = "/vol1/@apphome/trim.openclaw/data/workspace/memory"
+# N-4（2026-08-13）：env 优先 + 相对兜底（由 night_patrol_run.sh 导出）
+OP_LOG = os.environ.get("OP_LOG") or os.path.join(
+    os.environ.get("AGENT_OS_HOME", ""), "iso-sand", "data", "operation_log.jsonl")
+MEMORY_DIR = os.environ.get("WORKSPACE", "/vol1/@apphome/trim.openclaw/data/workspace") + "/memory"
 RISK_FILE = "/tmp/topic_risk.json"
 OUTPUT = "/tmp/night_patrol_input.json"
 

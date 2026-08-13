@@ -19,14 +19,23 @@
 # ============================================================
 
 # ── 环境（cron 下 HOME/PATH 可能与交互 shell 不同，必须显式）──
-export HOME=/vol1/@apphome/trim.openclaw/data/home
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin
-export NEXSANDBASE_HOME="/vol2/1000/AI专用/所有自动化/轻如烟/sandglass"
+# N-4（2026-08-13）：路径一律 env.local 优先 + 相对推导兜底（与 deploy.sh 一致）。
+# 此前 L24 无条件 export NEXSANDBASE_HOME 本机绝对路径，覆盖 env.local，换机器即错位。
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AGENT_OS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [ -f "$AGENT_OS_HOME/env.local" ]; then
+    set -a; . "$AGENT_OS_HOME/env.local"; set +a
+fi
+AGENT_OS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"   # 以脚本位置为准（防 env.local 占位符/搬迁错位）
+export HOME="${HOME:-/vol1/@apphome/trim.openclaw/data/home}"
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin${PATH:+:$PATH}"
+LIGHT_HOME="${LIGHT_HOME:-$AGENT_OS_HOME/../所有自动化/轻如烟}"
+export NEXSANDBASE_HOME="${NEXSANDBASE_HOME:-$LIGHT_HOME/sandglass}"
 
-WORKSPACE=/vol1/@apphome/trim.openclaw/data/workspace
-SCRIPTS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="$WORKSPACE/logs"
-OP_LOG="/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl"
+export WORKSPACE="${WORKSPACE:-$HOME/data/workspace}"
+SCRIPTS="$SCRIPT_DIR"
+LOG_DIR="${LOG_DIR:-$WORKSPACE/logs}"
+export OP_LOG="${OP_LOG:-$AGENT_OS_HOME/iso-sand/data/operation_log.jsonl}"
 RUN_LOG="$LOG_DIR/night-patrol.log"
 MARKER="$LOG_DIR/night_patrol.last_run"
 LOCK=/tmp/night_patrol.lock
@@ -43,13 +52,15 @@ log() { echo "[$(ts)] $1" >> "$RUN_LOG"; }
 log_op() {
   # $1=level $2=actor $3=action $4=result $5=detail
   python3 - "$1" "$2" "$3" "$4" "$5" <<'PYEOF'
-import json, sys
+import json, os, sys
 from datetime import datetime
 level, actor, action, result, detail = sys.argv[1:6]
 rec = {"t": datetime.now().isoformat(), "level": level.upper(), "actor": actor,
        "action": action, "target": "night_patrol", "result": result, "detail": detail}
-with open("/vol2/1000/AI专用/Agent OS/iso-sand/data/operation_log.jsonl",
-          "a", encoding="utf-8") as f:
+# N-4：路径经环境变量注入（run.sh 已导出 OP_LOG/AGENT_OS_HOME），不再硬编码
+op_log = os.environ.get("OP_LOG") or os.path.join(
+    os.environ.get("AGENT_OS_HOME", ""), "iso-sand", "data", "operation_log.jsonl")
+with open(op_log, "a", encoding="utf-8") as f:
     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 PYEOF
 }
