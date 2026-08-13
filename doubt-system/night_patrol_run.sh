@@ -151,6 +151,15 @@ if [ -f "$FINDINGS" ]; then
     log "回流结果 rc=$PERSIST_RC: $PERSIST_OUT"
     if [ $PERSIST_RC -eq 0 ]; then
         log_op INFO night_patrol findings_persist OK "$PERSIST_OUT"
+        # ── 3.5 质疑闭环（2026-08-13 dandan 拍板）：高价值警讯 → backlog.md 待办 ──
+        BRIDGE_OUT=$(python3 "$SCRIPTS/night_patrol_backlog.py" --input "$FINDINGS" 2>&1)
+        BRIDGE_RC=$?
+        log "质疑闭环桥 rc=$BRIDGE_RC: $BRIDGE_OUT"
+        if [ $BRIDGE_RC -eq 0 ]; then
+            log_op INFO night_patrol backlog_bridge OK "$BRIDGE_OUT"
+        else
+            log_op ERROR night_patrol backlog_bridge FAIL "$BRIDGE_OUT"
+        fi
     else
         log_op ERROR night_patrol findings_persist FAIL "$PERSIST_OUT"
     fi
