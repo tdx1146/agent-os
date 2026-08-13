@@ -262,13 +262,28 @@ contracts:
       白名单（不应出现，白名单=main）；400=user_input 必填；
       502=LMS 不可达（fail-open）。M-1 判据 3 数据源：stored 由 /store
       响应给出（只有真写入才 true），独立权威对账。
+  - id: C-18
+    from: plugin(glue-memory-injector agent_end)
+    to: lms
+    method: file-write
+    path: "/tmp/glue-store-state.json"
+    check_id: C-18
+    notes: >
+      写侧断流告警（2026-08-13 事故 P0 补洞，三层方案之告警层）：插件每轮
+      agent_end（含所有 SKIP 分支）原子更新状态文件
+      {last_agent_end_at, last_store_ok_at, last_skip_reason, updated_at}。
+      判据：last_agent_end_at 新鲜（2h 内有 agent_end=有对话）而 last_store_ok_at
+      落后 > 2h → 红（断流：有对话但写侧无成功写入）；无对话（last_agent_end_at
+      也旧）→ 绿，不算断流；状态文件缺失=写侧从未产生 agent_end（无对话或插件
+      未启用）→ 绿；last_skip_reason=plugin-disabled（写侧显式关闭）→ 绿。
+      写侧固定 main 是架构约束；sessionId 易变不可用于路由；sessionKey 用于主会话判定。
 
 # -------------------------------------------------------------
 # 三、checks — 机器执行定义（contract_check.sh 逐项跑）
 #    type 支持：http_json / json_file_assert / file_fresh /
 #    file_grep_recent / process_alive / port_listen / sqlite_ratio /
 #    sandglass_mirror / jsonl_level_count / log_failure_ratio /
-#    crontab_has / backup_log / date_file_recent / git_sync
+#    crontab_has / backup_log / date_file_recent / git_sync / store_flow_fresh
 #    path 中 $VAR 由 env.local 插值（不硬编码绝对路径）
 # -------------------------------------------------------------
 checks:
@@ -764,3 +779,21 @@ checks:
       两种都不算违约，故断言用类型/存在性而非固定值。副作用：探针仍走
       process_turn → turn_count +1（与 /chat 查询回声同类已知污染，
       M-1 已声明 /status turn 仅参考不作判据）。
+
+  - id: C-18
+    component: contract
+    name: 写侧断流告警（状态文件 last_store_ok_at 2h 窗口）
+    type: store_flow_fresh
+    path: "/tmp/glue-store-state.json"
+    ok_seconds: 7200
+    warn_seconds: 10800
+    notes: >
+      写侧断流告警（P0，2026-08-13 事故补洞，告警层）：插件每轮 agent_end 原子写
+      /tmp/glue-store-state.json（last_agent_end_at 每轮刷新 / last_store_ok_at 仅
+      STORE-OK 更新 / last_skip_reason）。判据：last_agent_end_at 新鲜（2h 内有
+      agent_end）而 last_store_ok_at 落后 > 2h → 红（有对话但写侧断流）；
+      last_agent_end_at 也旧（无对话）→ 绿，不算断流；状态文件缺失 → 绿
+      （无 agent_end 记录=无对话或写侧未启用）；last_skip_reason=plugin-disabled
+      → 绿（写侧显式关闭≠断流）。契约 cron 每 30min 跑一次，与 2h 窗口匹配
+      （断流最多滞后 30min 被发现）。
+      写侧固定 main 是架构约束；sessionId 易变不可用于路由；sessionKey 用于主会话判定。

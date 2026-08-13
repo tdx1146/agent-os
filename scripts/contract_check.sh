@@ -98,6 +98,19 @@ def age_label(s):
     if s >= 60: return f"{int(s//60)}分钟前"
     return f"{int(s)}秒前"
 
+def parse_iso(ts):
+    """ISO 时间戳 → 本地 aware datetime；空/非法 → None（兼容 Z / +08:00 / 无时区）"""
+    if not ts:
+        return None
+    s = str(ts).strip()
+    try:
+        dt = datetime.datetime.fromisoformat(s.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.astimezone()
+        return dt.astimezone()
+    except Exception:
+        return None
+
 def http_json(method, url, body, timeout):
     """返回 (ok, data_or_err)"""
     import urllib.request, urllib.error
@@ -512,6 +525,55 @@ def run_git_sync(c):
         add(c["id"], c.get("component", "?"), c["name"], "FAULT",
             f"本地 {local[:12]} ≠ 远端 {remote_head[:12]}（push_verify FAIL 根因）")
 
+def run_store_flow_fresh(c):
+    """C-18 写侧断流判据（2026-08-13 事故 P0 补洞，告警层）。
+    读 /tmp/glue-store-state.json（插件每轮 agent_end 原子写）：
+      - 状态文件缺失 → 绿（无 agent_end 记录=无对话或写侧未启用，不算断流）
+      - last_skip_reason=plugin-disabled → 绿（写侧显式关闭≠断流）
+      - last_agent_end_at 也旧（无对话）→ 绿，不算断流
+      - 有对话（last_agent_end_at 新鲜）但 last_store_ok_at 落后 > ok_seconds → 红
+    """
+    path = env(c.get("path", ""))
+    ok_s = float(c.get("ok_seconds", 7200)); warn_s = float(c.get("warn_seconds", 10800))
+    if not os.path.exists(path):
+        add(c["id"], c.get("component", "?"), c["name"], "OK",
+            f"{path} 不存在（无 agent_end 记录=无对话或写侧未启用，不算断流）")
+        return
+    try:
+        data = json.load(open(path))
+    except Exception as e:
+        add(c["id"], c.get("component", "?"), c["name"], "FAULT", f"{path} 不可解析: {e}")
+        return
+    lae = parse_iso(data.get("last_agent_end_at"))
+    lok = parse_iso(data.get("last_store_ok_at"))
+    if lae is None:
+        add(c["id"], c.get("component", "?"), c["name"], "FAULT",
+            f"{path} 缺 last_agent_end_at 或格式非法（插件版本过旧？）")
+        return
+    if data.get("last_skip_reason") == "plugin-disabled":
+        add(c["id"], c.get("component", "?"), c["name"], "OK",
+            "写侧显式关闭（last_skip_reason=plugin-disabled），不算断流")
+        return
+    agent_age = (NOW - lae).total_seconds()
+    if agent_age >= ok_s:
+        add(c["id"], c.get("component", "?"), c["name"], "OK",
+            f"无对话（last_agent_end_at {age_label(agent_age)}）→ 不算断流")
+        return
+    if lok is None:
+        add(c["id"], c.get("component", "?"), c["name"], "FAULT",
+            f"有对话（last_agent_end_at {age_label(agent_age)}）但无 last_store_ok_at → 写侧断流")
+        return
+    store_age = (NOW - lok).total_seconds()
+    if store_age < ok_s:
+        add(c["id"], c.get("component", "?"), c["name"], "OK",
+            f"写侧正常（last_agent_end_at {age_label(agent_age)}，last_store_ok_at {age_label(store_age)}）")
+    elif store_age < warn_s:
+        add(c["id"], c.get("component", "?"), c["name"], "WARN",
+            f"有对话但 last_store_ok_at {age_label(store_age)} 偏旧（写入渐稀，观察）")
+    else:
+        add(c["id"], c.get("component", "?"), c["name"], "FAULT",
+            f"有对话（last_agent_end_at {age_label(agent_age)}）但 last_store_ok_at {age_label(store_age)} → 写侧断流")
+
 HANDLERS = {
     "http_json": run_http_check,
     "json_file_assert": run_json_file_check,
@@ -530,6 +592,7 @@ HANDLERS = {
     "backup_log": run_backup_log,
     "date_file_recent": run_date_file_recent,
     "git_sync": run_git_sync,
+    "store_flow_fresh": run_store_flow_fresh,
 }
 
 # ---------------- 主流程 ----------------

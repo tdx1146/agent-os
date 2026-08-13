@@ -32,3 +32,12 @@ venv/
 
 # 备份文件
 *.bak-*
+
+# 密钥安全红线（2026-08-13 泄露事故后加固）
+.env.*
+!.env.example
+openclaw.json*
+*.pem
+*identity*.key
+secrets/
+
