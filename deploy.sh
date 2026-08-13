@@ -100,6 +100,14 @@ dim()  { echo -e "${C_DIM}$1${C_RST}"; }
 
 mkdir -p "$RUN_DIR" "$LOG_DIR"
 
+# R-2（2026-08-13）：LMS venv 深检查 —— 只查 -x .venv/bin/python 会在 pip
+# 中断后重跑误判就绪（venv 25MB 无 torch → LMS 启动即崩，复验二轮已复现）。
+# 深检查 = 可执行 + import torch 成功。
+lms_venv_ready() {
+    [ -x "$LMS_HOME/.venv/bin/python" ] || return 1
+    "$LMS_HOME/.venv/bin/python" -c "import torch" > /dev/null 2>&1
+}
+
 # ══════════════════════════════════════════════════════════════
 # 0. bootstrap —— 环境安装（幂等：已就绪跳过）
 #    clone 6 仓 → LMS venv+pip → env.local/.env → 数据目录
@@ -273,10 +281,15 @@ bootstrap() {
     wire_editor_aux || failed=1
 
     # b. LMS venv + pip install（唯一强制 venv 的仓；胶水零依赖、沙漏纯 stdlib）
+    # R-2：就绪判定用深检查（import torch）；半成品 venv（pip 中断）删除重装
     echo "── [b] LMS venv + 依赖 ──"
-    if [ -x "$LMS_HOME/.venv/bin/python" ]; then
-        ok "LMS venv 已就绪: $LMS_HOME/.venv/bin/python"
+    if lms_venv_ready; then
+        ok "LMS venv 就绪（深检查 import torch 通过）: $LMS_HOME/.venv/bin/python"
     elif [ -d "$LMS_HOME" ]; then
+        if [ -d "$LMS_HOME/.venv" ]; then
+            warn "LMS .venv 存在但深检查未通过（pip 中断残留？）→ 删除半成品重装"
+            rm -rf "$LMS_HOME/.venv"
+        fi
         echo "  → 创建 LMS venv（python3 -m venv .venv）..."
         if ( cd "$LMS_HOME" && python3 -m venv .venv ); then
             echo "  → pip install -r requirements.txt（torch 较大，可能耗时数分钟）..."
@@ -285,7 +298,9 @@ bootstrap() {
             else
                 fail "LMS pip install 失败（日志: $LOG_DIR/bootstrap-pip-lms.log 尾部）"
                 tail -5 "$LOG_DIR/bootstrap-pip-lms.log" 2>/dev/null | sed 's/^/    /'
-                dim "    可复制命令: cd \"$LMS_HOME\" && .venv/bin/pip install -r requirements.txt"
+                # R-2：pip 失败即删半成品 venv，重跑 bootstrap 才会真正重装（否则深检查不过仍会重装，删了更干净）
+                rm -rf "$LMS_HOME/.venv" 2>/dev/null && warn "已删除半成品 .venv（重跑 bootstrap 将全新重装）"
+                dim "    可复制命令: cd \"$LMS_HOME\" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"
             fi
         else
             fail "LMS venv 创建失败（python3 -m venv 不可用？）"
@@ -450,14 +465,20 @@ preflight() {
     fi
 
     echo "═══ [4/7] LMS venv 与 .env（密钥） ═══"
-    if [ -x "$LMS_HOME/.venv/bin/python" ]; then
-        ok "venv 存在: $LMS_HOME/.venv/bin/python"
+    # R-2：深检查（import torch），半成品 venv 删除重装
+    if lms_venv_ready; then
+        ok "venv 就绪（深检查 import torch 通过）: $LMS_HOME/.venv/bin/python"
     elif [ "$autofix" = "1" ] && [ -d "$LMS_HOME" ]; then
+        if [ -d "$LMS_HOME/.venv" ]; then
+            warn "LMS .venv 深检查未通过（pip 中断残留？）→ 删除半成品重装"
+            rm -rf "$LMS_HOME/.venv"
+        fi
         echo "  → 自动修复: 创建 venv + pip install（torch 较大，可能耗时数分钟）..."
         if ( cd "$LMS_HOME" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt > "$LOG_DIR/bootstrap-pip-lms.log" 2>&1 ); then
             ok "LMS venv + 依赖已装好"
         else
             fail "LMS venv 自动安装失败（日志: $LOG_DIR/bootstrap-pip-lms.log）"
+            rm -rf "$LMS_HOME/.venv" 2>/dev/null && warn "已删除半成品 .venv（重跑将全新重装）"
             dim "    可复制命令: cd \"$LMS_HOME\" && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"
             fails=$((fails+1)); fail_items+=("LMS venv 缺失: $LMS_HOME/.venv")
         fi

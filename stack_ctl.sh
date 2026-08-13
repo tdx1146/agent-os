@@ -245,7 +245,12 @@ doctor_run() {
     fi
   done
   if [ -f "${FACTS_DICT_PATH:-}" ]; then ok "文件 FACTS_DICT_PATH → $FACTS_DICT_PATH"; else fail "文件 FACTS_DICT_PATH 不存在: ${FACTS_DICT_PATH:-未定义}"; rc=1; fi
-  if [ -x "$LMS_HOME/.venv/bin/python" ]; then ok "LMS venv python → $LMS_HOME/.venv/bin/python"; else fail "LMS venv python 缺失: $LMS_HOME/.venv/bin/python"; rc=1; fi
+  # R-2（2026-08-13）：venv 深检查（import torch）—— 浅检查在 pip 中断后误判就绪
+  if [ -x "$LMS_HOME/.venv/bin/python" ] && "$LMS_HOME/.venv/bin/python" -c "import torch" > /dev/null 2>&1; then
+    ok "LMS venv 就绪（深检查 import torch 通过）"
+  else
+    fail "LMS venv 缺失或深检查未通过（import torch 失败）: $LMS_HOME/.venv"; rc=1
+  fi
   if [ -f "$LMS_HOME/.env" ]; then ok "LMS .env（密钥）存在"; else fail "LMS .env 缺失: $LMS_HOME/.env（无法启动 lms-api）"; rc=1; fi
   if [ -f "$GLUE_HOME/glue_server.py" ]; then ok "glue_server.py 存在"; else fail "glue_server.py 缺失: $GLUE_HOME/glue_server.py"; rc=1; fi
   if [ -f "$SANDGLASS_SOURCE/sandglass_http_api.py" ]; then ok "sandglass_http_api.py 存在"; else fail "sandglass_http_api.py 缺失"; rc=1; fi
