@@ -574,6 +574,88 @@ def run_store_flow_fresh(c):
         add(c["id"], c.get("component", "?"), c["name"], "FAULT",
             f"有对话（last_agent_end_at {age_label(agent_age)}）但 last_store_ok_at {age_label(store_age)} → 写侧断流")
 
+def run_think_heartbeat(c):
+    """C-19 思考链心跳（阶段 2，2026-08-13；设计 v1.0 §七 契约）。
+    数据源：
+      - ${NEXSANDBASE_HOME}/think_state.json（think_loop 每 10min 更新：
+        last_cycle_at 每轮刷新 / last_think_at 仅产出更新）
+      - ${NEXSANDBASE_HOME}/../memory/thoughts.jsonl（thought 流，ts 字段，
+        双保险校验 last_think_at 未被误写）
+      - /tmp/glue-store-state.json（对话活动 last_agent_end_at，同 C-18）
+    判据（防思考链静默死亡，吸取写侧断流 10h 教训）：
+      - think_state.json 缺失 → 绿（未部署/观察期，fail-open）
+      - 无对话（last_agent_end_at ≥ 24h）→ 绿（机器休眠，不算断）
+      - 最近 thought < ok_seconds（默认 24h）→ 绿
+      - 有对话且 24h 无 thought → 红（loop 活着=no_thought；loop 陈旧=停摆）
+    """
+    path = env(c.get("path", ""))
+    thoughts_path = env(c.get("thoughts_path", ""))
+    glue_state = env(c.get("glue_state_path", "/tmp/glue-store-state.json"))
+    ok_s = float(c.get("ok_seconds", 86400))
+    warn_s = float(c.get("warn_seconds", 43200))
+    # 对话活动（复用 C-18 的 agent_end 心跳）
+    conv_active = False
+    conv_detail = "无对话记录（glue-store-state 缺失/无 agent_end）"
+    try:
+        gs = json.load(open(glue_state))
+        lae = parse_iso(gs.get("last_agent_end_at"))
+        if lae is not None:
+            lae_age = (NOW - lae).total_seconds()
+            conv_detail = f"last_agent_end_at {age_label(lae_age)}"
+            if lae_age < ok_s:
+                conv_active = True
+    except Exception:
+        pass
+    if not os.path.exists(path):
+        add(c["id"], c.get("component", "?"), c["name"], "OK",
+            f"think_state.json 不存在（思考链未部署/观察期，fail-open）；{conv_detail}")
+        return
+    try:
+        data = json.load(open(path))
+    except Exception as e:
+        add(c["id"], c.get("component", "?"), c["name"], "FAULT", f"{path} 不可解析: {e}")
+        return
+    # thought 新鲜度（think_state 权威 + thoughts.jsonl 双保险）
+    thought_age = None
+    lta = parse_iso(data.get("last_think_at"))
+    if lta is not None:
+        thought_age = (NOW - lta).total_seconds()
+    try:
+        with open(thoughts_path, "r", errors="replace") as f:
+            lines = [l for l in f if l.strip()]
+        if lines:
+            last = json.loads(lines[-1])
+            t = parse_iso(last.get("ts"))
+            if t is not None:
+                t_age = (NOW - t).total_seconds()
+                if thought_age is None or t_age < thought_age:
+                    thought_age = t_age
+    except Exception:
+        pass
+    if thought_age is not None and thought_age < ok_s:
+        add(c["id"], c.get("component", "?"), c["name"], "OK",
+            f"思考链心跳正常（最近 thought {age_label(thought_age)}；{conv_detail}）")
+        return
+    if not conv_active:
+        add(c["id"], c.get("component", "?"), c["name"], "OK",
+            f"无对话（{conv_detail}），不算思考链断")
+        return
+    if thought_age is not None and thought_age < warn_s:
+        add(c["id"], c.get("component", "?"), c["name"], "WARN",
+            f"有对话但 24h 内无 thought 产出（最近 {age_label(thought_age)}，渐稀观察）")
+        return
+    lcc = parse_iso(data.get("last_cycle_at"))
+    loop_age = (NOW - lcc).total_seconds() if lcc is not None else None
+    if loop_age is not None and loop_age < ok_s:
+        add(c["id"], c.get("component", "?"), c["name"], "FAULT",
+            f"思考链静默死亡：{conv_detail} 但 24h 无 thought（最近 "
+            f"{age_label(thought_age) if thought_age is not None else '无'}；"
+            f"loop 活着 last_cycle_at {age_label(loop_age)}）")
+    else:
+        add(c["id"], c.get("component", "?"), c["name"], "FAULT",
+            f"思考链停摆：{conv_detail} 但 24h 无 thought（loop last_cycle_at "
+            f"{age_label(loop_age) if loop_age is not None else '缺失/陈旧'}）")
+
 HANDLERS = {
     "http_json": run_http_check,
     "json_file_assert": run_json_file_check,
@@ -593,6 +675,7 @@ HANDLERS = {
     "date_file_recent": run_date_file_recent,
     "git_sync": run_git_sync,
     "store_flow_fresh": run_store_flow_fresh,
+    "think_heartbeat": run_think_heartbeat,
 }
 
 # ---------------- 主流程 ----------------

@@ -277,13 +277,32 @@ contracts:
       也旧）→ 绿，不算断流；状态文件缺失=写侧从未产生 agent_end（无对话或插件
       未启用）→ 绿；last_skip_reason=plugin-disabled（写侧显式关闭）→ 绿。
       写侧固定 main 是架构约束；sessionId 易变不可用于路由；sessionKey 用于主会话判定。
+  - id: C-19
+    from: think_loop(思考链)
+    to: self(thoughts.jsonl + think_state.json)
+    method: file-write
+    path: "${NEXSANDBASE_HOME}/../memory/thoughts.jsonl + ${NEXSANDBASE_HOME}/think_state.json"
+    check_id: C-19
+    notes: >
+      思考链心跳（设计 v1.0 §七 契约；吸取写侧断流 10h 教训）：thought 流
+      24h 内有新产出=绿；无产出且有对话=红（思考链静默死亡/停摆）。
+      think_loop 每 10min（pulse-cron.sh 挂载，self_pulse 之后）更新
+      think_state.json：last_cycle_at 每轮刷新（心跳），last_think_at 仅
+      thought 产出时更新（含深想/浅想；W 高→只记尾巴不产出属合法跳过）。
+      判据：最近 thought < 24h → 绿；无对话（last_agent_end_at ≥ 24h，复用
+      glue-store-state.json）→ 绿；有对话且 24h 无 thought → 红
+      （loop last_cycle_at 新鲜=no_thought 静默死亡；陈旧=停摆）；
+      think_state.json 缺失 → 绿（未部署观察期，fail-open）。
+      防回声观测：thoughts.jsonl 每行含 echo.similarity（思考-对话相似度
+      曲线数据源，调研课题 A 观测指标；阈值无文献【待灰度】）。
 
 # -------------------------------------------------------------
 # 三、checks — 机器执行定义（contract_check.sh 逐项跑）
 #    type 支持：http_json / json_file_assert / file_fresh /
 #    file_grep_recent / process_alive / port_listen / sqlite_ratio /
 #    sandglass_mirror / jsonl_level_count / log_failure_ratio /
-#    crontab_has / backup_log / date_file_recent / git_sync / store_flow_fresh
+#    crontab_has / backup_log / date_file_recent / git_sync / store_flow_fresh /
+#    think_heartbeat（C-19 思考链心跳，2026-08-13）
 #    path 中 $VAR 由 env.local 插值（不硬编码绝对路径）
 # -------------------------------------------------------------
 checks:
@@ -797,3 +816,19 @@ checks:
       → 绿（写侧显式关闭≠断流）。契约 cron 每 30min 跑一次，与 2h 窗口匹配
       （断流最多滞后 30min 被发现）。
       写侧固定 main 是架构约束；sessionId 易变不可用于路由；sessionKey 用于主会话判定。
+
+  - id: C-19
+    component: contract
+    name: 思考链心跳（thought 24h 内有产出；无产出且有对话=红）
+    type: think_heartbeat
+    path: "${NEXSANDBASE_HOME}/think_state.json"
+    thoughts_path: "${NEXSANDBASE_HOME}/../memory/thoughts.jsonl"
+    ok_seconds: 86400
+    warn_seconds: 43200
+    notes: >
+      思考链心跳（设计 v1.0 §七；防思考链静默死亡，吸取写侧断流 10h 教训）：
+      最近 thought < 24h → 绿；无对话（last_agent_end_at ≥ 24h，复用
+      /tmp/glue-store-state.json）→ 绿，不算断；有对话且 24h 无 thought → 红
+      （loop last_cycle_at 新鲜=静默死亡 no_thought，陈旧=停摆）；
+      think_state.json 缺失 → 绿（未部署观察期，fail-open）。
+      12-24h 无 thought 且有对话 → 黄（渐稀观察）。
