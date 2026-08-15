@@ -3,6 +3,7 @@
 > 2026-08-10 建立（dandan 指示：杜绝"陌生 AI 部署时完全不知道沙漏存在"）。
 > 2026-08-11 同步体验层 A-D（/react、解读段、子代理过滤、元目的翻转、怀疑融入置信度场）与沙漏 P0-1/2/3 修复后的部署现状。
 > 2026-08-12 同步：失忆根因三件套（FTS 冻结/ts 列/搜索工具）已修复、召回 L1（query 净化）已实施、CONTRACTS.yaml 契约层已建立、方法论 v1.1（system_health_check.sh 审计前置基线）已落地、梦醒回路阶段 1+2 已实施（夜间观测待进行）、提取层+双向塑形 v1.3 设计完成（待审计/实施）、丰碑对齐调研完成（铺路）。全部成果清单与文档路径见 `成果存档索引-20260812.md`。
+> 2026-08-15 同步（8/13-8/15 四阶段 + L1 + 约束型记忆全部进部署文档）：阶段1 六层注入（memory-recall.js：状态/景观叙事/thought/焦点记忆/质疑/行动 + L1 生成约束段）、阶段2 思考链（think_loop.py 挂载 pulse-cron、thoughts.jsonl、THINK_* env 族、LMS `/landscape` 端点、C-19 契约）、阶段3 precision 三层动态化（`LMS_PRECISION_ADAPT`）、阶段4 行动层 + 做梦时怀疑（`DREAM_DOUBT_ENABLED`）、约束型记忆（constraints.md + constraint_check.sh + git-push-check.sh + PATH wrapper）、AnySearch MCP、edge-tts 编辑器依赖。新 env 表见 §3.1、部署后验证清单 §3.5 ⑨-⑪、增量部署要点见 §3.6。全部成果存档见 §7 增补表。
 > 本文件回答唯一问题：**这套系统由什么组成、按什么顺序部署、数据怎么流动、怎么判断它活着**。
 > 与 TOPOLOGY.md 的关系：TOPOLOGY 是**模块清单视角**（谁在哪、什么端口）；本文件是**数据流视角**（谁喂谁、明线暗线怎么互咬）。**部署前两个都读，先读本文件。**
 > 纪律：所有事实来自 2026-08-10 沙漏链路诊断 + 各仓库 README/源码；不确定处标注【待核实】。本文件随 `tdx1146/agent-os` 仓库维护。
@@ -14,7 +15,7 @@
 **这套系统是什么（3 句话）：**
 1. 它是一套「AI 活体记忆系统」：让主 AI（毛毛，跑在 OpenClaw 里）**每轮对话都完整落沙、每轮都被记忆注入、空闲时做梦巩固**——不再"关掉窗口就失忆"。
 2. 它由**明暗双线**构成：**沙漏（明线）**把每句话一字不丢地存成明文流水账（保底，丢了它一切免谈）；**LMS 活体记忆（暗线）**用自由能原理（FEP）从对话流动中提炼结构（熵/惊讶度/目的），让记忆像海马体一样自己巩固、遗忘、演化。明线保"不忘"，暗线保"懂"。
-3. 中间由**胶水层 glue** 统一编排读写、**Agent OS 总线**传递事件、**doubt-system + 玄鉴**持续怀疑（审己+审外）、**self_pulse** 自主唤醒；2026-08-11 起**体验层**再给主 AI 加"实时感受"：每轮经 `/react`（infer-only 零持久化）读出大脑此刻的反应并注入**解读段**，LMS 内部新增**置信度场**（怀疑融入：修正已关注记忆的信任权重，不改变专注方向）——它们合起来才是一个完整的"活着的 AI"。
+3. 中间由**胶水层 glue** 统一编排读写、**Agent OS 总线**传递事件、**doubt-system + 玄鉴**持续怀疑（审己+审外）、**self_pulse** 自主唤醒、**think_loop 思考链**（2026-08-13 起每 10min 深想/浅想，兴趣×体力调度，产出 thought 流回注对话）；2026-08-11 起**体验层**再给主 AI 加"实时感受"：每轮经 `/react`（infer-only 零持久化）读出大脑此刻的反应并注入**解读段**，LMS 内部新增**置信度场**（怀疑融入：修正已关注记忆的信任权重，不改变专注方向）——它们合起来才是一个完整的"活着的 AI"。
 
 **明暗双线图：**
 
@@ -49,7 +50,7 @@
 
 **体验层注（2026-08-11）**：插件每轮已升级为三路并行——`/react`（实时反应+解读段）→ 回魂段变三段式 `[回魂] 状态:… / 解读:… / 最近:…`；LMS 内部新增置信度场（怀疑融入：修正已关注记忆的信任权重，不改变专注方向）。图中胶水/插件箭头含 `/react`，LMS 盒子含置信度场。
 
-**一句话版数据流：** 对话 → 编辑器落沙（明线）→ 插件经 glue 检索注入（送回对话）→ LMS feed/每轮 store 塑形（暗线）→ 做梦巩固 → 回魂注入。**明线存流动本身，暗线从流动提炼结构，胶水是两者的咬合点。**
+**一句话版数据流：** 对话 → 编辑器落沙（明线）→ 插件经 glue 检索注入（送回对话）→ LMS feed/每轮 store 塑形（暗线）→ 做梦巩固 → 回魂注入。**思考链（每 10min）：** interest×体力 → 深想/浅想 → thoughts.jsonl → /feed 塑形（sender=thought）→ 回魂 thought 层注入。**明线存流动本身，暗线从流动提炼结构，胶水是两者的咬合点，思考链是暗线的自我反思。**
 
 **部署顺序（5 步，详见 §3）：**
 1. 前置准备（Python/git/node + 5 个仓库 + `Agent OS/env.local` 配置中心）
@@ -60,35 +61,38 @@
 
 ---
 
-## 2. 组件总表（10 个组件，缺一不可）
+## 2. 组件总表（11 个组件，缺一不可）
 
 > 角色：明线=保底流水账｜暗线=FEP 塑形｜胶水=统一编排｜总线=事件骨架｜监督=怀疑/校验｜唤醒=自主醒来｜宿主=运行容器
 
 | # | 组件 | 角色 | 为什么存在（一句话） | 部署位置 | 端口/接口 | 数据文件 | 依赖谁 |
 |---|------|------|---------------------|----------|-----------|----------|--------|
 | 1 | **沙漏 NexSandglass** ⚠️最容易漏 | 明线·保底 | 每句话明文落沙、一字不丢，是"失忆后还能找回自己"的最后底牌；四层：L1 落沙/L2 检索/L3 思维/L4 决策粒子；2026-08-11 打 P0-1/2/3 补丁（去重/sender 归一化/总线事件）+ 失忆根因三件套（FTS 冻结/搜索工具/时间戳解析） | 源码 `所有自动化/轻如烟/sandglass_source/`（**git 仓 fork `tdx1146/nyx`，main 已含全部 9 补丁**，2026-08-12 复核推送）；⚠️ `找回自己/scripts/sandglass_source/` 是**过期副本**（无 git、vault 已落后），勿作权威；数据 `轻如烟/sandglass/`（个人记忆，不随仓分发） | `:17333` HTTP（`GET /api/health`、`POST /api/memory_search`、`/api/embedding_search`、`/api/facts_lookup`、`/api/sandglass_query`） | **`sandglass.txt`（追加式明文，权威源）**、`sandglass.idx`、`shadow_sand.db`（织线三元组）、`doubt.db`（怀疑账本）、`metrics.jsonl`、`sleep_pressure.json`、`salience_state.json`、`persona/persona.md`、`decision_particles.txt` | 零依赖（纯 stdlib），被胶水/插件/self_pulse/夜巡消费 |
-| 2 | **LMS 活体记忆** | 暗线·塑形 + 质检 | 用 FEP 把对话流动塑成结构（J矩阵/熵/惊讶度/目的层），空闲自动做梦巩固；2026-08-11 体验层 D 起内部有**置信度场**（怀疑融入：修正已关注记忆的信任权重）——"不是存储记忆，是维护能产生记忆的大脑状态" | `living-memory-system-cloud/`（必须 `.venv` + `.env`） | `:8190` HTTP（`/health`、`/status/{sid}`、`/feed`、`/recall`、`/chat`、**`/react`**（体验层A：infer-only 实时反应+解读段））；`:8191` 控制口；MCP：lms-memory(stdio)、lms-http | `snapshots/`（J矩阵快照）、状态文件（turn_count 123/熵 0.97/目的 0.94，2026-08-11）；置信度场字段随 EpisodicEntry 存快照 | 向量服务（`LMS_EMBEDDER=cloud` → `192.168.0.103:11435`，可配 `LMS_CLOUD_EMBED_FALLBACK_URL` 隧道备用）；DeepSeek key（`.env`）；HF 不可达所以必须 cloud 嵌入 |
+| 2 | **LMS 活体记忆** | 暗线·塑形 + 质检 | 用 FEP 把对话流动塑成结构（J矩阵/熵/惊讶度/目的层），空闲自动做梦巩固；2026-08-11 体验层 D 起内部有**置信度场**（怀疑融入：修正已关注记忆的信任权重）；2026-08-13 阶段3 起**precision 三层动态化**（条目 Koriat 自一致性 + 域召回簇聚合 + 全局 HGF 波动性→conformal 分位怀疑线，`LMS_PRECISION_ADAPT` 开关）；2026-08-14 阶段4 起**做梦时怀疑**（不完全线索复核+反教条下沉，`DREAM_DOUBT_ENABLED` 开关）——"不是存储记忆，是维护能产生记忆的大脑状态" | `living-memory-system-cloud/`（必须 `.venv` + `.env`） | `:8190` HTTP（`/health`、`/status/{sid}`、`/feed`、`/store`、`/recall`、`/chat`、**`/react`**（体验层A：infer-only 实时反应+解读段）、**`/landscape/{sid}`**（阶段2，只读景观摘要，`?raw=1` 附完整张量 J/bias/sigma，思考链兴趣分数据源））；`:8191` 控制口；MCP：lms-memory(stdio)、lms-http | `snapshots/`（J矩阵快照）、状态文件（turn_count 123/熵 0.97/目的 0.94，2026-08-11）；置信度场字段随 EpisodicEntry 存快照；precision_adapt 状态为进程内存（重启即失，不进快照） | 向量服务（`LMS_EMBEDDER=cloud` → `192.168.0.103:11435`，可配 `LMS_CLOUD_EMBED_FALLBACK_URL` 隧道备用）；DeepSeek key（`.env`）；HF 不可达所以必须 cloud 嵌入 |
 | 3 | **胶水层 glue** | 胶水 | 把沙漏/LMS/向量三个记忆后端"粘"成唯一入口：读侧 `/recall` 加权融合（文本0.3+向量0.5+LMS激活0.2）、写侧 `/store` 聚合写、`/soul` 回魂快照、**`/react` 薄代理**（体验层A：转发 LMS /react，失败 502 fail-open） | `memory-integration-layer/` | `:19000`（`GET /health`、`POST /recall`、`/soul`、`/store`、`/status`、`/contribute`、**`/react`**）；`glue_helper.py` 薄桥接 | 无自有数据（读沙漏 txt、写沙漏+LMS+向量） | 沙漏(txt)、LMS(:8190)、向量(:11435)；`DOUBT_BUS_FILE` 启用怀疑总线发布 |
 | 4 | **Agent OS 总线 iso-sand** | 总线 | 事件骨架：scheduler 定时发事件、consumer 订阅分发（LmsFeedHandler 把事件喂给 LMS /feed 塑形）；`sandglass.heartbeat` 是**调度器心跳**不是沙漏数据！ | `Agent OS/iso-sand/` | 无端口（文件总线）；`start_scheduler.sh` + `start_consumer.sh` | `data/event_bus.jsonl`（6.1MB）、`data/operation_log.jsonl`、`data/processed_ids.jsonl`、`data/event_bus.seek`；schema 在 `deploy/event_schema.yaml` | 消费者调 LMS(:8190)/feed、glue(:19000)；生产者含 LMS(plastified)、doubt-system、调度器 |
 | 5 | **玄鉴 verify_daemon** | 监督·审外 | 每 5min 巡检 operation_log，对外部知识/文件变更做关键词校验审计；连续 3 FAIL 追加 WARN 并触发 doubt_hook | `agent-os/xuanjian/`（2026-08-12 并入，源码随仓分发；本机运行实例暂在旧同构沙盘路径，data/ 不随仓分发） | 无端口（守护进程，`src/verify_daemon.py`） | `data/daemon_audit.log`、`data/daemon.pid`、`data/daemon.seek`（首次运行自动创建） | 总线 operation_log、内核层规范 `PURPOSE.md` |
 | 6 | **doubt-system 怀疑系统** | 监督·审己 | "聪明=持续自我怀疑"：记忆带信任度、怀疑闭环写账本、每天 23:30 夜巡旁观+反教条复核；怀疑事件喂 LMS 塑形（记得+怀疑=不教条）；2026-08-11 起 LMS 内部另有**置信度场**（体验层D，与 doubt-system 互补：doubt-system 管外部怀疑账本，置信度场管记忆条目信任权重） | `Agent OS/doubt-system/` | 无端口（cron `30 23 * * *` 夜巡）；`doubt_adapter` 在胶水层 | `sandglass/doubt.db`（doubt_episode/memory_trust 表）；夜巡 findings 写沙漏（tag=旁观者-警讯）；marker `workspace/logs/night_patrol.last_run` | 沙漏数据目录、总线 event_bus.jsonl（`DOUBT_BUS_FILE`）、LMS(经总线 feed) |
-| 7 | **self_pulse 自主唤醒** | 唤醒 | 每 10min 自主"醒来"：读 LMS 状态做画像漂移检查 + 推进待办；显著事件经 salience_gate（含梦惊讶度第4通道 `SG_DREAM_FEED`、怀疑缺口第5通道 `SG_DOUBT_FEED`，默认关）→sleep_pressure（防自激）→按 `WAKE_CHANNEL` 选择出口唤醒主 AI | `所有自动化/轻如烟/scripts/`（`pulse-cron.sh`、`self_pulse_cli.py`、`salience_gate.py`、`sleep_pressure.py`、`wake_client.py`） | cron `*/10`；唤醒出口 `WAKE_CHANNEL`：`a`=`POST :10554/hooks/wake`（旧通道）、`b`=chat.send 注入[梦醒]文本（本机 env.local=b） | 写 `sandglass/metrics.jsonl`（每 10min）、漂移时写 sandglass ⚠️告警 + 总线 anomaly；状态 `/tmp/pulse-state.json` | LMS `/status/main`、沙漏 txt、OpenClaw hooks/chat（token 在 openclaw.json，不打印） |
-| 8 | **OpenClaw 插件 glue-memory-injector** | 胶水·注入 | 每轮对话前把记忆送进 AI 上下文：**三路并行**（体验层A）经 glue `/react`（实时反应+解读段，k=0 快路径）+ `/soul`（回魂快照）+ `/recall`（记忆块），拼成 `[回魂]（含 解读: 段）+[记忆注入]` 前缀；**检索 query 已净化**（召回 L1，2026-08-11：复刻 openclaw dist stripInboundMetadata 剥 metadata 块 + 子代理轮跳过 + glue 入口兜底净化，治"[记忆注入] 全是编辑器模板"）；限流命中时仍注入轻量解读段（≤150 字，日志计数 `INJECTED-light`）；fail-open 绝不阻塞 | `/vol1/@apphome/trim.openclaw/data/home/.openclaw/plugins/glue-memory-injector/`（index.js + memory-recall.js） | OpenClaw `before_prompt_build` hook；超时 15s/回魂 4s；限流 ≥2s；注入 ≤1500 字（解读段放截断保活区）；心跳轮不注入 | 调试日志 `/tmp/glue-hook-debug.log`（INJECTED / INJECTED-light / MISS 留痕） | glue(:19000)；心跳轮判定靠 ctx.trigger |
-| 9 | **轻如烟编辑器 edit-web** | 明线·写入口 | dandan 的聊天前端（:18888），**真正的落沙写入者**：每轮消息经 `_sandglass_log` → `sandglass_log_wrapper.py` → `sandglass_log.log_message`（P0-1 去重 + P0-2 sender 归一化 + P0-3 落沙后发 `sandglass.entry` 总线事件） | `所有自动化/轻如烟/scripts/edit-web.py`；注意 `/vol1/轻如烟/轻如烟` 与 `/vol2/1000/AI专用/所有自动化/轻如烟` 是**同一文件**（bind mount） | `:18888` | 写 `sandglass/sandglass.txt` + `shadow_sand.db`；`sandglass_log_wrapper.py` 同目录 | 沙漏源码路径、会话文件（`agent:main:main`）、`SANDGLASS_BUS_FILE`（总线路径，可自动推导） |
-| 10 | **OpenClaw Gateway** | 宿主 | 主 AI 运行时容器（毛毛本体）：跑插件、挂 MCP、收 hooks/wake | `/vol1/@apphome/trim.openclaw/data` | `:10554`（hooks 路径 `/hooks`，wake 端点 `/hooks/wake`） | OpenClaw 自身会话/配置；MCP 注册 lms-memory/lms-http/shouji-memory | 插件、各 MCP 后端（8190/17333/手机网关） |
+| 7 | **self_pulse 自主唤醒 + 思考链 think_loop** | 唤醒 + 暗线·思考 | 每 10min 自主"醒来"：self_pulse 读 LMS 状态做画像漂移检查 + 推进待办，显著事件经 salience_gate（含梦惊讶度第4通道 `SG_DREAM_FEED`、怀疑缺口第5通道 `SG_DOUBT_FEED`，默认关）→sleep_pressure（防自激）→按 `WAKE_CHANNEL` 选择出口唤醒主 AI；**同 cron 周期 think_loop（2026-08-13 起）按 interest×体力调度深想/浅想**（详见下方行 11） | `所有自动化/轻如烟/scripts/`（`pulse-cron.sh`、`self_pulse_cli.py`、`salience_gate.py`、`sleep_pressure.py`、`wake_client.py`、**`think_loop.py`**） | cron `*/10`（pulse-cron 内含 think_loop 挂载）；唤醒出口 `WAKE_CHANNEL`：`a`=`POST :10554/hooks/wake`（旧通道）、`b`=chat.send 注入[梦醒]文本（本机 env.local=b） | 写 `sandglass/metrics.jsonl`（每 10min）、漂移时写 sandglass ⚠️告警 + 总线 anomaly；状态 `/tmp/pulse-state.json` | LMS `/status/main`、沙漏 txt、OpenClaw hooks/chat（token 在 openclaw.json，不打印） |
+| 8 | **OpenClaw 插件 glue-memory-injector** | 胶水·注入 | 每轮对话前把记忆送进 AI 上下文：**六层注入块**（2026-08-13 阶段1 起：①状态 ②景观叙事 ③thought ④焦点记忆 3-5 条 ⑤质疑 ⑥行动）+ **L1 生成约束段**（2026-08-14 起：怀疑水位 baseline≥0.6 强约束/0.4-0.6 轻约束，命令式生成规则注入，日志 `MODULATE`）；数据源：三路并行（体验层A）经 glue `/react`（实时反应+解读段，k=0 快路径）+ `/soul`（回魂快照）+ `/recall`（记忆块）；**检索 query 已净化**（召回 L1，2026-08-11：复刻 openclaw dist stripInboundMetadata 剥 metadata 块 + 子代理轮跳过 + glue 入口兜底净化，治"[记忆注入] 全是编辑器模板"）；限流命中时仍注入轻量解读段（≤150 字，日志计数 `INJECTED-light`）；fail-open 绝不阻塞 | `/vol1/@apphome/trim.openclaw/data/home/.openclaw/plugins/glue-memory-injector/`（index.js + memory-recall.js） | OpenClaw `before_prompt_build` hook；超时 15s/回魂 4s；限流 ≥2s；注入 ≤800 字（默认，`maxChars` 可配；解读段放截断保活区）；心跳轮不注入 | 调试日志 `/tmp/glue-hook-debug.log`（INJECTED / INJECTED-light / MISS / **MODULATE** 留痕） | glue(:19000)；心跳轮判定靠 ctx.trigger |
+| 9 | **轻如烟编辑器 edit-web** | 明线·写入口 | dandan 的聊天前端（:18888），**真正的落沙写入者**：每轮消息经 `_sandglass_log` → `sandglass_log_wrapper.py` → `sandglass_log.log_message`（P0-1 去重 + P0-2 sender 归一化 + P0-3 落沙后发 `sandglass.entry` 总线事件）；**TTS 依赖 edge-tts**（/api/tts 端点 + awake_handler.py，zh-CN-XiaoxiaoNeural，见外部依赖表） | `所有自动化/轻如烟/scripts/edit-web.py`；注意 `/vol1/轻如烟/轻如烟` 与 `/vol2/1000/AI专用/所有自动化/轻如烟` 是**同一文件**（bind mount） | `:18888`（TTS 端点 `POST /api/tts`） | 写 `sandglass/sandglass.txt` + `shadow_sand.db`；`sandglass_log_wrapper.py` 同目录 | 沙漏源码路径、会话文件（`agent:main:main`）、`SANDGLASS_BUS_FILE`（总线路径，可自动推导） |
+| 10 | **OpenClaw Gateway** | 宿主 | 主 AI 运行时容器（毛毛本体）：跑插件、挂 MCP、收 hooks/wake | `/vol1/@apphome/trim.openclaw/data` | `:10554`（hooks 路径 `/hooks`，wake 端点 `/hooks/wake`） | OpenClaw 自身会话/配置；MCP 注册 lms-memory/lms-http/shouji-memory/anysearch | 插件、各 MCP 后端（8190/17333/手机网关） |
+| 11 | **思考链 think_loop**（2026-08-13 新增）⚠️新组件易漏 | 暗线·思考 | 每 10min 按**兴趣×体力**调度自我思考：interest = 0.30·惊讶_z突变/漂移 + 0.30·景观激活度/漂移 + 0.20·悬案尾巴 + 0.20·doubt热度；体力闸 W<0.25 深想（openclaw 隔离子代理）/ <0.55 浅想（规则摘要）/ ≥0.55 只记尾巴；深想失败→浅想兜底（防 C-19 假红）；防回声（embed 余弦 >0.75 降权）；thought 流 → `/feed` 塑形（sender=thought，独立会话域不污染 main）→ 回魂 thought 层注入 | `所有自动化/轻如烟/scripts/think_loop.py`（stdlib only，~700 行） | 无端口；挂载 `pulse-cron.sh`（self_pulse 之后，cron `*/10`）；产出经 `openclaw agent` 子代理（`THINK_AGENT_MODEL` 指定模型） | **`$LIGHT_HOME/memory/thoughts.jsonl`**（thought 流，append，含 echo/interest/energy/action 元数据）、**`${NEXSANDBASE_HOME}/think_state.json`**（心跳：last_cycle_at/last_think_at/counters，C-19 数据源）、metrics.jsonl 增 `event=think_loop` 行、日志 `/tmp/think_loop.log` | LMS `/landscape/{sid}` + `/status/main`（只读）、`salience_state.json`/`sleep_pressure.json`（只读）、`/feed`（写塑形）、`openclaw agent` CLI（深想通道） |
 
 **外部依赖（不是本系统组件但被依赖，部署者必须自己准备）：**
 
 | 外部依赖 | 为什么必须 | 部署者自备说明 |
 |---------|-----------|--------------|
 | **embed 向量服务（bge-m3，OpenAI 兼容 /v1/embeddings）** ⚠️最关键 | LMS 感官层嵌入 + 胶水向量都用它；**没有它 = LMS/胶水全部静默降级，感官层就瞎了**（HF 在本机不可达，`LMS_EMBEDDER` 不能回 pretrained） | 手机/任意机器跑 Ollama + bge-m3（1024 维）：`ollama pull bge-m3 && ollama serve`（默认 11434；本机用 11435 端口），暴露 `http://<host>:11435/v1/embeddings`，写入 `LMS_CLOUD_EMBED_URL`（LMS `.env` + env.local）与 `VECTOR_URL`（env.local）；可配 `LMS_CLOUD_EMBED_FALLBACK_URL` 备用端点 |
-| **DeepSeek API Key** | LMS LLM 能力（自述蒸馏等） | 写入 `$LMS_HOME/.env` 的 `DEEPSEEK_API_KEY`；不填 = LLM 功能禁用但记忆核心仍工作 |
+| **DeepSeek API Key** | LMS LLM 能力（自述蒸馏等）+ **思考链深想子代理 LLM 通道（2026-08-13 起）** | 两处独立配置：① `$LMS_HOME/.env` 的 `DEEPSEEK_API_KEY`（LMS 用）；② **`~/.openclaw/.env` 的 `DEEPSEEK_API_KEY`**（OpenClaw 网关/CLI 用，深想子代理走 `openclaw agent`，`THINK_AGENT_MODEL` 指定模型如 `deepseek/deepseek-v4-flash`；8/13 实测 openclaw.json provider key 401 无效、.env 通道有效）；不填 = LLM 功能禁用但记忆核心仍工作 |
+| **edge-tts（编辑器 TTS，2026-08-13 依赖化）** | 编辑器 `/api/tts` 端点 + `awake_handler.py` 的 TTS 播放（zh-CN-XiaoxiaoNeural）；缺它 = 编辑器语音按钮 404/静默失败 | `pip3 install edge-tts -i https://pypi.tuna.tsinghua.edu.cn/simple`（本机实测 7.2.8，user site-packages：`/vol1/@apphome/trim.openclaw/data/home/.local/lib/python3.11/site-packages`；验证 `python3 -c "import edge_tts"`） |
+| **AnySearch MCP（可选，2026-08-13 接入）** | OpenClaw 联网搜索（web_search 不可用时）：`search`/`batch_search`/`extract`/`get_sub_domains` | openclaw.json `mcp.servers.anysearch`：`remote.url=https://api.anysearch.com/mcp`、`transport=streamable-http`、`headers.Authorization=Bearer <as_sk_...>`（key 在 openclaw.json，勿写文档/仓库；缺省不影响本地链路） |
 | **GitHub 三仓（均公开）** | clone 代码 | `living-memory-system` / `memory-integration-layer` / `agent-os` 均 **main 分支公开**（2026-08-10 起），**公开仓 clone 不需要 token**；只有 push 才需凭据（本机已配置 credential helper，不写入文档） |
 | **OpenClaw Gateway** | 主 AI 宿主（插件/MCP/hooks） | 需支持 `before_prompt_build` hook + MCP 注册 + `/hooks/wake` 端点；插件 `glue-memory-injector` 放入 plugins 目录；MCP 注册 lms-memory / lms-http / shouji-memory；版本以 OpenClaw 官方为准 |
 | **node（≥18，本机 v24）** | OpenClaw 运行时 + 插件 | 部署机器需安装 |
 | **手机记忆网关（可选）** | OpenClaw MCP shouji-memory 桥接 | `SHOUJI_MCP_URL`（默认 https://shouji.tdx1146.cc/tools）；缺省不影响本地链路 |
 
-**OpenClaw 侧配置清单**：① plugins 目录放入 `glue-memory-injector`（onStartup 启用）；② MCP 注册 lms-memory（stdio）、lms-http、shouji-memory；③ `session.reset` 相关由 `session-reset-watchdog.py`（cron `*/2`）守护；④ 插件改后需 gateway 重载才生效（体验层坑 16）。
+**OpenClaw 侧配置清单**：① plugins 目录放入 `glue-memory-injector`（onStartup 启用；插件默认 k=5/maxChars=800/thoughtEnabled=true，六层注入 + L1 生成约束开箱即用，无需显式配置）；② MCP 注册 lms-memory（stdio）、lms-http、shouji-memory、anysearch（可选）；③ `~/.openclaw/.env` 写入 `DEEPSEEK_API_KEY`（思考链深想通道，2026-08-13）；④ `session.reset` 相关由 `session-reset-watchdog.py`（cron `*/2`）守护；⑤ 插件改后需 gateway 重载才生效（体验层坑 16）。
 
 **crontab 三锁 + 新巡检**：`pulse-cron`（`*/10` 唤醒链）、`night_patrol`（`30 23` 夜巡）、`session-reset-watchdog`（`*/2`）三条是怀疑/唤醒/会话三把锁；另加 `*/5` health-check、LMS 备份三档、`@reboot` start_all.sh（全表见 §3.4）。
 
@@ -114,10 +118,12 @@
 | 5 | LMS .env（cp .env.example .env 后填 **DEEPSEEK_API_KEY**；⚠️ 密钥只能手填） | ⚠️ 半自动（cp 自动，密钥手动） | `grep -c DEEPSEEK_API_KEY $LMS_HOME/.env` ≥1 |
 | 6 | embed 向量服务（任意机器 Ollama+bge-m3，端口 11435）+ env.local 同步 URL | ❌ 外部机器；bootstrap 给可复制命令；本机 :11434 可达时自动修占位符 | `curl -X POST http://<host>:11435/v1/embeddings -d '{"model":"bge-m3","input":"ping"}'` 返回 200 |
 | 7 | 数据目录（沙漏数据/总线/玄鉴/LMS 快照） | ✅ bootstrap 自动 mkdir（沙漏 txt 首次运行自动创建，无需预建） | `ls $NEXSANDBASE_HOME` 可写 |
-| 8 | OpenClaw 安装 + 插件 glue-memory-injector + MCP 注册 | ❌ 宿主层，见 §3.1b「OpenClaw 安装」 | `ss -tln | grep :10554` 有监听 |
+| 8 | OpenClaw 安装 + 插件 glue-memory-injector + MCP 注册（lms-memory/lms-http/shouji-memory/anysearch）+ `~/.openclaw/.env` 写 DEEPSEEK_API_KEY（思考链深想通道） | ❌ 宿主层，见 §3.1b「OpenClaw 安装」 | `ss -tln | grep :10554` 有监听；`python3 -c "import edge_tts"` 无报错（编辑器 TTS，见下） |
+| 8b | **edge-tts 安装**（编辑器 TTS 依赖）：`pip3 install edge-tts -i https://pypi.tuna.tsinghua.edu.cn/simple` | ⚠️ 系统级，deploy 只检测 | `python3 -c "import edge_tts"` 无报错 |
+| 8c | **约束型记忆**（workspace 层）：拷 `workspace/memory/constraints.md` + `workspace/scripts/constraint_check.sh` + `git-push-check.sh`，跑 `--install-wrapper` | ⚠️ 手动（见 §3.6.5） | `bash scripts/git-push-check.sh --self-test` 全过 |
 | 9 | `bash deploy.sh`（拉起 6 服务+编辑器） | ✅ 自动（幂等） | `bash deploy.sh status` 全绿 |
 | 10 | cron 注册（唤醒链/夜巡/备份/自启） | ⚠️ `bash deploy.sh cron-show`（已展开可复制）/ `cron-install`（自动合并） | `crontab -l | grep pulse-cron` 存在 |
-| 11 | 10 分钟验证清单（§3.5） | — | 8 条全过 |
+| 11 | 10 分钟验证清单（§3.5） | — | 12 条全过（含思考链 ⑨ / precision ⑩ / L1 ⑪ / 约束型记忆 ⑫） |
 
 **新机器第一次启动前不需要**：预建 sandglass.txt（服务自动创建）、预建 LMS snapshots（空目录已由 bootstrap 建好）、任何个人记忆数据（数据不随仓分发，从空起步）。
 
@@ -167,6 +173,17 @@ cd "Agent OS"
 | `SANDGLASS_MAX_TEXT_LEN` | `0`（不截断） | 落沙正文长度上限（P0-2，去 500 截断） | 同上 |
 | `SANDGLASS_BUS_FILE` | 自动推导 | 落沙成功后发布 `sandglass.entry` 的总线文件（P0-3；自动推导：SANDGLASS_BUS_FILE→ISO_SAND_HOME→AGENT_OS_HOME→相对推导） | 同上 |
 | `SANDGLASS_BUS_MIN_INTERVAL` | `2`（秒） | `sandglass.entry` 发布最小间隔（防风暴） | 同上 |
+| `THINK_AGENT_MODEL` | `deepseek/deepseek-v4-flash`（本机 env.local，2026-08-14） | **思考链深想子代理模型**（openclaw agent 通道；不设=CLI 默认；8/13 实测 astroncodingplan 过载、deepseek key 需走 `~/.openclaw/.env`） | env.local |
+| `THINK_W_SURPRISE`/`_LANDSCAPE`/`_TAIL`/`_DOUBT` | `0.30/0.30/0.20/0.20` | 思考链兴趣分四分量权重（惊讶/景观/悬案/doubt） | env.local / think_loop 环境 |
+| `THINK_INTEREST_MIN` | `0.15` | 思考链"想不想"门槛；`THINK_MIN_INTERVAL_MIN=30` 产出冷却 | 同上 |
+| `THINK_DEEP_W_MAX`/`THINK_SHALLOW_W_MAX` | `0.25`/`0.55` | 体力闸：W<0.25 深想 / <0.55 浅想 / ≥0.55 只记尾巴 | 同上 |
+| `THINK_ECHO_SIM_MAX` | `0.75` | 防回声：thought 与对话 embed 余弦 >0.75 → 降权 ×0.5【待灰度】 | 同上 |
+| `THINK_FALLBACK_INTERVAL_H` | `6.0` | **保底深想**：距上次深想 ≥6h 即使兴趣低也触发（2026-08-14 修，防"从未自然深想"）；`THINK_FALLBACK_RETRY_MIN=60` 重试节流 | 同上 |
+| `THINK_SURPRISE_DRIFT_SAT`/`THINK_LANDSCAPE_DRIFT_SAT` | `3.0`/`0.02` | 兴趣分漂移度量饱和常数（2026-08-14 校准：惊讶/景观分量在弥散态结构性失效→改漂移度量） | 同上 |
+| `THINK_ACTION_WILLING_MIN`/`THINK_ACTION_COST_MAX` | `0.7`/`0.3` | 阶段4 行动层四问分级：willingness≥0.7 且 energy_cost≤0.3 → executable | 同上 |
+| `LMS_PRECISION_ADAPT` | `1`（默认开） | **阶段3 precision 三层动态化总开关**（0=关 → 行为回到阶段 2 前，零参与；测试 conftest 默认置 0 保旧行为） | **LMS 自己的 `.env`** |
+| `DREAM_DOUBT_ENABLED` | `1`（默认开） | **阶段4 做梦时怀疑总开关**（0=关 → 回退阶段 1 基础行为：labile 裁决 + 低置信 ×1.02 回稳 + 高频只 flag） | **LMS 自己的 `.env`** |
+| `DREAM_DOUBT_*` | `ALT_SIM_MIN=0.7`/`DOWNGRADE_FACTOR=0.9`/`DECAY_FACTOR=0.98`/`COOLDOWN_SECONDS=86400`/`REVIEW_MAX`/`ANTI_DOGMA_N=10` | 阶段4 做梦复核参数：替代相似线/降权/衰减/冷却/批量/反教条 top-N | LMS `.env` |
 
 ### 3.2 严格顺序（为什么是这个顺序：下游依赖上游先活）
 
@@ -175,13 +192,13 @@ cd "Agent OS"
 | 步 | 做什么 | 为什么先 | 验证命令（每步必跑） |
 |----|--------|---------|---------------------|
 | ① | 起**沙漏** HTTP API `:17333`（`cd sandglass_source && NEXSANDBASE_HOME=… python3 sandglass_http_api.py`） | 零依赖；txt 是全局权威源，胶水/插件读它 | `curl http://127.0.0.1:17333/api/health` → 返回 `sandglass_count`；`tail -3 sandglass/sandglass.txt` 有内容 |
-| ② | 起 **LMS** `:8190`（**必须先 `set -a; . ./.env; set +a`**，再 `.venv/bin/python -m api.run --host 127.0.0.1 --port 8190`） | 依赖向量服务可达 + `.env` 密钥；启动慢（嵌入初始化，≤40s） | `curl http://127.0.0.1:8190/health`；`curl http://127.0.0.1:8190/status/main` → `turn_count` 非空（**空=静默降级，查 .env 是否 source**）；`curl -X POST http://127.0.0.1:8190/react -H 'Content-Type: application/json' -d '{"user_input":"契约校验探针","k":0}'` → 返回 `interpretation` 且 `turn_count` 与调用前一致（**体验层A：/react 零持久化**） |
+| ② | 起 **LMS** `:8190`（**必须先 `set -a; . ./.env; set +a`**，再 `.venv/bin/python -m api.run --host 127.0.0.1 --port 8190`） | 依赖向量服务可达 + `.env` 密钥；启动慢（嵌入初始化，≤40s） | `curl http://127.0.0.1:8190/health`；`curl http://127.0.0.1:8190/status/main` → `turn_count` 非空且含 **`precision_adapt` 块**（阶段3：baseline/threshold/window_n，**空=旧代码或降级，需重启**）；`curl http://127.0.0.1:8190/landscape/main` → 景观摘要（阶段2 端点，思考链数据源）；`curl -X POST http://127.0.0.1:8190/react -H 'Content-Type: application/json' -d '{"user_input":"契约校验探针","k":0}'` → 返回 `interpretation` 且 `turn_count` 与调用前一致（**体验层A：/react 零持久化**） |
 | ③ | 起**胶水层** `:19000`（`cd memory-integration-layer && python3 glue_server.py --host 127.0.0.1 --port 19000`） | 依赖沙漏+LMS+向量都活着，否则 backends 全降级 | `curl http://127.0.0.1:19000/health` → `backends` 各后端非 degraded；`curl -X POST http://127.0.0.1:19000/recall -d '{"query":"测试","k":3}' -H 'Content-Type: application/json'` → 有 origin=sandglass/lms 条目；`curl -X POST http://127.0.0.1:19000/react -H 'Content-Type: application/json' -d '{"user_input":"契约校验探针","k":0}'` → 200 透传 LMS 解读段 |
 | ④ | 起**总线** scheduler+consumer（`cd iso-sand && bash start_scheduler.sh && bash start_consumer.sh`） | consumer 的 LmsFeedHandler 依赖 LMS /feed；调度器心跳写总线 | `cat iso-sand/data/scheduler.pid data/consumer.pid` 两个 PID 存活；`tail -3 iso-sand/data/event_bus.jsonl` 时间戳是当前；`grep -c lms.plastified event_bus.jsonl` 在增长 |
 | ⑤ | 起**玄鉴**（`cd xuanjian && python3 src/verify_daemon.py &`；玄鉴已并入 agent-os，旧部署在 `AgentOS-IsoSand/同构沙盘`） | 依赖 operation_log（总线消费者产出） | `cat xuanjian/data/daemon.pid` 存活；`tail -3 xuanjian/data/daemon_audit.log`（data/ 不随仓分发，首次运行自动创建） |
-| ⑥ | 注册 **crontab**：`*/10` pulse-cron（唤醒链）、`30 23` night_patrol（夜巡）、`*/5` health-check、LMS 备份三档、`@reboot` start_all.sh | 常驻守护 + 开机自启 | `crontab -l` 应含 pulse-cron / night_patrol / lms_backup / @reboot start_all 等条目（本机全表见 §3.4 备注） |
+| ⑥ | 注册 **crontab**：`*/10` pulse-cron（唤醒链 + **内含 think_loop 思考链挂载**，2026-08-13）、`30 23` night_patrol（夜巡）、`*/5` health-check、LMS 备份三档、`@reboot` start_all.sh | 常驻守护 + 开机自启 | `crontab -l` 应含 pulse-cron / night_patrol / lms_backup / @reboot start_all 等条目（本机全表见 §3.4 备注）；`tail -3 /tmp/think_loop.log` 有 rc=0 + interest 分解（思考链在跑） |
 | ⑦ | 起**轻如烟编辑器** `:18888`（`cd 轻如烟/scripts && python3 edit-web.py`） | 它是落沙写入者，没有它对话不进 sandglass.txt | 浏览器开 `:18888`；发一条消息 → `tail -3 sandglass/sandglass.txt` 出现新行 |
-| ⑧ | **接通 OpenClaw**：启用插件 glue-memory-injector（onStartup）+ 注册 MCP（lms-memory、lms-http、shouji-memory） | 插件是"记忆送回对话"的唯一入口 | 发一条消息 → `/tmp/glue-hook-debug.log` 出现 `INJECTED len=…`；下一条消息 prompt 头部出现 `[回魂]`（**含 `解读:` 段，三段式**：状态/解读/最近）+ `[记忆注入]`；密集连发 3 条 → 第 2/3 条仍见 `INJECTED-light` 计数（限流轻量注入生效） |
+| ⑧ | **接通 OpenClaw**：启用插件 glue-memory-injector（onStartup）+ 注册 MCP（lms-memory、lms-http、shouji-memory、anysearch）+ `~/.openclaw/.env` 写 DEEPSEEK_API_KEY | 插件是"记忆送回对话"的唯一入口；anysearch 是联网搜索通道；.env key 是思考链深想通道 | 发一条消息 → `/tmp/glue-hook-debug.log` 出现 `INJECTED len=…`；下一条消息 prompt 头部出现 `[回魂]`（**六层注入**：状态/景观/thought/焦点记忆/质疑/行动，含 `thought:` 行）+ `[记忆注入]`（高水位时含 `[生成约束]` 段）；`grep MODULATE /tmp/glue-hook-debug.log` 有行；密集连发 3 条 → 第 2/3 条仍见 `INJECTED-light` 计数（限流轻量注入生效） |
 
 > 实际上 ①~⑤ 全部由 `bash deploy.sh` 一键完成（bootstrap→前置检测→拉起→每步健康验证→汇总；内部委托 stack_ctl.sh/start_all.sh 按上述顺序）；② 需要 `LMS_HOME/.env` 已配好，否则 deploy.sh 前置检测会逐项提示缺什么（并自动尝试修复）。
 
@@ -210,18 +227,25 @@ git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugin
 #        "lms-memory":   { "type": "stdio", "command": "<LMS_HOME>/.venv/bin/python",
 #                           "args": ["<LMS_HOME>/mcp_memory_server.py"] },
 #        "lms-http":     { "type": "http", "url": "http://127.0.0.1:8190/mcp" },
-#        "shouji-memory":{ "type": "http", "url": "https://shouji.tdx1146.cc/tools" }
+#        "shouji-memory":{ "type": "http", "url": "https://shouji.tdx1146.cc/tools" },
+#        "anysearch":    { "remote": { "url": "https://api.anysearch.com/mcp",
+#                           "transport": "streamable-http",
+#                           "headers": { "Authorization": "Bearer <as_sk_...>" } } }
 #      } },
 #      "hooks": { "path": "/hooks", "token": "<openssl rand -hex 32>" }
 #    }
 
-# ④ 重启 gateway 使插件/MCP 生效（改插件代码后也必须完全重启，SIGUSR1 不重载插件，见坑 18）
+# ④ 写思考链深想 key（2026-08-13）：~/.openclaw/.env 加 DEEPSEEK_API_KEY=sk-...
+#    （chmod 600；openclaw.json 内 provider key 实测 401 无效，网关/CLI 走 .env）
+
+# ⑤ 重启 gateway 使插件/MCP 生效（改插件代码后也必须完全重启，SIGUSR1 不重载插件，见坑 18）
 openclaw gateway restart
 
 # ⑤ 验证
-#    插件注入: 发一条消息 → /tmp/glue-hook-debug.log 出现 INJECTED
-#    MCP:      openclaw 内 /mcp 列表应见 lms-memory/lms-http/shouji-memory
+#    插件注入: 发一条消息 → /tmp/glue-hook-debug.log 出现 INJECTED；六层注入含 thought 行；高怀疑水位时含 [生成约束] 段（L1）
+#    MCP:      openclaw 内 /mcp 列表应见 lms-memory/lms-http/shouji-memory/anysearch
 #    wake:     curl -X POST http://127.0.0.1:10554/hooks/wake -H "Authorization: Bearer <token>" -d '{"text":"测试","mode":"now"}'
+#    思考链:   bash "$LIGHT_HOME/scripts/think_loop.py" --dry-run 或 tail /tmp/think_loop.log（见 §3.5 ⑨）
 ```
 
 > ⚠️ 插件/MCP 注册后，`session.reset` 建议按坑 19 关闭（`{mode: idle, idleMinutes: 999999}`），由 `session-reset-watchdog`（cron `*/2`）守护。
@@ -278,7 +302,7 @@ grep DOUBT_BUS_FILE memory-integration-layer/.env           # 应指向 event_bu
 
 ### 3.5 部署后 10 分钟验证清单（不看代码也能验证系统活着）
 
-> 给 dandan/陌生部署者：**不读代码、不开编辑器**，按序跑完下面 8 条，全过 = 系统活着且是"新版行为"（体验层生效）。
+> 给 dandan/陌生部署者：**不读代码、不开编辑器**，按序跑完下面 12 条，全过 = 系统活着且是"新版行为"（体验层 + 四阶段 + L1 生效）。
 
 ```bash
 # ① 6 服务全绿（进程/端口/健康）
@@ -297,9 +321,67 @@ tail -5 /tmp/glue-hook-debug.log
 tail -2 iso-sand/data/event_bus.jsonl
 # ⑧ 配置中心一致性
 bash stack_ctl.sh doctor
+# ⑨ 思考链活着（2026-08-13 阶段2）：think_loop 每 10min 跑，thought 流在涨
+bash "$LIGHT_HOME/scripts/think_loop.py" --dry-run 2>/dev/null || true   # 语法/依赖自检（只读）
+tail -3 /tmp/think_loop.log                # rc=0 + interest 分解
+ls -la "$LIGHT_HOME/memory/thoughts.jsonl"  # 有内容且 mtime 新鲜
+cat "$NEXSANDBASE_HOME/think_state.json"    # last_cycle_at 是当前（10min 内）
+# ⑩ precision 动态化 + 景观端点（2026-08-13 阶段3）：怀疑线随证据流漂移
+curl -s http://127.0.0.1:8190/landscape/main | head -c 200        # 景观摘要（思考链数据源）
+curl -s http://127.0.0.1:8190/status/main | grep -o '"precision_adapt"' | head -1  # 阶段3 块存在
+curl -s http://127.0.0.1:8190/status/main | python3 -c "import json,sys;d=json.load(sys.stdin);print(d.get('status',d).get('precision_adapt'))"
+# ⑪ L1 生成约束在链路（2026-08-14）：MODULATE 日志每轮可查
+grep MODULATE /tmp/glue-hook-debug.log | tail -3   # 应见 baseline=X action=strong/light/none
+# ⑫ 约束型记忆拦截就位（2026-08-15，见 §3.6.5）
+bash "$WORKSPACE/scripts/git-push-check.sh" --self-test 2>&1 | tail -2   # 全部通过（WORKSPACE=约束型记忆所在工作区，本机 /vol1/@apphome/trim.openclaw/data/workspace）
 ```
 
-**判读（10 分钟版）：** ①⑥⑧ 绿 + ②③④⑤⑦ 任一红 → 系统降级运行；④ 红但 ③ 绿 = 生产 LMS 还是旧代码（见 §5 坑 16），重启 8190 即好；⑤ 红 = 体验层 D 未生效或旧代码；⑦ 里 `sandglass.entry` 不涨 = P0-3 链路断（查 `SANDGLASS_BUS_FILE` 推导）。
+**判读（10 分钟版）：** ①⑥⑧ 绿 + ②③④⑤⑦ 任一红 → 系统降级运行；④ 红但 ③ 绿 = 生产 LMS 还是旧代码（见 §5 坑 16），重启 8190 即好；⑤ 红 = 体验层 D 未生效或旧代码；⑦ 里 `sandglass.entry` 不涨 = P0-3 链路断（查 `SANDGLASS_BUS_FILE` 推导）；**⑨ 红（think_loop 无 rc=0 或 thoughts.jsonl 不涨）→ 思考链停摆，查 C-19 契约（`bash Agent OS/scripts/contract_check.sh` 应绿）**；**⑩ precision_adapt 缺 → LMS 跑的是阶段 2 前旧代码，重启 8190（`set -a; . ./.env; set +a`）**；**⑪ 无 MODULATE → 插件是旧代码，gateway 完全重启（坑 18）**。
+
+---
+
+### 3.6 增量部署要点（2026-08-13/15 四阶段 + L1 + 约束型记忆，部署者必读）
+
+> 本节省略版：完整实现细节/报告在 `workspace/memory/子AI任务-阶段1..4-*.md`、`子AI任务-L1生成约束-20260814.md`、`子AI任务-约束型记忆-20260815.md`（本地，不随仓）；部署只看本节 + §3.1 env 表 + §3.5 验证清单即可。
+
+#### 3.6.1 阶段1 六层注入（2026-08-13，插件侧，无需额外部署）
+- 注入块结构（memory-recall.js 自动产出）：`[回魂]`（①状态 ②景观叙事 ③thought）+ `[记忆注入]`（④焦点记忆 3-5 条，`[origin·分score]` 置信度标注）+ `[质疑]`（⑤怀疑层）+ `[行动]`（⑥行动层，阶段4 前为占位）。
+- 部署要求：插件 clone 最新 main（glue-memory-injector 仓，commit 5180886 起含六层）；**改后 gateway 完全重启**。
+- 配置（openclaw.json 插件 config，全部可选）：`k`（默认 5，焦点记忆数）、`maxChars`（默认 800，注入块上限）、`thoughtEnabled`（默认 true，thought 层总开关，灰度回滚用）、`thoughtActivationMin`（默认 0.05，thought 激活度阈值）。
+
+#### 3.6.2 阶段2 思考链（2026-08-13）
+- 新文件：`$LIGHT_HOME/scripts/think_loop.py`（stdlib only）、`$LIGHT_HOME/memory/thoughts.jsonl`（thought 流）、`${NEXSANDBASE_HOME}/think_state.json`（心跳，C-19 数据源）。
+- 挂载：`pulse-cron.sh` 在 self_pulse 之后调用 think_loop（cron `*/10` 天然复用）；flock 防重入；日志 `/tmp/think_loop.log`。
+- 依赖链：LMS `/landscape/{sid}`（兴趣分景观分量）→ `/status/main`（doubt 热度）→ salience_state.json/sleep_pressure.json（只读）→ `/feed`（thought 塑形，sender=thought 独立会话域）。
+- 深想通道：`openclaw agent --session-id think-… --message … --thinking low` 隔离子代理；**key 在 `~/.openclaw/.env`**；`THINK_AGENT_MODEL` 指定模型。
+- 契约：CONTRACTS.yaml +C-19（think_heartbeat，防思考链静默死亡）；`contract_check.sh` +run_think_heartbeat（只读）。
+- 观测：`metrics.jsonl` 增 `event=think_loop` 行；thoughts.jsonl 元数据含 `echo.similarity`（防回声曲线）。
+
+#### 3.6.3 阶段3 precision 动态化 + 阶段4 行动层/做梦怀疑（2026-08-13/14，LMS 侧）
+- **阶段3**：LMS `core/doubt/precision_adapt.py`（新模块）——条目级 Koriat 自一致性、域级召回簇聚合、全局 HGF 波动性→conformal P85 分位怀疑线、对称性约束（重复曝光降权）；开关 `LMS_PRECISION_ADAPT`（默认 1）。
+- **阶段4**：行动层四问（think_loop 深想产出 `action` 字段：what/willing/want/worth_against_energy + willingness/energy_cost/status，`THINK_ACTION_WILLING_MIN`/`THINK_ACTION_COST_MAX` 分级）；做梦时怀疑（dream_engine `doubt_review` 阶段4：不完全线索复核+反教条 top-N 下沉+结果应用+冷却守卫），开关 `DREAM_DOUBT_ENABLED`（默认 1）。
+- 部署要求：LMS 代码更新（living-memory-system 仓 main）+ **重启 8190**（`set -a; . ./.env; set +a`）；插件侧行动层真实注入需 gateway 重启。
+- 回滚：两开关置 0 → 行为回退阶段 2 前/阶段 1 基础。
+
+#### 3.6.4 L1 生成约束（2026-08-14，插件侧）
+- 【生成约束】段：`baseline < 0.4` 不触发；`0.4-0.6` 轻约束；`≥0.6` 强约束（区分事实/推断、标注低置信、避免绝对化、给替代候选）；水位为校准参数。冷启动（cold=true）/开关关 → 不触发。
+- 部署要求：插件最新 main + gateway 完全重启；验证 `grep MODULATE /tmp/glue-hook-debug.log`。
+- 语义边界：质疑层=描述状态（"在怀疑什么"），【生成约束】=命令式规则（"生成要求"）；两者同源 `reaction.doubt` 但不相混。
+
+#### 3.6.5 约束型记忆（2026-08-15，workspace 层，部署者必装）
+- 权威清单：`workspace/memory/constraints.md`（首批 5 条：01 轻如烟不推 GitHub / 02 key/token 永不写仓库 / 03 行动层只产出不执行 / 04 18:00 前禁自主唤醒 / 05 SIGUSR1 禁止连击）。
+- 检查器：`workspace/scripts/constraint_check.sh <域> <对象> [动作描述]`（命中→原文+退出 1；`--decision` 输出移除指示）。
+- push 挂载：`workspace/scripts/git-push-check.sh`（`--push` 检查+放行、`--shim-push` PATH wrapper 用、`--install-wrapper` 生成 `~/.local/bin/git` 前置 wrapper 防绕过、`--self-test` 自测）。
+- **部署步骤**：① 拷 constraints.md/constraint_check.sh/git-push-check.sh 到新机器 workspace；② `bash scripts/git-push-check.sh --install-wrapper`（改用户 PATH，需批准）；③ 验证：`bash scripts/git-push-check.sh --self-test` 全过 + `bash scripts/constraint_check.sh push 轻如烟` → 退出 1。
+- 方法论强制：任务书涉推送/部署/删除/配置/承诺的决策步骤必先跑 constraint_check.sh（可审计的强制流程，机器拦截是第一道）。
+
+#### 3.6.6 AnySearch MCP（2026-08-13，可选）
+- openclaw.json：`"mcp": {"servers": {"anysearch": {"remote": {"url": "https://api.anysearch.com/mcp", "transport": "streamable-http", "headers": {"Authorization": "Bearer <as_sk_...>"}}}}}`（key 不写文档/仓库）。
+- 4 工具：search / batch_search / extract / get_sub_domains；web_search 不可用时替代。
+
+#### 3.6.7 edge-tts（编辑器 TTS 依赖）
+- `pip3 install edge-tts -i https://pypi.tuna.tsinghua.edu.cn/simple`；本机实测 7.2.8，user site-packages：`/vol1/@apphome/trim.openclaw/data/home/.local/lib/python3.11/site-packages`。
+- 验证：`python3 -c "import edge_tts"`；编辑器 🔊 播放（POST /api/tts，zh-CN-XiaoxiaoNeural）。
 
 ---
 
@@ -317,10 +399,10 @@ bash stack_ctl.sh doctor
 | 6 | AI 思考并回复 | LLM 输出 | OpenClaw → 主模型（deepseek） | 宿主 |
 | 7 | **暗线塑形（每轮）** | LMS 状态（轮次+1、熵/惊讶/目的更新、J矩阵更新；体验层D：置信度场更新） | AI 每轮调 MCP `lms_store`/`store_memory` → LMS `process_turn`（编码→FEP 推断→学习→熵管理→目的调整（coherence 低时**强化已关注维度**，体验层C）→记忆更新与巩固（含反流畅项 ×(1−rebuttal_rate)×source_trust，体验层D）→检索→解码）——**当前这条线绕过胶水和总线（旁路）** | 暗线 |
 | 8 | 总线事件 → LMS 塑形素材 | event_bus.jsonl → LMS `/feed`（限流 10 次/分钟） | **LmsFeedHandler** 订阅 `interfaces.store/task_complete/milestone/doubt.episode/sandglass.entry` → `POST :8190/feed`（503/超时指数退避重试，`LMS_FEED_RETRIES` 逃生门）；**P0-3 已接通：沙漏落沙流水经 `sandglass.entry` 喂塑形**（2026-08-11 实测 operation_log 出现 `LMS 塑形喂入成功 … source=sandglass`） | 总线→暗线 |
-| 9 | **做梦巩固（空闲时）** | LMS 内部 | `DreamScheduler` 后台线程：记忆回放、SHY 衰减、吸引子景观漂移、目的演化；**体验层D 起含 `doubt_review` 阶段**（labile 裁决/低置信复核/反教条抽查，报告进 dream_state.json → [梦醒] 消息）；每次做梦发 `lms.dream_complete` 总线事件 | 暗线 |
-| 10 | **自主唤醒（每 10min）** | 指标/告警/唤醒 | `pulse-cron.sh` → `self_pulse_cli.py`（读 LMS `/status` 写 `metrics.jsonl`；漂移则写 sandglass ⚠️ + 总线 anomaly）→ 显著事件过 `salience_gate`（显著性）→ `sleep_pressure`（体力/防自激）→ `wake_client` `POST :10554/hooks/wake` 唤醒主 AI | 唤醒 |
+| 9 | **做梦巩固（空闲时）** | LMS 内部 | `DreamScheduler` 后台线程：记忆回放、SHY 衰减、吸引子景观漂移、目的演化；**体验层D 起含 `doubt_review` 阶段**（labile 裁决/低置信复核/反教条抽查）；**阶段4（2026-08-14）起含不完全线索复核+反教条 top-N 下沉+结果应用**（有替代 ×0.9+合并 / 无替代 ×0.98，冷却守卫防侵蚀，`DREAM_DOUBT_ENABLED` 开关）；报告进 dream_state.json → [梦醒] 消息；每次做梦发 `lms.dream_complete` 总线事件 | 暗线 |
+| 10 | **自主唤醒 + 思考链（每 10min）** | 指标/告警/唤醒 + thought 流 | `pulse-cron.sh` → `self_pulse_cli.py`（读 LMS `/status` 写 `metrics.jsonl`；漂移则写 sandglass ⚠️ + 总线 anomaly）→ 显著事件过 `salience_gate`（显著性）→ `sleep_pressure`（体力/防自激）→ `wake_client` 唤醒主 AI；**同周期 `think_loop.py`（2026-08-13）**：interest×体力 → 深想（openclaw 子代理，`THINK_AGENT_MODEL`）/浅想/只记尾巴 → thoughts.jsonl → `/feed`（sender=thought）塑形 → 回魂 thought 层注入 | 唤醒+暗线 |
 | 11 | **监督（周期）** | 审计/怀疑记录 | 玄鉴 5min 巡检 operation_log → `daemon_audit.log`，连续 FAIL 触发 doubt_hook；夜巡 23:30 汇总当天 → 隔离子代理旁观 → findings 写沙漏（tag=旁观者-警讯）→ 反教条复核 top10 高频记忆 | 监督 |
-| 12 | **回魂注入（下一次对话）** | 下一轮 prompt | 步骤 3-5 循环：`/react`（解读段）+ `/soul`（把"最近的自己"自述+状态+最近记忆带回对话）→ AI 醒来知道自己是谁、大脑此刻什么感受 | 明线+暗线合流 |
+| 12 | **回魂注入（下一次对话）** | 下一轮 prompt | 步骤 3-5 循环：`/react`（解读段）+ `/soul`（把"最近的自己"自述+状态+最近记忆带回对话）→ AI 醒来知道自己是谁、大脑此刻什么感受；**六层注入块**（阶段1）：状态/景观叙事/thought（最近 thought 激活筛选）/焦点记忆 3-5 条（[origin·分score] 标注）/质疑/行动；**L1 生成约束段**（阶段3 数据源）：怀疑水位高时注入命令式生成规则 | 明线+暗线合流 |
 
 **两条写侧路径的现状（重要，别搞混）：**
 - **路径 A（实际发生）**：编辑器直写 sandglass.txt（明线）+ AI 每轮 MCP 直连 LMS（暗线）——两条旁路，**都绕过了胶水 /store 和总线**。
@@ -350,6 +432,10 @@ bash stack_ctl.sh doctor
 18. **SIGUSR1 不重载插件**：改完 OpenClaw 插件（memory-recall.js/index.js）发 SIGUSR1 无效——插件代码要 **gateway 完全重启**才加载；且 SIGUSR1 **禁止连击**（第二次在活跃会话中 = forced restart = 杀 session）。SIGUSR1 前确认 session 空闲（无 pending 模型调用）。
 19. **4:00 会话重置已永久关闭**：openclaw.json 已设 `session.reset: {mode: idle, idleMinutes: 999999}`（备份 `.bak-20260811-0119-session-reset`，2026-08-11 生效）。**不要改回去**——每日 4:00 重置是历史失忆感元凶之一；现在由 `session-reset-watchdog`（cron `*/2`）守护归档被重置会话。
 20. **查询污染召回（2026-08-11 已修，召回 L1）**：插件曾把含 untrusted metadata 的完整提示词（Sender 块/时间戳/Subagent 模板）当检索 query → 注入全是编辑器模板记忆。已修三层：插件复刻 `stripInboundMetadata` 净化（L1-a）+ `ctx.sessionKey` 识别子代理轮跳过（L1-b）+ glue `/recall` 入口 `purify_recall_query` 兜底（L1-c）。**新环境注意：glue 侧已生效；插件侧需 gateway 重载才生效（改完重启，见坑 18）**。
+21. **思考链深想通道的 key 位置（2026-08-13 坑）**：think_loop 深想走 `openclaw agent` CLI 子代理，**LLM key 在 `~/.openclaw/.env` 的 `DEEPSEEK_API_KEY`**（openclaw.json 内 provider key 实测 401 无效）——只配 LMS `.env` 不够，深想会全部失败→浅想兜底（C-19 不红但没深想）。`THINK_AGENT_MODEL` 需指向可用模型（8/13 实测 astroncodingplan 过载，env.local 指 `deepseek/deepseek-v4-flash`）。
+22. **L1 生成约束 / precision 动态化默认开但需重启生效**：`LMS_PRECISION_ADAPT`（阶段3）与 `DREAM_DOUBT_ENABLED`（阶段4）默认 1，但改完 LMS 代码必须重启 8190 才生效（`set -a; . ./.env; set +a`）；插件 L1（【生成约束】段/MODULATE 日志）需 **gateway 完全重启**（坑 18）。**新环境若重启后 `/status` 无 `precision_adapt` 块、日志无 `MODULATE` → 跑的还是旧代码**。回滚：两开关置 0 即回退，行为与引入前一致。
+23. **约束型记忆红线（2026-08-15 机制）**：**「轻如烟不推 GitHub」**（约束-01）——`git push` 前必跑 `constraint_check.sh push 轻如烟`（命中=退出 1+原文+拒绝执行）；`git-push-check.sh --install-wrapper` 生成 PATH 前置 git wrapper 防绕过（本机已装 `~/.local/bin/git`）。**新环境若跳过 wrapper 安装，只有"自觉"没有机器拦截**；权威清单 `workspace/memory/constraints.md` 原文一字不改。
+24. **edge-tts 缺失 = 编辑器 TTS 静默 404**：编辑器 `/api/tts` 端点依赖 `edge_tts`（zh-CN-XiaoxiaoNeural），未安装时语音按钮静默失败/404 不报错。**新环境必须 `pip3 install edge-tts`（清华源）**，验证 `python3 -c "import edge_tts"`。
 
 ---
 
@@ -377,6 +463,7 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 | ③ 在涨但 ⑤ 无 INJECTED | ⚠️ **读侧断**（记忆没送回对话=AI 失忆） | 查 glue :19000 health backends；`tail -50 /tmp/glue-hook-debug.log` 看 MISS reason（超时/网络/限流） |
 | ④ event_bus.jsonl 尾部是几小时前 | ⚠️ **总线/调度器断** | 查 scheduler.pid/consumer.pid；看 `iso-sand/data/operation_log.jsonl` 尾部 |
 | ① 某服务 ❌ | ❌ 该服务死了 | `bash deploy.sh` 重启（幂等）；单服务看 `Agent OS/logs/<svc>.log` |
+| ⑨ think_loop 无 rc=0 / thoughts.jsonl 不涨 | ⚠️ **思考链停摆**（C-19 契约会红） | `tail -20 /tmp/think_loop.log` 看 reason（flock 撞锁=正常；LLM 503=深想失败浅想兜底；无日志=挂载断，查 pulse-cron.sh 是否含 think_loop 行）；`bash Agent OS/scripts/contract_check.sh` 看 C-19 |
 
 **深入判据（30 秒补充）：**
 - **明线质量**：`grep -c "今天的关键词" sandglass.txt` 应为 1（P0-1 去重生效后=1；若=2 查 `SANDGLASS_DEDUP_WINDOW`）；`grep "| user |" sandglass.txt | tail -1` 应为今天（sender 错标则织线停摆）。
@@ -397,6 +484,8 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 ---
 *事实来源：沙漏链路诊断-20260810.md（四层架构/双写/sender/feed 计数）、NexSandglass README+ARCHITECTURE+PATCH-README（P0-1/2/3）、LMS README+docs/ARCHITECTURE.md+docs/体验层实施-20260811.md、体验层总设计-20260811.md v1.1（/react/解读段/过滤/元目的翻转/置信度场）、memory-integration-layer README+interfaces/README、Agent OS TOPOLOGY/env.local/start_all.sh/status_all.sh/DEPLOY-GLOBAL/DOUBT-SYSTEM/iso-sand handlers.py+event_schema.yaml、轻如烟 SELF_PULSE_README+pulse-cron.sh+self_pulse_cli.py（WAKE_CHANNEL）+salience_gate.py（SG_DREAM_FEED/SG_DOUBT_FEED）+wake_client.py+sleep_pressure.py、glue-memory-injector index.js+memory-recall.js+openclaw.plugin.json、edit-web.py、sandglass_http_api.py、sandglass_log.py（SANDGLASS_*）。2026-08-11 实测：8190/19000 均已跑体验层新代码（/react 200），event_bus 含 61 条 sandglass.entry 且 operation_log 有 sandglass 来源的 feed 成功记录。待核实项：决策粒子原调用方（P1-2）。*
 
+*8/13-8/15 增量事实来源：workspace/memory/ 下阶段1-4 实施报告与审计、L1 生成约束报告、约束型记忆实施+审计A/B、C18、深想修复、部署复验二轮（全部为实施时真实记录+本任务 2026-08-15 实测：/landscape 200、/status 含 precision_adapt（baseline 0.3039/threshold 0.3/window_n 166）、think_loop rc=0 + interest 分解、MODULATE 63 行、constraint_check 退出 1、git-push-check --self-test 全过、edge-tts 7.2.8 import OK、THINK_AGENT_MODEL 在 env.local）。*
+
 ## 6. 设计遗产（明确不修，2026-08-10 标注）
 
 | 模块 | 状态 | 理由 |
@@ -408,7 +497,7 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 
 ---
 
-## 7. 成果存档速览（2026-08-11/12 增量，完整版见 `成果存档索引-20260812.md`）
+## 7. 成果存档速览（8/11-8/15 增量；8/11-12 完整版见 `成果存档索引-20260812.md`）
 
 > 完整清单（标题/文档路径/状态/一句话说明）在 `成果存档索引-20260812.md`（本仓库，2026-08-12 建立）。本节只列状态，防止 SYSTEM.md 膨胀。
 
@@ -423,3 +512,18 @@ tail -3 /tmp/glue-hook-debug.log                     # ⑤ 胶水：最近对话
 | 召回 L1 修复（query 净化） | ✅ 已实施（glue 生效；插件待 gateway 重载生效） | 召回L1实施审计-20260811.md |
 | 方法论 v1.1（system_health_check.sh 审计前置基线） | ✅ 已落地（dandan 钦定进方法论） | 子AI调度方法论-v1.0.md（内容 v1.1） |
 | 丰碑对齐调研（磨损机制铺路） | ✅ 调研完成（铺路，非实施；磨损生态从未接线=孤儿模块） | 丰碑LMS对齐调研-20260812.md |
+
+### 8/13-8/15 增量（阶段1-4 + L1 + 约束型记忆；实施报告在 workspace/memory/）
+
+| 成果 | 状态（2026-08-15） | 关键文档/报告 |
+|------|-------------------|---------------|
+| 阶段1 六层注入（状态/景观/thought/焦点记忆/质疑/行动） | ✅ 已实施（插件侧，commit 5180886；待 gateway 重启生效） | 子AI任务-阶段1注入块改造-20260813.md |
+| 阶段2 思考链（think_loop.py + /landscape + C-19） | ✅ 已实施（C-19 契约绿；深想通道待主 AI 确认模型） | 子AI任务-阶段2思考链-20260813.md |
+| 阶段3 precision 三层动态化（LMS_PRECISION_ADAPT） | ✅ 已实施（865 测试全绿；需重启 8190 生效） | 子AI任务-阶段3-precision动态化-20260813.md |
+| 阶段4 行动层 + 做梦时怀疑（DREAM_DOUBT_ENABLED） | ✅ 已实施（LMS 102 + 插件 39 + 定向 223 全绿；需重启生效） | 阶段4-行动层与做梦时怀疑-实施报告-20260814.md |
+| L1 生成约束（MODULATE，状态调制生成第一跳） | ✅ 已实施（S1 对比实验：baseline 0.3→0.7 时不确定标注 0→4.0/次；需 gateway 重启生效） | 子AI任务-L1生成约束-20260814.md |
+| 思考链修复（深想自然触发：漂移度量 + 保底深想） | ✅ 已实施（THINK_SURPRISE_DRIFT_SAT/THINK_LANDSCAPE_DRIFT_SAT/THINK_FALLBACK_INTERVAL_H） | 子AI任务-深想自然触发修复-20260814.md |
+| 约束型记忆（constraints.md + constraint_check.sh + git-push-check.sh + PATH wrapper） | ✅ 已实施（5 条约束全部有挂载点；push 轻如烟实测拦截） | 子AI任务-约束型记忆-20260815.md + 审计A/B-约束型记忆-20260815.md |
+| 写侧断流防护 C-18（store_flow_fresh 契约） | ✅ 已实施（匹配层+告警层） | 子AI任务-C18-20260813.md |
+| 部署复验二轮（干净环境从零复现） | ✅ 完成（R-1/3/4 修复验证通过；R-5 隐私阻断待 dandan、R-6 torch 锁版本建议） | 部署复验二轮-20260813.md（Agent OS 目录） |
+| 设计/调研（流动上下文与自我质疑、precision 调制生成、状态场调制生成） | 🔄 设计完成（阶段 1-4 已按此实施；景观调制生成总目标持续推进） | 设计-流动上下文与自我质疑-v1.0-20260813.md / 设计-precision调制生成-20260814.md |

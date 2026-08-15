@@ -14,12 +14,13 @@
 | 服务 | 端口 | 目录变量 | 启动入口 |
 |---|---|---|---|
 | 沙漏 HTTP API | 17333 | `SANDGLASS_SOURCE` | `python3 sandglass_http_api.py`（P0-1/2/3 补丁，fork `tdx1146/nyx`） |
-| 活体记忆 LMS API | 8190 | `LMS_HOME` | `.venv/bin/python -m api.run`（体验层 A-D：/react/解读段/过滤/元目的翻转/置信度场） |
-| 胶水层 glue_server | 19000 | `GLUE_HOME` | `python3 glue_server.py`（含 /react 薄代理） |
+| 活体记忆 LMS API | 8190 | `LMS_HOME` | `.venv/bin/python -m api.run`（体验层 A-D：/react/解读段/过滤/元目的翻转/置信度场；阶段3：precision 三层动态化 `LMS_PRECISION_ADAPT`；阶段4：做梦时怀疑 `DREAM_DOUBT_ENABLED`；**`/landscape/{sid}` 端点**） |
+| 胶水层 glue_server | 19000 | `GLUE_HOME` | `python3 glue_server.py`（含 /react 薄代理 + /store-turn 写侧薄代理） |
 | 总线调度器 scheduler | — | `ISO_SAND_HOME` | `bash start_scheduler.sh` |
 | 总线消费者 consumer | — | `ISO_SAND_HOME` | `bash start_consumer.sh`（订阅 sandglass.entry，LMS_FEED_RETRIES 逃生门） |
 | 玄鉴 verify_daemon | — | `VERIFY_HOME` | `python3 src/verify_daemon.py` |
-| 编辑器 edit-web | 18888 | `EDITOR_HOME` | `python3 edit-web.py`（轻如烟自愈脚本托管） |
+| 编辑器 edit-web | 18888 | `EDITOR_HOME` | `python3 edit-web.py`（轻如烟自愈脚本托管；**TTS 依赖 edge-tts**，`pip3 install edge-tts -i https://pypi.tuna.tsinghua.edu.cn/simple`） |
+| 思考链 think_loop（2026-08-13 新增） | — | `LIGHT_HOME/scripts` | 挂载 `pulse-cron.sh`（cron `*/10`，self_pulse 之后）；无独立端口；产出 thoughts.jsonl + /feed 塑形（sender=thought） |
 
 统一入口：**`./stack_ctl.sh`**（一个命令管全部，无需记忆各服务启动代码）。
 
@@ -72,6 +73,48 @@ curl -s -X POST http://127.0.0.1:8190/react -H 'Content-Type: application/json' 
 ```
 
 **新增/生效环境变量（体验层 & 2026-08-11 修复）**：`WAKE_CHANNEL`（self_pulse 唤醒出口 a/b）、`SG_DREAM_FEED`/`SG_DOUBT_FEED`（salience_gate 第 4/5 通道，默认关）、`LMS_FEED_RETRIES`/`LMS_FEED_TIMEOUT`（consumer 重试逃生门）、`LMS_FEED_RATE_LIMIT`（LMS /feed 限流）、`LMS_CLOUD_EMBED_FALLBACK_URL`（embed 备用端点）、`SANDGLASS_DEDUP_WINDOW`/`SANDGLASS_SENDER_MAP`/`SANDGLASS_MAX_TEXT_LEN`/`SANDGLASS_BUS_FILE`/`SANDGLASS_BUS_MIN_INTERVAL`（沙漏 P0-1/2/3）。全部含义见 `SYSTEM.md §3.1` 核心环境变量表。
+
+### 2.6 增量部署要点（2026-08-13/15：四阶段 + L1 + 约束型记忆）
+
+> 详细版见 `SYSTEM.md §3.6`；本节是可复制命令摘要。**全部新能力默认开箱即用（代码在 main），部署关键是"重启生效" + "新 env 可调"。**
+
+```bash
+# ① 思考链（阶段2）：think_loop.py 随 pulse-cron.sh 每 10min 自动跑（无需手动拉起）
+#    验证：
+tail -3 /tmp/think_loop.log                                   # rc=0 + interest 分解
+ls -la "$LIGHT_HOME/memory/thoughts.jsonl"                      # thought 流在涨
+cat "$NEXSANDBASE_HOME/think_state.json"                        # last_cycle_at 是当前
+bash Agent OS/scripts/contract_check.sh | grep -i C-19          # 思考链心跳契约绿
+#    env（env.local）：THINK_AGENT_MODEL="deepseek/deepseek-v4-flash"（深想模型）
+#    深想 key：~/.openclaw/.env 的 DEEPSEEK_API_KEY（openclaw agent 通道）
+
+# ② precision 动态化 + 景观端点（阶段3）：重启 LMS 生效
+cd "$LMS_HOME" && set -a; . ./.env; set +a && .venv/bin/python -m api.run --host 127.0.0.1 --port 8190 &
+curl -s http://127.0.0.1:8190/landscape/main | head -c 200      # 景观摘要
+curl -s http://127.0.0.1:8190/status/main | grep -o '"precision_adapt"'   # 阶段3 块存在
+#    env（LMS .env）：LMS_PRECISION_ADAPT=1（默认开，0=关）
+
+# ③ 行动层 + 做梦时怀疑（阶段4）：与 ② 同批重启生效
+#    env（LMS .env）：DREAM_DOUBT_ENABLED=1（默认开，0=关）；DREAM_DOUBT_ALT_SIM_MIN=0.7 等参数族
+#    env（env.local）：THINK_ACTION_WILLING_MIN=0.7 / THINK_ACTION_COST_MAX=0.3（行动四问分级）
+
+# ④ L1 生成约束（插件侧）：gateway 完全重启后生效
+openclaw gateway restart
+grep MODULATE /tmp/glue-hook-debug.log | tail -3               # baseline=X action=strong/light/none
+#    无新 env（档位 0.4/0.6 设计定值）；冷启动/开关关自动不触发
+
+# ⑤ 约束型记忆（workspace 层，2026-08-15）：
+#    权威清单 workspace/memory/constraints.md（5 条）；检查器 workspace/scripts/constraint_check.sh
+bash workspace/scripts/git-push-check.sh --install-wrapper      # 装 PATH 前置 git wrapper（防绕过）
+bash workspace/scripts/git-push-check.sh --self-test            # 自测全过
+bash workspace/scripts/constraint_check.sh push 轻如烟          # 应退出 1 + 原文（红线：轻如烟不推 GitHub）
+
+# ⑥ AnySearch MCP（可选）：openclaw.json mcp.servers.anysearch（remote streamable-http + Bearer key）
+# ⑦ edge-tts：pip3 install edge-tts -i https://pypi.tuna.tsinghua.edu.cn/simple
+python3 -c "import edge_tts"                                    # 验证
+```
+
+**新环境若按本节部署后仍缺能力** → 对照 `SYSTEM.md §3.5` 判读：⑨ 思考链 / ⑩ precision / ⑪ L1 各自的红灯原因（基本全是"没重启"：LMS 8190 或 gateway）。
 
 ### 常用运维命令
 
@@ -145,6 +188,9 @@ D. 服务参数      —— LMS 做梦频率等
 
 ## 6. 变更记录
 
+- **2026-08-15（8/13-8/15 增量同步）**
+  - 全景表：+思考链 think_loop 行（pulse-cron 挂载）；LMS 行标注 /landscape、`LMS_PRECISION_ADAPT`、`DREAM_DOUBT_ENABLED`；编辑器行标注 edge-tts 依赖
+  - 新增 §2.6 增量部署要点（思考链/precision/行动层/L1/约束型记忆/AnySearch/edge-tts 的可复制命令 + 验证）
 - **2026-08-11（体验层 A-D + 沙漏 P0-1/2/3 部署同步）**
   - 新增 §2.5 体验层部署（重启生效要点 + 新环境变量清单）
   - 全景表标注 /react、sandglass.entry 订阅、WAKE_CHANNEL/SG_* 通道

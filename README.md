@@ -2,6 +2,7 @@
 
 > **本仓库是整套「AI 活体记忆系统」的地图与部署中心宿主**：事件总线、调度、怀疑系统、运维入口都在这里。
 > 2026-08-12 更新（成果系统化保存）：站在「任何陌生 AI / 开发者第一次接手」的角度重写——拿到本仓库，照本文档能接住整套系统，不两眼一抹黑、不部署这个少那个。
+> 2026-08-15 更新（8/13-8/15 四阶段 + L1 + 约束型记忆同步）：思考链（think_loop）、LMS precision 动态化 + /landscape、行动层+做梦怀疑、L1 生成约束、约束型记忆（轻如烟不推 GitHub 红线）、AnySearch MCP、edge-tts 依赖——部署要点全部在 `SYSTEM.md §3.6`，成果存档在 `SYSTEM.md §7`。
 
 ---
 
@@ -67,13 +68,13 @@ git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugin
 | # | 组件 | 角色 | 在哪（本地/仓库） | 端口/接口 | 最容易漏？ |
 |---|------|------|------------------|-----------|-----------|
 | 1 | **沙漏 NexSandglass** | 明线·保底 | `所有自动化/轻如烟/`（sandglass_source 源码，数据 sandglass/） | `:17333` HTTP API；权威源 `sandglass.txt` | ⚠️ **最容易漏**（只看 LMS 文档就以为系统完整；它是失忆后找回自己的最后底牌） |
-| 2 | **LMS 活体记忆** | 暗线·塑形+质检 | `living-memory-system-cloud/`（必须 .venv+.env） | `:8190` 主口（/health /status /feed /react）、`:8191` 控制口、MCP lms-memory/lms-http | 容易漏 .env 不 source → 静默降级 |
+| 2 | **LMS 活体记忆** | 暗线·塑形+质检 | `living-memory-system-cloud/`（必须 .venv+.env） | `:8190` 主口（/health /status /feed /store /recall /react **/landscape**）、`:8191` 控制口、MCP lms-memory/lms-http | 容易漏 .env 不 source → 静默降级；**阶段3/4 开关 `LMS_PRECISION_ADAPT`/`DREAM_DOUBT_ENABLED` 默认开，改代码后必须重启 8190 才生效** |
 | 3 | **胶水层 glue** | 胶水·统一编排 | `memory-integration-layer/` | `:19000`（/recall /soul /store /react） | 中（依赖沙漏+LMS+向量都活） |
 | 4 | **Agent OS 总线 iso-sand** | 总线·事件骨架 | `Agent OS/iso-sand/`（本仓库内） | 无端口，文件总线 `data/event_bus.jsonl` | 中（scheduler/consumer 两个进程都要起） |
 | 5 | **玄鉴 verify_daemon** | 监督·审外 | `Agent OS/xuanjian/`（2026-08-12 并入本仓，源码随仓分发；data/ 不随仓） | 无端口，5min 巡检 operation_log | 高（无端口守护进程，不起也不报错） |
 | 6 | **doubt-system 怀疑系统** | 监督·审己 | `Agent OS/doubt-system/`（本仓库内） | 无端口，cron 23:30 夜巡 | 高（纯 cron，不部署就是"没怀疑"） |
-| 7 | **self_pulse 自主唤醒** | 唤醒 | `所有自动化/轻如烟/scripts/`（pulse-cron.sh + self_pulse_cli.py + salience_gate + sleep_pressure + wake_client） | cron `*/10`；唤醒出口 `WAKE_CHANNEL`（a=hooks/wake，b=chat.send 注入[梦醒]） | 高（一套脚本不在一个仓，散在轻如烟 scripts/） |
-| 8 | **OpenClaw 插件 glue-memory-injector** | 胶水·注入 | OpenClaw plugins 目录（`glue-memory-injector/`） | `before_prompt_build` hook；`[回魂]+[记忆注入]` 前缀 | 高（在 OpenClaw 目录，不在任何仓库根；改后需 gateway 重载才生效） |
+| 7 | **self_pulse 自主唤醒 + 思考链 think_loop** | 唤醒 + 暗线·思考 | `所有自动化/轻如烟/scripts/`（pulse-cron.sh + self_pulse_cli.py + salience_gate + sleep_pressure + wake_client + **think_loop.py**） | cron `*/10`（pulse-cron 内含 think_loop 挂载）；唤醒出口 `WAKE_CHANNEL`（a=hooks/wake，b=chat.send 注入[梦醒]）；思考链 interest×体力 → 深想/浅想 → thoughts.jsonl → /feed 塑形 | 高（一套脚本不在一个仓，散在轻如烟 scripts/；**think_loop 是新组件易漏**） |
+| 8 | **OpenClaw 插件 glue-memory-injector** | 胶水·注入 | OpenClaw plugins 目录（`glue-memory-injector/`） | `before_prompt_build` hook；**六层注入块**（状态/景观/thought/焦点记忆/质疑/行动）+ **L1【生成约束】段**；`[回魂]+[记忆注入]` 前缀 | 高（在 OpenClaw 目录，不在任何仓库根；改后需 gateway **完全重启**才生效——六层/L1 都依赖此） |
 | 9 | **轻如烟编辑器 edit-web** | 明线·写入口 | `所有自动化/轻如烟/scripts/edit-web.py`（`/vol1/轻如烟/轻如烟` 与 `/vol2/1000/AI专用/所有自动化/轻如烟` 是同一文件，bind mount） | `:18888`；真正的落沙写入者 | 高（没它对话不进 sandglass.txt，明线断） |
 | 10 | **OpenClaw Gateway** | 宿主 | `/vol1/@apphome/trim.openclaw/data` | `:10554`（hooks/wake） | 低（官方安装） |
 | 11 | **丰碑网络 monument-network** | 监督·远期遗产 | `丰碑网络/`（独立目录） | 无端口 | ⚠️ **半成品**：磨损/加固生态**从未接线**（孤儿模块）；只有个体丰碑+玄鉴评分跑通过。**当前不是运行依赖**，是"将来复活"的资产（对齐调研见 丰碑LMS对齐调研-20260812.md） |
@@ -106,7 +107,9 @@ git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugin
 | 外部依赖 | 为什么必须 | 怎么准备 |
 |---------|-----------|---------|
 | **embed 向量服务（bge-m3，OpenAI 兼容 /v1/embeddings）** ⚠️最关键 | LMS 感官层嵌入 + 胶水向量都用它；**没有它 = LMS/胶水全部静默降级，感官层就瞎了**（HF 在本机不可达，`LMS_EMBEDDER` 不能回 pretrained） | 手机/任意机器跑 Ollama + bge-m3（1024 维），暴露 `http://<host>:11435/v1/embeddings`，写入 `LMS_CLOUD_EMBED_URL`（LMS `.env` + env.local）与 `VECTOR_URL`（env.local） |
-| **DeepSeek API Key** | LMS LLM 能力（自述蒸馏等） | 写入 `$LMS_HOME/.env` 的 `DEEPSEEK_API_KEY`；不填 = LLM 功能禁用但记忆核心仍工作 |
+| **DeepSeek API Key** | LMS LLM 能力（自述蒸馏等）+ 思考链深想通道 | 两处：`$LMS_HOME/.env`（LMS）+ **`~/.openclaw/.env`**（思考链 `openclaw agent` 深想子代理，`THINK_AGENT_MODEL` 指定模型）；不填 = LLM 功能禁用但记忆核心仍工作 |
+| **edge-tts** | 编辑器 `/api/tts` 端点 TTS（zh-CN-XiaoxiaoNeural） | `pip3 install edge-tts -i https://pypi.tuna.tsinghua.edu.cn/simple`（清华源；缺它=编辑器语音静默 404） |
+| **AnySearch MCP（可选）** | OpenClaw 联网搜索（web_search 不可用时） | openclaw.json `mcp.servers.anysearch`（remote streamable-http，Bearer key 勿写文档）；4 工具：search/batch_search/extract/get_sub_domains |
 | **OpenClaw Gateway** | 主 AI 宿主（插件/MCP/hooks） | 需支持 `before_prompt_build` hook + MCP 注册 + `/hooks/wake` 端点；版本以 OpenClaw 官方为准 |
 | **node（≥18）** | OpenClaw 运行时 + 插件 | 部署机器需安装 |
 | **GitHub 6 仓 + 1 插件仓** | clone 代码 | `agent-os` / `living-memory-system` / `memory-integration-layer` / `nyx` / `edit-web.py` / `glue-memory-injector` 均 **main 分支公开**（2026-08-10 起），**clone 不需要 token**；只有 push 才需凭据（本机已配 credential helper，**token 不进 git、不进文档**）。玄鉴内置在 agent-os/xuanjian/。集中 clone 命令见上方「仓库一览」，或 `bash deploy.sh` 自动完成 |
@@ -120,7 +123,7 @@ git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugin
 |------|------|------|-----------|
 | **部署中心** | `SYSTEM.md`（本仓库） | 数据流总图 + 部署顺序 + 运行时旅程 + 踩坑 + 10 分钟验证清单 | **部署前必读第一份** |
 | **模块清单** | `TOPOLOGY.md`（本仓库） | 组件位置/端口/仓库/契约表/文件地图，单一事实源 | 部署前第二份；改端口/布局必须同步改它 |
-| **成果存档索引** | `成果存档索引-20260812.md`（本仓库，新增） | 8/11-8/12 全部成果：标题/文档路径/状态/一句话说明 | 想了解"系统最近有什么新东西"时 |
+| **成果存档索引** | `成果存档索引-20260812.md`（本仓库）+ **SYSTEM.md §7（8/13-15 增量表）** | 8/11-8/15 全部成果：标题/文档路径/状态/一句话说明 | 想了解"系统最近有什么新东西"时 |
 | **契约层** | `CONTRACTS.yaml` + `scripts/contract_check.sh`（本仓库） | 组件间接口机器可校验（38+ 校验项，退出码 0/1/2） | 改任何跨组件接口前；日常 `*/30` cron 自动跑 |
 | **健康巡检** | `SYSTEM_HEALTH.md` + `scripts/system_health_check.sh`（本仓库） | 20 项巡检自动化，审计标准前置基线 | 任何审计类任务开始前（方法论 v1.1 强制） |
 | **故障恢复** | `RECOVERY.md` + `dashboard.html`（本仓库） | 不懂代码也能照做的恢复预案 + 可视化看板 | 出问题时 |
@@ -134,8 +137,9 @@ git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugin
 
 ---
 
-## 七、常见坑（今晚血泪，按杀伤力排序）
+## 七、常见坑（今晚血泪 + 8/13-15 新坑，按杀伤力排序）
 
+0. **「轻如烟不推 GitHub」是机器拦截红线（2026-08-15 约束型记忆）**：`git push` 轻如烟/edit-web.py/所有自动化·轻如烟 会被 `git-push-check.sh`（PATH wrapper）拦截（退出 1 + 原文）。**新环境必须安装 wrapper**（`bash workspace/scripts/git-push-check.sh --install-wrapper`），否则只有"自觉"没有拦截。权威清单 `workspace/memory/constraints.md`（首批 5 条）。
 1. **SIGUSR1 不重载插件**：改完插件只发一次 SIGUSR1 无效——插件代码要 **gateway 完全重启**才加载；且 SIGUSR1 **禁止连击**（第二次在活跃会话中 = forced restart = 杀 session）。SIGUSR1 前确认 session 空闲（无 pending 模型调用）。
 2. **key 绝不进 git**：`.env`/`*.local` 已在 .gitignore；token 只存 credential helper（chmod 600）或环境变量。**不要**把 key 写进文档/记忆/日志/commit。
 3. **LMS `.env` 必须 source**：启动前 `set -a; . ./.env; set +a`。不 source = **静默降级**（embed 变 simple、LLM 不启用、`/health` 却显示正常）——"部署了但没生效"的头号元凶。
@@ -148,6 +152,9 @@ git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugin
 10. **生产 8190 跑旧代码**：改完 LMS 必须重启 8190（`set -a; . ./.env; set +a` + 重启）；插件改完必须重载 gateway。否则 `/react` 404 / 无 doubt 字段 / 回魂无解读段，**且不报错**（glue fail-open 优雅降级成旧行为）。
 11. **子代理样板污染 [记忆注入]**：`_GARBAGE_TEXT_RE` 纯增量正则（入口过滤防新增）。新调度样板串出现时**往正则里加，勿删现有条目**。
 12. **查询污染召回（已修，召回 L1）**：插件曾把含 untrusted metadata 的完整提示词当检索 query → 记忆注入全是编辑器模板。已修：插件复刻 `stripInboundMetadata` 净化 + 子代理轮跳过 + glue 入口兜底净化。
+13. **思考链深想通道 key 在 `~/.openclaw/.env`**（2026-08-13）：只配 LMS `.env` 不够——`openclaw agent` 深想子代理走网关 .env；`THINK_AGENT_MODEL` 需指向可用模型（astroncodingplan 曾过载，现指 deepseek）。
+14. **L1 / precision / 做梦怀疑默认开但要重启才生效**：`LMS_PRECISION_ADAPT`、`DREAM_DOUBT_ENABLED` 默认 1；改 LMS 代码需重启 8190，插件 L1（【生成约束】/MODULATE）需 gateway 完全重启。重启后 `/status` 无 `precision_adapt` 块、日志无 `MODULATE` = 还在跑旧代码。
+15. **edge-tts 未装 = 编辑器 TTS 静默 404**：`pip3 install edge-tts -i https://pypi.tuna.tsinghua.edu.cn/simple`（清华源）。
 
 **完整 17+ 条坑清单 → `SYSTEM.md §5`。**
 
@@ -157,7 +164,7 @@ git clone https://github.com/tdx1146/glue-memory-injector.git ~/.openclaw/plugin
 
 - **部署中心（先读这个）**：👉 [`SYSTEM.md`](./SYSTEM.md) — 数据流总图 + 部署顺序 + 踩坑 + 10 分钟验证清单，陌生 AI 照着能完整部署
 - **系统全图（模块视角）**：👉 [`TOPOLOGY.md`](./TOPOLOGY.md) — 8 个模块的位置/端口/仓库/契约，单一事实源
-- **成果存档索引（8/11-8/12 全部成果）**：👉 [`成果存档索引-20260812.md`](./成果存档索引-20260812.md)
+- **成果存档索引（8/11-8/15 全部成果）**：👉 SYSTEM.md §7（8/11-12 旧表 + 8/13-15 增量表：阶段1-4/L1/约束型记忆/C18/复验二轮）+ [`成果存档索引-20260812.md`](./成果存档索引-20260812.md)
 - 一键运维：`bash stack_ctl.sh status|doctor|start`（配置中心 `env.local`）
 - 服务状态：`bash status_all.sh`（6 服务进程/端口/健康）
 - 事件总线：`iso-sand/data/event_bus.jsonl`（v1.1 契约，schema 见 `iso-sand/deploy/event_schema.yaml`）
