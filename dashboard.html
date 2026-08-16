@@ -43,81 +43,81 @@ footer { color:#484f58; font-size:12px; margin-top:30px; text-align:center; }
 code { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:1px 5px; font-size:12px; }
 </style></head><body>
 <h1>🐾 Agent OS 系统健康看板</h1>
-<div class="meta">生成：2026-08-16 11:55:02 ｜ 数据源：system_health.state / contract_check.state / 实时探针 / 状态文件 ｜ 页面每 60 秒自动刷新 ｜ 重新生成：<code>bash /vol2/1000/AI专用/Agent OS/scripts/gen_dashboard.sh</code></div>
-<div class="banner fault">巡检 20 项：绿 16 · 黄 1 · 红 3 —— 判定：有故障 ❌（契约层：绿 42 · 黄 1 · 红 5）</div>
+<div class="meta">生成：2026-08-16 12:05:01 ｜ 数据源：system_health.state / contract_check.state / 实时探针 / 状态文件 ｜ 页面每 60 秒自动刷新 ｜ 重新生成：<code>bash /vol2/1000/AI专用/Agent OS/scripts/gen_dashboard.sh</code></div>
+<div class="banner fault">巡检 20 项：绿 15 · 黄 2 · 红 3 —— 判定：有故障 ❌（契约层：绿 42 · 黄 1 · 红 5）</div>
 <div class="hist"><span class="hitem" title="2026-08-10 23:33:20"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:22"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:28"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-11 21:00:02"><b>08-11 21:00</b> 绿16 黄2 红2</span><span class="hitem" title="2026-08-11 21:30:02"><b>08-11 21:30</b> 绿17 黄2 红1</span></div>
 <h2>关键数字</h2>
 
 <div class="keynums">
-  <div class="k"><span class="kl">沙漏记忆条数</span><span class="kv">5693</span><span class="ks">txt 12分钟前 更新</span></div>
-  <div class="k"><span class="kl">LMS 轮次/熵/目的</span><span class="kv">632</span><span class="ks">熵 1.000 · 目的 0.996</span></div>
-  <div class="k"><span class="kl">self_pulse</span><span class="kv">11:52</span><span class="ks">rc=0 · round=5</span></div>
-  <div class="k"><span class="kl">总线最近事件</span><span class="kv">lms.dream_complete</span><span class="ks">3分钟前 · 死信 132 行</span></div>
-  <div class="k"><span class="kl">玄鉴审计(近200行)</span><span class="kv">FAIL 10</span><span class="ks">WARN 16 · OK 174 · 最后 2026-08-16T11:54:52</span></div>
-  <div class="k"><span class="kl">备份日志(近40行)</span><span class="kv">ERROR 6</span><span class="ks">[lms_backup][2026-08-16 11:45:01] == 增量镜像开始（snapshots/ → /vol2/1000/AI专用/backups</span></div>
-  <div class="k"><span class="kl">回魂注入</span><span class="kv">3分钟前</span><span class="ks">[2026-08-16T03:51:17.564Z] MISS reason=no-injectable-context（明细见同文件内 MISS 记录）</span></div>
+  <div class="k"><span class="kl">沙漏记忆条数</span><span class="kv">5693</span><span class="ks">txt 22分钟前 更新</span></div>
+  <div class="k"><span class="kl">LMS 轮次/熵/目的</span><span class="kv">634</span><span class="ks">熵 1.000 · 目的 0.996</span></div>
+  <div class="k"><span class="kl">self_pulse</span><span class="kv">12:00</span><span class="ks">rc=0 · round=1</span></div>
+  <div class="k"><span class="kl">总线最近事件</span><span class="kv">lms.dream_complete</span><span class="ks">2分钟前 · 死信 132 行</span></div>
+  <div class="k"><span class="kl">玄鉴审计(近200行)</span><span class="kv">FAIL 9</span><span class="ks">WARN 16 · OK 175 · 最后 2026-08-16T12:04:59</span></div>
+  <div class="k"><span class="kl">备份日志(近40行)</span><span class="kv">ERROR 6</span><span class="ks">[lms_backup][2026-08-16 12:00:02] 上一轮备份仍在运行，本轮跳过（flock 非阻塞）</span></div>
+  <div class="k"><span class="kl">回魂注入</span><span class="kv">6分钟前</span><span class="ks">[2026-08-16T03:58:04.803Z] SUBAGENT-SKIP sessionKey=agent:main:subagent:8508407e</span></div>
   <div class="k"><span class="kl">怀疑账本</span><span class="kv">22</span><span class="ks">doubt.db 2天前 写入</span></div>
 </div>
 <h2>组件状态（点击「怎么恢复」看处置步骤）</h2>
 <div class="grid"><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">沙漏API</span><span class="cs">正常</span></div>
-  <div class="ce">端口 17333 健康，sandglass_count=5692</div>
+  <div class="ce">端口 17333 健康，sandglass_count=5693</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：仅 @reboot 拉起（start_all.sh）</p>
     <pre>bash /vol2/1000/AI专用/Agent OS/start_all.sh        # 幂等重启（含沙漏 17333）</pre>
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">沙漏落沙</span><span class="cs">正常</span></div>
-  <div class="ce">sandglass.txt 3分钟前 有新落沙（活跃）</div>
+  <div class="ce">sandglass.txt 17分钟前 有新落沙（活跃）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：仅 @reboot 拉起</p>
     <pre>先看沙漏API是否活着 → bash /vol2/1000/AI专用/Agent OS/start_all.sh</pre>
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">沙漏索引</span><span class="cs">正常</span></div>
-  <div class="ce">sandglass.idx 3分钟前 在更新（索引活着）</div>
+  <div class="ce">sandglass.idx 13分钟前 在更新（索引活着）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：仅 @reboot 拉起</p>
     <pre>bash /vol2/1000/AI专用/Agent OS/start_all.sh</pre>
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">沙漏自治</span><span class="cs">正常</span></div>
-  <div class="ce">metrics.jsonl 9分钟前（10min 心跳正常）</div>
+  <div class="ce">metrics.jsonl 7分钟前（10min 心跳正常）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：pulse-cron.sh 每 10min（cron 在则自动）</p>
     <pre>crontab -l | grep pulse-cron；缺失则补：*/10 * * * * /vol2/1000/AI专用/所有自动化/轻如烟/scripts/pulse-cron.sh</pre>
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">显著性/体力</span><span class="cs">正常</span></div>
-  <div class="ce">salience -1秒前 + sleep_pressure -1秒前，体力模式=awake</div>
+  <div class="ce">salience 9分钟前 + sleep_pressure 9分钟前，体力模式=awake</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：pulse-cron.sh 每 10min（同上）</p>
     <pre>同沙漏自治：跑一次 /vol2/1000/AI专用/所有自动化/轻如烟/scripts/pulse-cron.sh 观察 salience/sleep_pressure 是否恢复更新</pre>
   </details>
-</div><div class="card ok">
-  <div class="ch"><span class="dot ok"></span><span class="cn">怀疑账本</span><span class="cs">正常</span></div>
-  <div class="ce">doubt.db 1天前 有写入</div>
+</div><div class="card warn">
+  <div class="ch"><span class="dot warn"></span><span class="cn">怀疑账本</span><span class="cs">警告</span></div>
+  <div class="ce">doubt.db 2天前 偏旧（夜巡/怀疑钩子可能没写）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：无独立 watchdog（随沙漏管线）</p>
     <pre>看 /vol2/1000/AI专用/Agent OS/doubt-system/ 日志与 night_patrol；doubt.db 由怀疑闭环写入</pre>
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">LMS-API</span><span class="cs">正常</span></div>
-  <div class="ce">轮次=627 惊讶=8.796882629394531 熵比=0.9998312017760135 目的=0.9954905015951718（健康语义正常）</div>
+  <div class="ce">轮次=632 惊讶=8.843018531799316 熵比=0.9998433265528993 目的=0.9956871273630772（健康语义正常）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：仅 @reboot（lms_ctl.sh start, sleep 30）</p>
     <pre>cd /vol2/1000/AI专用/living-memory-system-cloud &amp;&amp; bash scripts/lms_ctl.sh restart      # 先确保 .env 已 source</pre>
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">LMS-深度指标</span><span class="cs">正常</span></div>
-  <div class="ce">lms_metrics.jsonl -1秒前（深度健康检查活着）</div>
+  <div class="ce">lms_metrics.jsonl -2秒前（深度健康检查活着）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：cron */5 lms_ops_monitor.py（在则自动）</p>
     <pre>补 cron：*/5 * * * * cd /vol2/1000/AI专用/living-memory-system-cloud &amp;&amp; python3 scripts/lms_ops_monitor.py &gt;&gt; logs/lms_ops_monitor.log 2&gt;&amp;1</pre>
   </details>
 </div><div class="card warn">
   <div class="ch"><span class="dot warn"></span><span class="cn">LMS-告警账本</span><span class="cs">警告</span></div>
-  <div class="ce">最近告警：WARN 2026-08-16T11:30:02: 检测到 1 个 PPID=1 的 LMS 孤儿进程（systemd 接管后 API 不应为孤儿；MCP 孤儿待回收 cron）</div>
+  <div class="ce">最近告警：WARN 2026-08-16T12:00:03: 检测到 1 个 PPID=1 的 LMS 孤儿进程（systemd 接管后 API 不应为孤儿；MCP 孤儿待回收 cron）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：无（事件式记录）</p>
     <pre>看 lms_alerts.jsonl 最近告警类型：孤儿进程→cleanup_orphan_mcp.sh；备份失败→见「备份」行</pre>
@@ -131,7 +131,7 @@ code { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">胶水层</span><span class="cs">正常</span></div>
-  <div class="ce">三后端全健康：sandglass=好(5692)</div>
+  <div class="ce">三后端全健康：sandglass=好(5693)</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：仅 @reboot（start_all.sh）</p>
     <pre>先救三后端（LMS/沙漏/向量），再 bash /vol2/1000/AI专用/Agent OS/start_all.sh</pre>
@@ -145,14 +145,14 @@ code { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">玄鉴-进程</span><span class="cs">正常</span></div>
-  <div class="ce">daemon活(2719443)，audit 日志 55秒前（5min 巡检活着）</div>
+  <div class="ce">daemon活(2719443)，audit 日志 5秒前（5min 巡检活着）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：仅 @reboot（start_all.sh）</p>
     <pre>cd /vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘 &amp;&amp; nohup python3 src/verify_daemon.py &gt;&gt; /vol2/1000/AI专用/Agent OS/logs/verify_daemon.log 2&gt;&amp;1 &amp;</pre>
   </details>
 </div><div class="card fault">
   <div class="ch"><span class="dot fault"></span><span class="cn">玄鉴-审计发现</span><span class="cs">故障</span></div>
-  <div class="ce">近 200 行 FAIL=9 WARN=16（样例: [agent-os] 声称推送成功但实际未推送: 本地领先远端 ahead=2, 远端领先本地 behind=0, 本地HEAD=dbcf619c, 远端HEAD=5a63c056）</div>
+  <div class="ce">近 200 行 FAIL=10 WARN=16（样例: [agent-os] 声称推送成功但实际未推送: 本地领先远端 ahead=5, 远端领先本地 behind=0, 本地HEAD=71d7ba75, 远端HEAD=cfb671d2）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：push_verify 会重试（网络恢复后自愈）</p>
     <pre>FAIL 多为 git 推送未落地：进对应仓库 `git status` 看 ahead，`git push` 补推</pre>
@@ -166,14 +166,14 @@ code { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">self_pulse</span><span class="cs">正常</span></div>
-  <div class="ce">pulse-status -2秒前，rc=0 round=3，唤醒链 4 脚本齐</div>
+  <div class="ce">pulse-status -2秒前，rc=0 round=1，唤醒链 4 脚本齐</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：pulse-cron.sh 每 10min（cron 在则自动）</p>
     <pre>bash /vol2/1000/AI专用/所有自动化/轻如烟/scripts/pulse-cron.sh &amp;&amp; cat /tmp/pulse-status.json</pre>
   </details>
 </div><div class="card ok">
   <div class="ch"><span class="dot ok"></span><span class="cn">回魂插件</span><span class="cs">正常</span></div>
-  <div class="ce">glue-hook-debug.log 3分钟前 有注入（最近: [2026-08-16T03:26:47.349Z] INJECTED len=529）</div>
+  <div class="ce">glue-hook-debug.log 1分钟前 有注入（最近: [2026-08-16T03:58:04.803Z] SUBAGENT-SKIP sessionKey=agent:main:subagent:8508407e）</div>
   <details class="cr"><summary>🛠 怎么恢复</summary>
     <p class="ca">自动恢复：仅 @reboot（openclaw-proxy）</p>
     <pre>重启 openclaw-proxy（/vol2/1000/AI专用/lobe-chat/openclaw-proxy.mjs），看 /tmp/glue-hook-debug.log 是否恢复 INJECTED</pre>
