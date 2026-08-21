@@ -43,25 +43,25 @@ footer { color:#484f58; font-size:12px; margin-top:30px; text-align:center; }
 code { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:1px 5px; font-size:12px; }
 </style></head><body>
 <h1>🐾 Agent OS 系统健康看板</h1>
-<div class="meta">生成：2026-08-21 13:55:02 ｜ 数据源：system_health.state / contract_check.state / 实时探针 / 状态文件 ｜ 页面每 60 秒自动刷新 ｜ 重新生成：<code>bash /vol2/1000/AI专用/Agent OS/scripts/gen_dashboard.sh</code></div>
+<div class="meta">生成：2026-08-21 14:05:01 ｜ 数据源：system_health.state / contract_check.state / 实时探针 / 状态文件 ｜ 页面每 60 秒自动刷新 ｜ 重新生成：<code>bash /vol2/1000/AI专用/Agent OS/scripts/gen_dashboard.sh</code></div>
 <div class="banner ok">巡检 0 项：绿 0 · 黄 0 · 红 0 —— 判定：全绿 ✅（契约层：绿 40 · 黄 2 · 红 6）</div>
 <div class="hist"><span class="hitem" title="2026-08-10 23:33:20"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:22"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-10 23:33:28"><b>08-10 23:33</b> 绿14 黄3 红3</span><span class="hitem" title="2026-08-11 21:00:02"><b>08-11 21:00</b> 绿16 黄2 红2</span><span class="hitem" title="2026-08-11 21:30:02"><b>08-11 21:30</b> 绿17 黄2 红1</span></div>
 <h2>关键数字</h2>
 
 <div class="keynums">
-  <div class="k"><span class="kl">沙漏记忆条数</span><span class="kv">7816</span><span class="ks">txt 2分钟前 更新</span></div>
-  <div class="k"><span class="kl">LMS 轮次/熵/目的</span><span class="kv">1419</span><span class="ks">熵 0.944 · 目的 0.999</span></div>
-  <div class="k"><span class="kl">self_pulse</span><span class="kv">13:52</span><span class="ks">rc=0 · round=3</span></div>
-  <div class="k"><span class="kl">总线最近事件</span><span class="kv">lms.doubt_consolidation</span><span class="ks">2分钟前 · 死信 132 行</span></div>
-  <div class="k"><span class="kl">玄鉴审计(近200行)</span><span class="kv">FAIL 16</span><span class="ks">WARN 14 · OK 170 · 最后 2026-08-21T13:54:56</span></div>
-  <div class="k"><span class="kl">备份日志(近40行)</span><span class="kv">ERROR 4</span><span class="ks">[lms_backup][2026-08-21 13:45:01] == 增量镜像开始（snapshots/ → /vol2/1000/AI专用/backups</span></div>
-  <div class="k"><span class="kl">回魂注入</span><span class="kv">3分钟前</span><span class="ks">[2026-08-21T05:51:14.678Z] MISS reason=no-injectable-context（明细见同文件内 MISS 记录）</span></div>
+  <div class="k"><span class="kl">沙漏记忆条数</span><span class="kv">7818</span><span class="ks">txt 3分钟前 更新</span></div>
+  <div class="k"><span class="kl">LMS 轮次/熵/目的</span><span class="kv">1421</span><span class="ks">熵 0.941 · 目的 0.999</span></div>
+  <div class="k"><span class="kl">self_pulse</span><span class="kv">14:02</span><span class="ks">rc=0 · round=4</span></div>
+  <div class="k"><span class="kl">总线最近事件</span><span class="kv">lms.plastified</span><span class="ks">4分钟前 · 死信 132 行</span></div>
+  <div class="k"><span class="kl">玄鉴审计(近200行)</span><span class="kv">FAIL 15</span><span class="ks">WARN 16 · OK 169 · 最后 2026-08-21T14:04:30</span></div>
+  <div class="k"><span class="kl">备份日志(近40行)</span><span class="kv">ERROR 4</span><span class="ks">[lms_backup][2026-08-21 14:00:01] 上一轮备份仍在运行，本轮跳过（flock 非阻塞）</span></div>
+  <div class="k"><span class="kl">回魂注入</span><span class="kv">3分钟前</span><span class="ks">[2026-08-21T06:01:17.491Z] MISS reason=no-injectable-context（明细见同文件内 MISS 记录）</span></div>
   <div class="k"><span class="kl">怀疑账本</span><span class="kv">23</span><span class="ks">doubt.db 5天前 写入</span></div>
 </div>
 <h2>组件状态（点击「怎么恢复」看处置步骤）</h2>
 <div class="grid"><div class="empty">暂无巡检数据（等 system_health_check.sh 跑一次）</div></div>
 <h2>契约层（48 项，机器可校验）</h2>
-<div class="cfl"><b>契约违反 6 项：</b><ul><li><code>VD-03</code> — ❌ [VD-03] 玄鉴审计发现（近 300 行 FAIL 数）: 近300行 FAIL=19</li><li><code>NP-01</code> — ❌ [NP-01] 夜巡 marker（每日 23:30）: marker 停在 2026-08-12——夜巡多日未成功</li><li><code>BK-01</code> — ❌ [BK-01] LMS 备份无 ERROR + 快照新鲜: 备份日志近40行含 ERROR/失败 x4</li><li><code>C-06</code> — ❌ [C-06] doubt_adapter → 总线 doubt.episode: 近3000行无 &#x27;doubt.episode&#x27; 事件</li><li><code>C-07</code> — ❌ [C-07] 沙漏 → 总线 sandglass.entry: 最后 &#x27;sandglass.entry&#x27; @ 2026-08-21T11:26:15+0800（2小时前）</li><li><code>C-09</code> — ❌ [C-09] 夜巡 → 沙漏 findings（旁观者-警讯）: /vol2/1000/AI专用/所有自动化/轻如烟/sandglass/sandglass.txt 近期无 &#x27;旁观者-警讯&#x27; 匹配</li></ul></div>
+<div class="cfl"><b>契约违反 6 项：</b><ul><li><code>VD-03</code> — ❌ [VD-03] 玄鉴审计发现（近 300 行 FAIL 数）: 近300行 FAIL=21</li><li><code>NP-01</code> — ❌ [NP-01] 夜巡 marker（每日 23:30）: marker 停在 2026-08-12——夜巡多日未成功</li><li><code>BK-01</code> — ❌ [BK-01] LMS 备份无 ERROR + 快照新鲜: 备份日志近40行含 ERROR/失败 x4</li><li><code>C-06</code> — ❌ [C-06] doubt_adapter → 总线 doubt.episode: 近3000行无 &#x27;doubt.episode&#x27; 事件</li><li><code>C-07</code> — ❌ [C-07] 沙漏 → 总线 sandglass.entry: 最后 &#x27;sandglass.entry&#x27; @ 2026-08-21T11:26:15+0800（2小时前）</li><li><code>C-09</code> — ❌ [C-09] 夜巡 → 沙漏 findings（旁观者-警讯）: /vol2/1000/AI专用/所有自动化/轻如烟/sandglass/sandglass.txt 近期无 &#x27;旁观者-警讯&#x27; 匹配</li></ul></div>
 <h2>故障恢复预案（点开即看，照做即可）</h2>
 <details class="scen"><summary>1️⃣ 明天 session 被重置（openclaw 会话没了）</summary>
   <p><b>现象：</b>现象：对话历史/上下文没了，编辑器会话列表被清空</p>
