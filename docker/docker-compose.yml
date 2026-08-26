@@ -1,0 +1,222 @@
+# ============================================================================
+# Agent OS 全系统 Docker 化编排（Phase 7）
+# ----------------------------------------------------------------------------
+# 用法:
+#   1. cp .env.example .env            （机器配置：路径/端口/模式）
+#   2. cp .env.local.example .env.local（密钥 + 运行配置；填 DEEPSEEK_API_KEY）
+#   3. docker compose up -d --build    （全系统；verify-daemon 可选：
+#                                       docker compose --profile xuanjian up -d）
+#
+# 关键设计：
+#   · 沙漏 / 胶水 / 玄鉴：path-mirror 模式 —— 源码与数据 bind mount 到容器内
+#     与宿主【相同的绝对路径】。组件代码硬编码绝对路径（红线：不改核心代码），
+#     镜像因此不含源码，仅提供运行时（python + curl/requests/pyyaml）。
+#   · LMS：复用 living-memory-system-cloud/Dockerfile（多阶段，torch CPU）。
+#     lms 数据面 :8190 + lms-control 管理面 :8191（同镜像双容器）。
+#   · iso-sand：单容器双进程（scheduler+consumer），launcher.py 监督，
+#     任一崩溃 → 容器退出 → restart 拉起。
+#   · 网络：默认 bridge。服务间用服务名互连（glue→lms-api:8190，
+#     lms-control→lms-api:8190）；嵌入/向量走外网——隧道域名
+#     https://11435.tdx1146.cc/v1/embeddings（443，实测可达；域名:11435 形式不通），
+#     或局域网直连 http://192.168.0.103:11435/v1/embeddings（见 .env.local）。
+#   · 密钥只经 .env.local（env_file）注入，不进镜像、无默认值。
+#   · 验证阶段：.env 中宿主端口改 18190/18191/18192，数据目录指向
+#     verify-data/ 沙箱，避免与裸进程冲突；正式切换恢复默认并停裸进程。
+# ============================================================================
+
+name: agent-os
+
+services:
+  # ─────────────────────────── 1. 沙漏 HTTP API ───────────────────────────
+  sandglass-api:
+    build:
+      context: ./sandglass
+      dockerfile: Dockerfile.sandglass
+    image: agentos-sandglass:latest
+    restart: unless-stopped
+    ports:
+      - "${SANDGLASS_HOST_PORT:-17333}:17333"
+    env_file:
+      - ./.env.local
+    environment:
+      # 容器内镜像路径（代码硬编码值；源路径来自 .env）
+      NEXSANDBASE_HOME: "${SANDBOX_DATA_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass}"
+      SANDGLASS_SOURCE: "${SANDBOX_SOURCE_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source}"
+    volumes:
+      # path-mirror：源码只读 + 数据读写 + 事实字典只读
+      - "${SANDBOX_SOURCE_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source}:/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source:ro"
+      - "${SANDBOX_DATA_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass}:/vol2/1000/AI专用/所有自动化/轻如烟/sandglass"
+      - "${FACTS_MEMORY_DIR:-/vol1/@apphome/trim.openclaw/data/workspace/memory}:/vol1/@apphome/trim.openclaw/data/workspace/memory:ro"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:17333/api/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # ─────────────────────────── 2. 活体记忆 LMS API ────────────────────────
+  lms-api:
+    build:
+      context: "${LMS_HOME_DIR:-/vol2/1000/AI专用/living-memory-system-cloud}"
+      dockerfile: Dockerfile
+    image: living-memory-system:latest
+    restart: unless-stopped
+    ports:
+      - "${LMS_HOST_PORT:-8190}:8190"
+    env_file:
+      - ./.env.local
+    environment:
+      LMS_API_HOST: "0.0.0.0"
+      LMS_API_PORT: "8190"
+      LMS_SNAPSHOT_DIR: "/app/snapshots"   # 覆盖 .env.local 中的宿主机路径
+    volumes:
+      - "${LMS_SNAPSHOT_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/snapshots}:/app/snapshots"
+      - "${LMS_DATA_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/data}:/app/data"
+      - "${LMS_LOGS_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/logs}:/app/logs"
+      - "${LMS_CACHE_HOST:-/vol2/1000/AI专用/Agent OS/docker/data/lms-cache}:/root/.cache"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8190/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s   # torch / 嵌入器初始化预热
+      retries: 3
+
+  # ─────────────────────────── 2b. LMS 管理面 lms-control ─────────────────
+  # control.py 独立 FastAPI app（:8191，热配置/快照/诊断），同镜像双容器。
+  # 管理面只绑定 127.0.0.1，不对外暴露。
+  lms-control:
+    build:
+      context: "${LMS_HOME_DIR:-/vol2/1000/AI专用/living-memory-system-cloud}"
+      dockerfile: Dockerfile
+    image: living-memory-system:latest
+    restart: unless-stopped
+    command: ["python", "scripts/run_control.py"]
+    ports:
+      - "127.0.0.1:8191:8191"
+    env_file:
+      - ./.env.local
+    environment:
+      LMS_CTRL_HOST: "0.0.0.0"
+      LMS_CTRL_PORT: "8191"
+      LMS_CTRL_API_BASE: "http://lms-api:8190"   # 容器内服务名互联
+      LMS_SNAPSHOT_DIR: "/app/snapshots"
+    volumes:
+      - "${LMS_DATA_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/data}:/app/data"
+      - "${LMS_LOGS_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/logs}:/app/logs"
+      - "${LMS_SNAPSHOT_HOST:-/vol2/1000/AI专用/living-memory-system-cloud/snapshots}:/app/snapshots:ro"
+    depends_on:
+      lms-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8191/control/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+  # ─────────────────────────── 3. 胶水层 glue-server ──────────────────────
+  glue-server:
+    build:
+      context: ./glue
+      dockerfile: Dockerfile.glue
+    image: agentos-glue:latest
+    restart: unless-stopped
+    ports:
+      - "${GLUE_HOST_PORT:-19000}:19000"
+    env_file:
+      - ./.env.local
+    environment:
+      # 容器内互连：胶水层 → 容器版 LMS（服务名），不走宿主端口
+      LMS_URL: "http://lms-api:8190"
+      NEXSANDBASE_HOME: "${SANDBOX_DATA_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass}"
+      SANDGLASS_SOURCE: "${SANDBOX_SOURCE_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source}"
+    volumes:
+      - "${GLUE_HOME_DIR:-/vol2/1000/AI专用/memory-integration-layer}:/vol2/1000/AI专用/memory-integration-layer:ro"
+      # sandglass_vault 所在源码目录（SandglassVaultAdapter sys.path.insert 需要）
+      - "${SANDBOX_SOURCE_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source}:/vol2/1000/AI专用/所有自动化/轻如烟/sandglass_source:ro"
+      - "${SANDBOX_DATA_DIR:-/vol2/1000/AI专用/所有自动化/轻如烟/sandglass}:/vol2/1000/AI专用/所有自动化/轻如烟/sandglass"
+    depends_on:
+      lms-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:19000/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  # ─────────────────────────── 4. iso-sand 事件总线 ───────────────────────
+  iso-sand:
+    build:
+      context: ./iso-sand
+      dockerfile: Dockerfile.iso-sand
+    image: agentos-iso-sand:latest
+    restart: unless-stopped
+    init: true   # tini：回收 launcher 的子进程，避免僵尸
+    env_file:
+      - ./.env.local
+    environment:
+      ISO_SAND_DATA_DIR: "/app/iso-sand/data"
+      ISO_SAND_TASKS_FILE: "${ISO_SAND_TASKS_FILE:-/app/iso-sand/deploy/tasks.yaml}"
+      ISO_SAND_RULES_FILE: "/app/iso-sand/deploy/event_rules.yaml"
+      PYTHONPATH: "/app/iso-sand/src"
+      # 处理器（handlers）内部互连：总线 → 胶水层 / 容器版 LMS
+      LMS_URL: "http://lms-api:8190"
+      GLUE_SERVER_URL: "http://glue-server:19000"
+    volumes:
+      # 真实 iso-sand（src + deploy 配置）只读
+      - "${ISO_SAND_HOME_DIR:-/vol2/1000/AI专用/Agent OS/iso-sand}:/app/iso-sand:ro"
+      # 数据目录：生产=真实 data/（rw）；沙箱验证=verify-data/iso-sand-data
+      - "${ISO_SAND_DATA_HOST:-/vol2/1000/AI专用/Agent OS/iso-sand/data}:/app/iso-sand/data"
+      # 本目录资产：launcher + 沙箱 tasks（只读）
+      - "./iso-sand:/docker/iso-sand:ro"
+    depends_on:
+      glue-server:
+        condition: service_healthy
+    healthcheck:
+      # launcher 每 20s 更新 /tmp/iso_sand_alive（双进程均存活才更新）
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import os,time; p='/tmp/iso_sand_alive'; assert os.path.exists(p) and time.time()-os.path.getmtime(p)<90",
+        ]
+      interval: 20s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  # ─────────────────────────── 5. 玄鉴 verify_daemon（可选）────────────────
+  verify-daemon:
+    build:
+      context: ./verify
+      dockerfile: Dockerfile.verify
+    image: agentos-verify:latest
+    restart: unless-stopped
+    # 可选服务：玄鉴生态。默认不随 up -d 启动（裸 verify 进程仍在跑，
+    # 同一 data/ 目录有 pid/seek 竞争）；切换容器前先停裸进程：
+    #   docker compose --profile xuanjian up -d verify-daemon
+    profiles: ["xuanjian"]
+    env_file:
+      - ./.env.local
+    volumes:
+      - "${VERIFY_HOME_DIR:-/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘}:/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘:ro"
+      - "${VERIFY_DATA_HOST:-/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘/data}:/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘/data"
+      - "${KERNEL_SPEC_DIR:-/vol2/1000/AI专用/AgentOS-IsoSand/内核层规范}:/vol2/1000/AI专用/AgentOS-IsoSand/内核层规范:ro"
+    depends_on:
+      iso-sand:
+        condition: service_healthy
+    healthcheck:
+      # verify 每 30s 写一条 audit；检查 audit 日志新鲜度
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import os,time; p='/vol2/1000/AI专用/AgentOS-IsoSand/同构沙盘/data/daemon_audit.log'; assert os.path.exists(p) and time.time()-os.path.getmtime(p)<150",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3

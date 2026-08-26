@@ -1,1 +1,43 @@
-iso-sand/data/*.jsonl
+# ─── 密钥与本地配置（绝不入库）───
+.env
+.env.local
+env.local
+*.local
+
+# ─── 运行时产物 ───
+run/
+logs/
+*.pid
+*.log
+
+# ─── 总线运行时数据（记忆/事件流水，不推）───
+iso-sand/data/
+
+# ─── 沙箱验证数据与缓存 ───
+verify-data/
+data/lms-cache/
+
+# ─── 系统杂项 ───
+*.lnk
+*.bak
+.DS_Store
+Thumbs.db
+
+# ─── Python ───
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# 备份文件
+*.bak-*
+
+# 密钥安全红线（2026-08-13 泄露事故后加固）
+.env.*
+!.env.example
+openclaw.json*
+*.pem
+*identity*.key
+secrets/
+
