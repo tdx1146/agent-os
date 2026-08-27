@@ -204,7 +204,7 @@ class TrustStore:
     def _memory_ts(self, memory_id: int) -> str | None:
         try:
             row = self._sandglass_con().execute(
-                "SELECT ts FROM sandglass WHERE id=?", (memory_id,)
+                "SELECT timestamp AS ts FROM sandglass WHERE id=?", (memory_id,)
             ).fetchone()
         except sqlite3.Error:
             return None
@@ -311,7 +311,7 @@ class TrustStore:
         try:
             placeholders = ",".join("?" * len(ids))
             for rid, ts in self._sandglass_con().execute(
-                f"SELECT id, ts FROM sandglass WHERE id IN ({placeholders})", ids
+                f"SELECT id, timestamp AS ts FROM sandglass WHERE id IN ({placeholders})", ids
             ):
                 ts_map[rid] = ts
         except sqlite3.Error:

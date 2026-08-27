@@ -113,7 +113,7 @@ def _load_mirror_ids():
         return out
     try:
         conn = sqlite3.connect(f"file:{_SANDBASE_DB}?mode=ro", uri=True)
-        for r in conn.execute("SELECT id, ts, sender, text FROM sandglass").fetchall():
+        for r in conn.execute("SELECT id, timestamp AS ts, sender, text FROM sandglass").fetchall():
             out.setdefault((r[1], r[2], (r[3] or "")[:50]), r[0])
         conn.close()
     except Exception:
