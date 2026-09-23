@@ -110,10 +110,13 @@ else
 fi
 
 # ── 4. iso-sand 事件总线（scheduler + consumer）──────────────
-echo "--- [4/5] iso-sand 调度器 + 消费者 ---"
-# setsid 包裹：即使启动脚本被中断，调度器/消费者也独立成会话存活
-setsid bash "$ISO_SAND_HOME/start_scheduler.sh"
-setsid bash "$ISO_SAND_HOME/start_consumer.sh"
+# [2026-09-01 毛毛审计 + dandan 拍板] V1 scheduler/consumer 均停用：
+# V2 小脑接管生产（scheduler 09-01 停）；V2 bus/consumer.py 接管消费
+# （consumer 9242 09-02 观察期届满停——V2 消费者已覆盖 task_complete/
+# anomaly/doubt.episode 三规则职能，双跑会双 audit）。
+echo "--- [4/5] iso-sand 事件总线（V1 已停用，V2 接管）---"
+# setsid bash "$ISO_SAND_HOME/start_scheduler.sh"   # 2026-09-01 停用
+# setsid bash "$ISO_SAND_HOME/start_consumer.sh"    # 2026-09-02 停用
 sleep 2
 S_PID=$(cat "$ISO_SAND_HOME/data/scheduler.pid" 2>/dev/null)
 C_PID=$(cat "$ISO_SAND_HOME/data/consumer.pid" 2>/dev/null)
